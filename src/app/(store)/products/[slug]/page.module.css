@@ -1,0 +1,5 @@
+.container { max-width:1200px; margin:2rem auto; padding:0 1rem; }
+.cardWrap { display:flex; gap:2rem; align-items:flex-start; }
+.details { max-width:700px; }
+.price { font-weight:700; margin:0.5rem 0; }
+.description { color:#444; }
