@@ -1,0 +1,61 @@
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+  background: #f5f7f6;
+
+  /* Instead of fixed height feeling */
+  padding-block: clamp(10px, 1.5vw, 18px);
+
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  margin-top: clamp(1rem, 2vw, 2rem); /* use margin instead of top */
+}
+
+.marquee {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: scroll linear infinite;
+  animation-duration: 25s; /* adjust speed here */
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1vw, 14px);
+  padding-inline: clamp(25px, 4vw, 60px);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.icon {
+  width: clamp(28px, 3.5vw, 50px);
+  height: auto;
+  object-fit: contain;
+}
+
+.text {
+  font-size: clamp(0.75rem, 1.2vw, 1.05rem);
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Smooth infinite animation */
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reduce motion support (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+  }
+}
