@@ -1,0 +1,19 @@
+.sortBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 0;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sortBar span {
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+}
+
+.select {
+  padding: clamp(6px, 1vw, 8px) clamp(10px, 1.5vw, 14px);
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+}

@@ -1,0 +1,64 @@
+.titleContainer {
+  width: 100%;
+  padding: clamp(4rem, 10vh, 8rem) clamp(1.25rem, 5vw, 3rem);
+  background-image: url("/certifiedIcons/leafBg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.title {
+  margin: 0 auto;
+  font-size: clamp(2rem, 5vw + 1rem, 4rem);
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+  max-width: min(100%, 1200px);
+}
+
+.contentContainer {
+  width: 100%;
+  padding: clamp(5rem, 12vh, 10rem) clamp(1.25rem, 5vw, 3rem);
+  background-image: url("/certifiedIcons/leafBg2.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  width: min(92%, 900px);
+  padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 6vw, 4rem);
+  background-color: #ffffff;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  text-align: center;
+}
+
+.contentTitle {
+  margin: 0 auto;
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 2.25rem);
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+  max-width: min(100%, 800px);
+}
+
+.contentText {
+  margin: 0 auto;
+  font-size: clamp(1rem, 1vw + 0.5rem, 1.125rem);
+  font-weight: 400;
+  color: #242424;
+  line-height: 1.7;
+  max-width: min(100%, 750px);
+}

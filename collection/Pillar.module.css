@@ -1,0 +1,57 @@
+.section {
+  padding: clamp(3rem, 6vw, 5rem) 0;
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+.heading {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: clamp(30px, 6vw, 60px);
+  font-size: clamp(1.4rem, 5vw, 2.5rem);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 22vw, 260px), 1fr));
+  gap: clamp(30px, 4vw, 50px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pillarItem {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.iconWrapper {
+  margin-bottom: 25px;
+  color: #4A7C59;
+}
+
+.title {
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.description {
+  color: #666;
+  font-size: clamp(12px, 3vw, 14px);
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 16px;
+  }
+}

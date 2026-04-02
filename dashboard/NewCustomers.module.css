@@ -1,0 +1,178 @@
+.wrapper {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+/* LIST */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ROW */
+
+.customerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(8px, 1.4vw, 12px);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.customerRow:hover {
+  background-color: #f8fafc;
+}
+
+/* INFO */
+
+.infoGroup {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.2vw, 12px);
+  min-width: 0;
+  flex: 1;
+}
+
+/* AVATAR */
+
+.avatarWrapper {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: clamp(34px, 3vw, 42px);
+  height: clamp(34px, 3vw, 42px);
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid #f1f5f9;
+}
+
+.onlineStatus {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+/* DETAILS */
+
+.details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.name {
+  font-size: clamp(12px, 0.9vw, 14px);
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email {
+  font-size: clamp(10px, 0.8vw, 12px);
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ACTION BUTTON */
+
+.actionBtn {
+  width: clamp(28px, 2.2vw, 32px);
+  height: clamp(28px, 2.2vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #64748b;
+  background-color: #f1f5f9;
+  text-decoration: none;
+  transition: all 0.2s;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.customerRow:hover .actionBtn {
+  opacity: 1;
+  color: #0f5132;
+  background-color: #dcfce7;
+}
+
+/* FOOTER */
+
+.footerLink {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #f1f5f9;
+  background: none;
+  border: none;
+  color: #0f5132;
+  font-size: clamp(11px, 0.9vw, 13px);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: gap 0.2s;
+}
+
+.footerLink:hover {
+  gap: 8px;
+}
+
+/* ---------- TABLET ---------- */
+
+@media (max-width: 1024px) {
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 768px) {
+
+  .customerRow {
+    padding: 10px;
+  }
+
+  .actionBtn {
+    opacity: 1;
+  }
+
+}
+
+/* ---------- SMALL MOBILE ---------- */
+
+@media (max-width: 480px) {
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+}

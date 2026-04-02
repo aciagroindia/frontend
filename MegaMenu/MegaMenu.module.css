@@ -1,0 +1,115 @@
+.megaMenu {
+  position: absolute;
+  top: 100%; /* Position right below the navbar */
+  left: 0;
+  right: 0;
+
+  background: #fff;
+  z-index: 999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+  /* This makes the background full-width, while content is constrained */
+  /* It calculates the negative margin needed to align to the viewport edge */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 40px;
+}
+
+.left {
+  display: flex;
+  gap: 120px;
+}
+
+.left h4 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.left ul {
+  list-style: none;
+  padding: 0;
+}
+
+.left li {
+  margin-bottom: 14px;
+
+}
+/* --- IMPROVEMENT --- */
+/* Added base styles and transitions for a modern, interactive feel. */
+.items {
+  display: inline-block; /* Allows transform to work */
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+/* --- IMPROVEMENT --- */
+/* Added a more consistent theme color and a subtle slide effect on hover. */
+.items:hover {
+  color: #009e10; /* Using theme green for consistency */
+  transform: translateX(5px); /* Adds a subtle movement effect */
+}
+
+.right {
+  /* RIGHT SIDE GRID */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+/* --- FIX: Wrapper for product image to enforce aspect ratio --- */
+.imageWrapper {
+  position: relative; /* Required for Next.js Image with fill */
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Creates a perfect square */
+  overflow: hidden; /* Clips the image to the square shape */
+  border-radius: 6px; /* Optional: slightly rounded corners for the image container */
+  background-color: #f5f6fa; /* Placeholder color while image loads */
+}
+
+/* PRODUCT CARD */
+.card {
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  background: #fff;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.card p {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* BUTTON */
+.btn {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #009e10;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #0a8f1f;
+}
+
+/* --- FIX: Added to remove default link styles from the product card link --- */
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+}
