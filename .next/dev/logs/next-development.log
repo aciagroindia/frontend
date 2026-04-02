@@ -1,2 +1,4 @@
-{"timestamp":"00:00:08.334","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:21.209","source":"Server","level":"LOG","message":"○ Compiling / ..."}
+{"timestamp":"00:00:01.221","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:14.707","source":"Server","level":"LOG","message":"○ Compiling / ..."}
+{"timestamp":"00:02:35.004","source":"Server","level":"LOG","message":"✓ Finished writing to filesystem cache in 25.2s"}
+{"timestamp":"00:03:14.164","source":"Server","level":"LOG","message":"✓ Finished filesystem cache database compaction in 37.0s"}

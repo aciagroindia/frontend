@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useCart } from "../../../../context/CartContext";
 import { useProducts } from "../../../../context/ProductContext";
 import { useAuth } from "../../../../context/AuthContext";
@@ -9,11 +9,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
-export default function CheckoutPage() {
+// 1. Saara logic CheckoutContent naam ke function mein move kar diya
+function CheckoutContent() {
   const { cartItems, cartTotal, fetchCart } = useCart();
   const { products: allProducts } = useProducts();
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
+  
+  // useSearchParams ab is child component ke andar hai
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get("mode") === "buyNow";
 
@@ -179,13 +182,13 @@ export default function CheckoutPage() {
           <>
             <ul style={{ listStyle: "none", padding: 0 }}>
               {checkoutItems.map((item, idx) => {
-                const fullProduct = allProducts.find(p => p._id === item.productId);
+                const fullProduct = allProducts.find((p: any) => p._id === item.productId);
                 const image = fullProduct?.image || item.image;
 
                 return (
                   <li key={idx} style={{ display: "flex", marginBottom: "1rem" }}>
                     <div style={{ width: 60, height: 60, position: "relative" }}>
-                      <Image src={image} alt={item.name} fill style={{ objectFit: "cover" }} />
+                      <Image src={image || "/placeholder.png"} alt={item.name} fill style={{ objectFit: "cover" }} />
                     </div>
                     <div style={{ marginLeft: "1rem", flex: 1 }}>
                       <strong>{item.name}</strong>
@@ -205,5 +208,15 @@ export default function CheckoutPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// 2. Main Page Component jo Suspense provide karta hai
+export default function CheckoutPage() {
+  return (
+    // Suspense add kiya gaya hai jisse build error fix ho jayega
+    <Suspense fallback={<div style={{ padding: "4rem", textAlign: "center" }}>Loading Checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
