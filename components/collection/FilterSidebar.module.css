@@ -1,0 +1,102 @@
+.sidebar {
+  width: clamp(220px, 22vw, 260px);
+  flex-shrink: 0;
+}
+
+/* ================= Section ================= */
+
+.section {
+  border-bottom: 1px solid #000;
+  padding: clamp(1rem, 3vw, 1.25rem) 0;
+}
+
+/* ================= Header Button ================= */
+
+.sidebarCategoryButtonWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 1rem;
+}
+
+.sidebarCategoryButtonWrapper span:first-child {
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* ================= Active Category ================= */
+
+.active {
+  margin: clamp(0.75rem, 2vw, 1rem) 0;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  word-break: break-word; /* dynamic long category safe */
+}
+
+/* ================= Best Seller Item ================= */
+
+.bestItem {
+  display: flex;
+  gap: clamp(0.6rem, 2vw, 0.75rem);
+  margin: clamp(0.75rem, 2vw, 1rem) 0;
+  align-items: flex-start;
+}
+
+.bestItem img {
+  width: clamp(55px, 6vw, 60px);
+  height: clamp(55px, 6vw, 60px);
+  object-fit: cover;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.bestItem p {
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word; /* dynamic long product names safe */
+}
+
+/* ================= Stars ================= */
+
+.stars {
+  color: #1b7f3c;
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
+  margin-top: 4px;
+}
+
+/* ================= Toggle Button ================= */
+
+.toggleButton {
+  padding: clamp(0.4rem, 1vw, 0.5rem);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggleButton:hover {
+  background-color: #eee;
+}
+
+.categoryLink {
+  display: block;
+  margin: 0.75rem 0;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: #333;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.categoryLink:hover {
+  color: #1b7f3c;
+  font-weight: 500;
+}
+
+.price {
+  font-weight: 600;
+  color: #1b7f3c;
+  margin-top: 4px !important;
+  font-size: 0.9rem;
+}

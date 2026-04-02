@@ -1,0 +1,115 @@
+/* [project]/components/WhyChooseUs/WhyChooseUs.module.css [app-client] (css) */
+.WhyChooseUs-module__49_FRW__section {
+  background: linear-gradient(135deg, #f3faf6, #fff);
+  padding: clamp(70px, 8vw, 120px) clamp(16px, 4vw, 24px);
+  overflow: hidden;
+}
+
+.WhyChooseUs-module__49_FRW__mainHeading {
+  color: #111827;
+  text-align: center;
+  margin-bottom: clamp(50px, 6vw, 80px);
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  font-weight: 700;
+}
+
+.WhyChooseUs-module__49_FRW__container {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: center;
+  gap: clamp(50px, 6vw, 100px);
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+}
+
+.WhyChooseUs-module__49_FRW__tag {
+  letter-spacing: 3px;
+  color: #2e7d32;
+  font-size: clamp(.65rem, .8vw, .8rem);
+  font-weight: 600;
+}
+
+.WhyChooseUs-module__49_FRW__heading {
+  color: #111827;
+  margin: clamp(15px, 2vw, 25px) 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.WhyChooseUs-module__49_FRW__heading span {
+  color: #2e7d32;
+}
+
+.WhyChooseUs-module__49_FRW__description {
+  color: #4b5563;
+  max-width: 520px;
+  margin-bottom: clamp(30px, 4vw, 50px);
+  font-size: clamp(.95rem, 1.2vw, 1.1rem);
+  line-height: 1.8;
+}
+
+.WhyChooseUs-module__49_FRW__points div {
+  margin-bottom: clamp(15px, 2vw, 25px);
+}
+
+.WhyChooseUs-module__49_FRW__points strong {
+  color: #111827;
+  font-size: clamp(.95rem, 1vw, 1.05rem);
+}
+
+.WhyChooseUs-module__49_FRW__points p {
+  color: #6b7280;
+  margin-top: 5px;
+  font-size: clamp(.85rem, .9vw, .95rem);
+}
+
+.WhyChooseUs-module__49_FRW__imageWrapper {
+  aspect-ratio: 1;
+  width: 100%;
+  position: relative;
+}
+
+.WhyChooseUs-module__49_FRW__imageBg {
+  filter: blur(60px);
+  z-index: 0;
+  background: radial-gradient(circle, #d8f3e8 0%, #0000 70%);
+  border-radius: 50%;
+  width: 110%;
+  height: 110%;
+  position: absolute;
+  top: -5%;
+  left: -5%;
+}
+
+.WhyChooseUs-module__49_FRW__image {
+  -o-object-fit: contain;
+  object-fit: contain;
+  z-index: 2;
+  transition: transform .6s;
+  position: relative;
+}
+
+.WhyChooseUs-module__49_FRW__imageWrapper:hover .WhyChooseUs-module__49_FRW__image {
+  transform: scale(1.05)rotate(-2deg);
+}
+
+@media (max-width: 768px) {
+  .WhyChooseUs-module__49_FRW__container {
+    text-align: center;
+  }
+
+  .WhyChooseUs-module__49_FRW__description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .WhyChooseUs-module__49_FRW__points div {
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/*# sourceMappingURL=components_WhyChooseUs_WhyChooseUs_module_css_0w3-wzy._.single.css.map*/

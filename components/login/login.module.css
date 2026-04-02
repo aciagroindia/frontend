@@ -1,0 +1,132 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #fffdf8;
+}
+
+/* ================= CARD ================= */
+
+.card {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid #f0f0f0;
+  text-align: center;
+  transition: 0.3s ease;
+}
+
+/* ================= HEADER ================= */
+
+.title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #2f2f2f;
+  margin-bottom: 0.4rem;
+}
+
+.subtitle {
+  color: #7a7a7a;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* ================= FORM ================= */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.inputGroup {
+  text-align: left;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* ================= INPUT ================= */
+
+.input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+  color: #333;
+  background: #ffffff;
+}
+
+.input:focus {
+  border-color: #14854e;
+  box-shadow: 0 0 0 3px rgba(20, 133, 78, 0.08);
+}
+
+/* ================= BUTTON ================= */
+
+.button {
+  background: #14854e;
+  color: white;
+  border: none;
+  padding: 0.95rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 0.5rem;
+}
+
+.button:hover {
+  background: #0f6a3d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(20, 133, 78, 0.25);
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  margin-top: 1.7rem;
+  font-size: 0.9rem;
+  color: #767676;
+}
+
+.link {
+  color: #14854e;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 480px) {
+  .card {
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+}

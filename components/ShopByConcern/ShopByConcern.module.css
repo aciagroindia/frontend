@@ -1,0 +1,79 @@
+.section {
+  padding: clamp(30px, 4vw, 60px) clamp(16px, 4vw, 24px); /* SECTION PADDING KAM KIYA */
+  max-width: 1250px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-size: clamp(1.2rem, 2vw, 1.8rem); /* HEADING THODI CHHOTI */
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: clamp(20px, 3vw, 40px); /* MARGIN KAM */
+  text-transform: uppercase;
+}
+
+/* CARDS KO CHHOTA KARNE KE LIYE GRID ADJUSTMENT */
+.grid {
+  display: grid;
+  /* CHANGE 1: minmax 180px se 130px kar diya taaki chote cards banein */
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+  gap: clamp(12px, 2vw, 20px); /* GAP KAM KIYA */
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 12px; /* Slight modern rounded edges, not circle */
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease; /* Smooth transition for everything */
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px); /* Halka sa lift */
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.08); /* Modern subtle shadow */
+}
+
+/* Keep Square Image Container */
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Pure Square aspect ratio */
+  overflow: hidden;
+  background: #f9fafb; /* Light background if icon has transparent part */
+}
+
+.image {
+  object-fit: cover; /* Fill the square area */
+  width: 100% !important;
+  height: 100% !important;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05); /* Zoom on hover */
+}
+
+.name {
+  width: 100%;
+  padding: 10px 5px; /* Compact padding below image */
+  background: #fff;
+  font-size: clamp(0.75rem, 0.9vw, 0.9rem); /* Font thoda chhota optimized */
+  /* CHANGE 2: BOLD and Green Color default */
+  font-weight: 700; /* Kafi Bold */
+  color: #374151; /* Default grey color */
+  text-align: center;
+  margin-top: auto; /* Push to bottom */
+  transition: color 0.3s ease; /* Smooth color change on hover */
+}
+
+/* ✅ CHANGE 3: HOVER GREEN EFFECT ON NAME */
+.card:hover .name {
+  color: #16a34a; /* A nice leafy green color */
+}

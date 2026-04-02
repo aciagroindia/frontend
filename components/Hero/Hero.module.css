@@ -1,0 +1,50 @@
+.heroWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .heroWrapper {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .heroWrapper {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  visibility: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 1;
+}
+
+/* 🔥 DEFAULT (Desktop) */
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Full width, no gaps */
+}
+
+/* 🔥 MOBILE FIX */
+@media (max-width: 768px) {
+  .image {
+    object-fit: contain; /* No crop */
+    background-color: #ffffff; /* better than white gaps */
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/components/Hero/Hero.module.css"],"sourcesContent":[".heroWrapper {\r\n  position: relative;\r\n  width: 100%;\r\n  aspect-ratio: 16 / 6;\r\n  overflow: hidden;\r\n  background-color: #ffffff;\r\n}\r\n\r\n/* Tablet */\r\n@media (max-width: 768px) {\r\n  .heroWrapper {\r\n    aspect-ratio: 16 / 9;\r\n  }\r\n}\r\n\r\n/* Mobile */\r\n@media (max-width: 480px) {\r\n  .heroWrapper {\r\n    aspect-ratio: 4 / 3;\r\n  }\r\n}\r\n\r\n.slide {\r\n  position: absolute;\r\n  inset: 0;\r\n  opacity: 0;\r\n  transition: opacity 0.8s ease-in-out;\r\n  visibility: hidden;\r\n}\r\n\r\n.slide.active {\r\n  opacity: 1;\r\n  visibility: visible;\r\n  z-index: 1;\r\n}\r\n\r\n/* 🔥 DEFAULT (Desktop) */\r\n.image {\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: cover;\r\n     object-fit: cover; /* Full width, no gaps */\r\n}\r\n\r\n/* 🔥 MOBILE FIX */\r\n@media (max-width: 768px) {\r\n  .image {\r\n    -o-object-fit: contain;\r\n       object-fit: contain; /* No crop */\r\n    background-color: #ffffff; /* better than white gaps */\r\n  }\r\n}"],"names":[],"mappings":"AAAA;;;;;;;;AASA;EACE;;;;;AAMF;EACE;;;;;AAKF;;;;;;;;AAQA;;;;;;AAOA;;;;;;;AAQA;EACE"}}]
+}

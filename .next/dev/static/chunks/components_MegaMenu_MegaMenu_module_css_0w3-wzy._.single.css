@@ -1,0 +1,105 @@
+/* [project]/components/MegaMenu/MegaMenu.module.css [app-client] (css) */
+.MegaMenu-module__imWazW__megaMenu {
+  z-index: 999;
+  background: #fff;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  box-shadow: 0 8px 24px #0000001a;
+}
+
+.MegaMenu-module__imWazW__container {
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+  display: flex;
+}
+
+.MegaMenu-module__imWazW__left {
+  gap: 120px;
+  display: flex;
+}
+
+.MegaMenu-module__imWazW__left h4 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.MegaMenu-module__imWazW__left ul {
+  padding: 0;
+  list-style: none;
+}
+
+.MegaMenu-module__imWazW__left li {
+  margin-bottom: 14px;
+}
+
+.MegaMenu-module__imWazW__items {
+  color: #333;
+  text-decoration: none;
+  transition: color .3s, transform .3s;
+  display: inline-block;
+}
+
+.MegaMenu-module__imWazW__items:hover {
+  color: #009e10;
+  transform: translateX(5px);
+}
+
+.MegaMenu-module__imWazW__right {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  display: grid;
+}
+
+.MegaMenu-module__imWazW__imageWrapper {
+  aspect-ratio: 1;
+  background-color: #f5f6fa;
+  border-radius: 6px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.MegaMenu-module__imWazW__card {
+  text-align: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  transition: all .3s;
+}
+
+.MegaMenu-module__imWazW__card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px #0000001a;
+}
+
+.MegaMenu-module__imWazW__card p {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.MegaMenu-module__imWazW__btn {
+  color: #fff;
+  cursor: pointer;
+  background: #009e10;
+  border: none;
+  border-radius: 5px;
+  margin-top: 8px;
+  padding: 8px 12px;
+}
+
+.MegaMenu-module__imWazW__btn:hover {
+  background: #0a8f1f;
+}
+
+.MegaMenu-module__imWazW__cardLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+/*# sourceMappingURL=components_MegaMenu_MegaMenu_module_css_0w3-wzy._.single.css.map*/

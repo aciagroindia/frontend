@@ -1,0 +1,24 @@
+.wrapper {
+  width: 100%;
+  background: #fff;
+  font-family: sans-serif;
+}
+
+.topSection {
+  /* Flexbox hata kar Grid laga diya hai */
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dono side exactly 50% - 50% jagah lengi */
+  gap: 60px;
+  padding: 40px 5%;
+  max-width: 1300px;
+  margin: 0 auto;
+  align-items: start; /* Sticky gallery ke liye zaroori hai */
+}
+
+/* Mobile responsive ke liye */
+@media (max-width: 1024px) {
+  .topSection {
+    grid-template-columns: 1fr; /* Mobile par ek ke niche ek aayega */
+    gap: 40px;
+  }
+}

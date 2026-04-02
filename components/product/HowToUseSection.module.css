@@ -1,0 +1,87 @@
+.wrapper {
+  padding: 60px 5%;
+  background: #f8faf9;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f4e35;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+}
+
+.card {
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: #0f4e35;
+  box-shadow: 0 8px 20px rgba(15,78,53,0.1);
+}
+
+.active {
+  border-color: #0f4e35;
+  box-shadow: 0 10px 25px rgba(15,78,53,0.15);
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 120px;
+  margin-bottom: 15px;
+}
+
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.descriptionBox {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 1px dashed #0f4e35;
+}
+
+.descriptionBox p {
+  font-size: 18px;
+  color: #222;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

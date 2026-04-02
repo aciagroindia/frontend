@@ -1,0 +1,89 @@
+.galleryWrapper {
+  width: 100%;
+  position: sticky;
+  top: 40px;
+  height: fit-content;
+}
+
+.mainImageContainer {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  background: #f9f9f9;
+  /* Aspect ratio fix for uniform image sizing */
+  aspect-ratio: 1 / 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ye image ko stretch ya cut hone se rokega */
+}
+
+.thumbnailRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0; /* Thumbnails ko pichakne se rokne ke liye */
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s;
+}
+
+.thumb:hover, .thumbActive {
+  border-color: #0f4e35;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
+@media (max-width: 1024px) {
+  .galleryWrapper {
+    position: relative; /* sticky remove for tablet/mobile */
+    top: auto;
+    margin-bottom: 20px;
+  }
+
+  .thumbnailRow {
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .thumb {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainImageContainer {
+    aspect-ratio: auto; /* Adjust height naturally */
+  }
+
+  .mainImage {
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+  }
+
+  .thumb img {
+    object-fit: cover;
+  }
+}

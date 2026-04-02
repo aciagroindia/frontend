@@ -1,0 +1,120 @@
+.container {
+  width: 100%;
+  min-width: 0;
+}
+
+.tableWrapper {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* DEFAULT DESKTOP STYLES */
+.table th {
+  padding: 12px 16px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* Column Colors & Weights */
+.orderId { font-weight: 600; color: #0f5132; }
+.customerName { font-weight: 500; color: #1e293b; }
+.date { color: #64748b; font-size: 0.85rem; }
+.total { font-weight: 600; }
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.completed { background-color: #ecfdf5; color: #065f46; }
+.completed .dot { background-color: #10b981; }
+.pending { background-color: #fffbeb; color: #92400e; }
+.pending .dot { background-color: #f59e0b; }
+.cancelled { background-color: #fef2f2; color: #991b1b; }
+.cancelled .dot { background-color: #ef4444; }
+
+.actionCol { text-align: right; }
+.viewBtn {
+  background: none; border: none; color: #94a3b8;
+  cursor: pointer; padding: 8px; border-radius: 6px;
+  display: inline-flex;
+}
+
+/* ---------- NARROW TABLET / LARGE MOBILE (600px to 750px) ---------- */
+/* Is range mein table hi rahegi par super compact ho jayegi */
+@media (min-width: 601px) and (max-width: 750px) {
+  .table td, .table th {
+    padding: 10px 6px; /* Padding ko bahut kam kar diya */
+    font-size: 12px;
+  }
+  .badge {
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  .date { font-size: 0.75rem; }
+}
+
+/* ---------- MOBILE CARDS (Below 600px) ---------- */
+@media (max-width: 600px) {
+  .table thead {
+    display: none;
+  }
+
+  .table, .table tbody, .row, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .row {
+    margin-bottom: 16px;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    background: white;
+    padding: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f8fafc;
+    padding: 10px 8px;
+    text-align: right;
+  }
+
+  .table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Data Label logic */
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #94a3b8;
+    text-align: left;
+  }
+}

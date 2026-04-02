@@ -1,0 +1,68 @@
+.wrapper {
+  padding: 60px 5%;
+  background: #fff;
+  text-align: center;
+  font-family: sans-serif;
+  border-top: 1px solid #eaeaea;
+}
+
+.heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(15px, 2vw, 25px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  width: 250px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 15px;
+  transition: box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.imagePlace {
+  width: 100%;
+  height: 200px;
+  background: #f4f4f4;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.price {
+  font-weight: 700;
+  color: #0f4e35;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

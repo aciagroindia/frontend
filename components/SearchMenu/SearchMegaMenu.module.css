@@ -1,0 +1,206 @@
+/* ============================= */
+/* EXISTING STYLES (UNCHANGED) */
+/* ============================= */
+
+.megaMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #fff;
+  padding: 40px 0 60px;
+  z-index: 1200;
+  border-top: 1px solid #e5e5e5;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.container {
+  max-width: 1400px;
+  margin: auto;
+  padding: 0 60px;
+}
+
+/* TRENDING SECTION */
+.trendingSection h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.trendingLinks {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 50px;
+}
+
+.trendingLinks a {
+  text-decoration: none;
+  color: #444;
+  font-size: 16px;
+}
+
+.trendingLinks a:hover {
+  color: #009e10;
+}
+
+/* PRODUCTS SECTION */
+.productsSection h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.productGrid {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 6px;
+  background-color: #f5f6fa;
+}
+
+.card {
+  width: 320px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.card p {
+  margin-top: 18px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.stars {
+  color: #0a8f1f;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ============================= */
+/* RESPONSIVE FIXES (NO UI CHANGE) */
+/* ============================= */
+
+/* Mid-size Screens / Large Tablets */
+@media (max-width: 1200px) {
+  .container {
+    padding: 0 40px;
+  }
+
+  .productGrid {
+    gap: 25px;
+  }
+
+  .card {
+    width: calc(33.33% - 20px);
+    min-width: 250px;
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .container {
+    padding: 0 30px;
+  }
+
+  .trendingLinks {
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .productGrid {
+    gap: 20px;
+  }
+
+  .card {
+    width: calc(50% - 15px);
+    min-width: 200px;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .megaMenu {
+    position: static;
+    /* prevents overflow issues */
+    transform: none;
+    width: 100%;
+    padding: 20px 0 30px;
+  }
+
+  .container {
+    padding: 0 20px;
+  }
+
+  .trendingLinks {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .productsSection h4 {
+    margin-bottom: 20px;
+  }
+
+  .productGrid {
+    display: flex;
+    overflow-x: auto;
+    /* हॉरिजॉन्टल स्क्रॉल को सक्षम करता है */
+    flex-wrap: nowrap;
+    /* आइटम्स को अगली लाइन में जाने से रोकता है */
+    gap: 15px;
+    padding-bottom: 10px;
+    /* स्क्रॉलबार के लिए थोड़ी जगह */
+    /* स्क्रॉलबार को छिपाने के लिए */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+  }
+
+  .productGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Chrome, Safari */
+
+  .card {
+    width: 150px;
+    /* कार्ड के लिए एक निश्चित चौड़ाई */
+    flex-shrink: 0;
+    /* कार्ड को सिकुड़ने से रोकता है */
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .trendingSection h4,
+  .productsSection h4 {
+    font-size: 16px;
+  }
+
+  .card p {
+    font-size: 14px;
+  }
+
+  .stars {
+    font-size: 13px;
+  }
+}

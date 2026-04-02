@@ -1,0 +1,59 @@
+/* [project]/components/ScrollingStrip/ScrollingStrip.module.css [app-client] (css) */
+.ScrollingStrip-module__wBddbW__wrapper {
+  background: #f5f7f6;
+  align-items: center;
+  width: 100%;
+  margin-top: clamp(1rem, 2vw, 2rem);
+  padding-block: clamp(10px, 1.5vw, 18px);
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.ScrollingStrip-module__wBddbW__marquee {
+  will-change: transform;
+  align-items: center;
+  width: max-content;
+  animation: 25s linear infinite ScrollingStrip-module__wBddbW__scroll;
+  display: flex;
+}
+
+.ScrollingStrip-module__wBddbW__item {
+  white-space: nowrap;
+  flex: none;
+  align-items: center;
+  gap: clamp(6px, 1vw, 14px);
+  padding-inline: clamp(25px, 4vw, 60px);
+  display: flex;
+}
+
+.ScrollingStrip-module__wBddbW__icon {
+  -o-object-fit: contain;
+  object-fit: contain;
+  width: clamp(28px, 3.5vw, 50px);
+  height: auto;
+}
+
+.ScrollingStrip-module__wBddbW__text {
+  color: #1f2937;
+  font-size: clamp(.75rem, 1.2vw, 1.05rem);
+  font-weight: 500;
+}
+
+@keyframes ScrollingStrip-module__wBddbW__scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ScrollingStrip-module__wBddbW__marquee {
+    animation: none;
+  }
+}
+
+/*# sourceMappingURL=components_ScrollingStrip_ScrollingStrip_module_css_0w3-wzy._.single.css.map*/
