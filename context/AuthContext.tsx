@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     delete axiosInstance.defaults.headers.common['Authorization'];
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.push('/admin/login');
+    router.push('/');
   }, [router]);
 
   // Naya function: Backend se latest status mangwane ke liye
