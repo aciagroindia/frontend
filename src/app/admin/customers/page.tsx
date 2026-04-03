@@ -7,13 +7,13 @@ import { Mail } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import styles from "./CustomersPage.module.css";
 
-// Interface for Type Safety
+// Interface for Type Safety (Connected with MongoDB Schema)
 interface Customer {
-  id: string;
+  _id: string; // MongoDB se '_id' aata hai
   name: string;
   email: string;
-  orders: string;
-  role?: 'user' | 'admin' | 'owner'; // Role ko track karne ke liye
+  phone?: string; // Apna User model check kar lena ki ye 'phone' hai ya kuch aur
+  role?: 'user' | 'admin' | 'owner'; 
 }
 
 export default function CustomersPage() {
@@ -23,9 +23,11 @@ export default function CustomersPage() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
+        // Backend aapka '/admin/users' (ya /api/admin/users) par hit hoga
         const response = await axiosInstance.get("/admin/users");
+        
         if (response.data.success) {
-          // Sirf un users ko dikhayein jinka role 'user' hai
+          // Sirf normal users filter kar rahe hain
           const actualCustomers = response.data.data.filter(
             (user: Customer) => user.role === 'user'
           );
@@ -41,6 +43,7 @@ export default function CustomersPage() {
     fetchCustomers();
   }, []);
   
+  // Table Columns Setup
   const columns = [
     { 
       key: "name", 
@@ -57,9 +60,13 @@ export default function CustomersPage() {
       )
     },
     { 
-      key: "orders", 
-      label: "Total Orders",
-      render: (val: string) => <span className={styles.orderBadge}>{val || 0} Orders</span>
+      key: "phone", // ⚠️ Ensure this matches your MongoDB User schema field (e.g., 'phone' or 'mobile')
+      label: "Mobile Number",
+      render: (val: string) => (
+        <span className={styles.orderBadge}>
+          {val ? val : "N/A"}
+        </span>
+      )
     },
   ];
 
@@ -85,7 +92,9 @@ export default function CustomersPage() {
       <div className={styles.tableWrapper}>
         <AdvancedTable
           columns={columns}
-          data={customers}
+          // Agar AdvancedTable component ko specific 'id' prop chahiye hota hai, 
+          // toh aap map karke id: user._id bhi de sakte ho, par zyada tar tables _id ko handle kar leti hain.
+          data={customers} 
         />
       </div>
 
