@@ -17,7 +17,6 @@ export default function SettingsPage() {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
   const [isProfileUnchanged, setIsProfileUnchanged] = useState(true);
 
-  // Effect to populate form when profile data is available from context
   useEffect(() => {
     if (profile) {
       setProfileForm({
@@ -27,7 +26,6 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  // Effect to check if profile form has changed
   useEffect(() => {
     if (profile) {
       const hasChanged = profile.name !== profileForm.name || profile.email !== profileForm.email;
@@ -37,7 +35,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchPreferences = async () => {
-      // We only fetch preferences now, profile comes from AuthContext
       try {
         const prefRes = await axiosInstance.get("/admin/settings/preferences");
         if (prefRes.data.success) {
@@ -56,10 +53,7 @@ export default function SettingsPage() {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.put(
-        "/admin/settings/profile", // ✅ Corrected URL
-        profileForm
-      );
+      const response = await axiosInstance.put("/admin/settings/profile", profileForm);
       if (response.data.success) {
         updateUser(response.data.data);
         toast.success("Profile updated successfully!");
@@ -75,7 +69,7 @@ export default function SettingsPage() {
       toast.error("Please provide both current and new passwords.");
       return;
     }
-    if (passwordForm.newPassword.length < 6) { // Matching backend validation
+    if (passwordForm.newPassword.length < 6) {
       toast.error("New password must be at least 6 characters long.");
       return;
     }
@@ -110,9 +104,8 @@ export default function SettingsPage() {
 
       try {
         const response = await axiosInstance.put(
-          "/admin/settings/avatar", // ✅ Corrected URL
+          "/admin/settings/avatar",
           formData,
-          // 👇 Add this headers configuration
           { headers: { "Content-Type": "multipart/form-data" } }
         );
         if (response.data.success) {
@@ -126,9 +119,19 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading || !profile) {
-    return <DashboardLayout><div className={styles.header}>Loading settings...</div></DashboardLayout>;
-  }
+// Helper function: axiosInstance ka base URL use karke image URL banayega
+  const getAvatarUrl = (url: string) => {
+    if (!url) return null;
+    if (url.startsWith("http")) return url;
+    
+    // axiosInstance se current base URL uthao (e.g., 'https://aci-agro.onrender.com/api' ya localhost)
+    const apiURL = axiosInstance.defaults.baseURL || 'http://localhost:5000/api';
+    
+    // '/api' ko hata do taaki main server ka URL mil jaye
+    const backendURL = apiURL.replace(/\/api$/, '');
+    
+    return `${backendURL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
 
   return (
     <DashboardLayout>
@@ -138,9 +141,7 @@ export default function SettingsPage() {
       </div>
 
       <div className={styles.grid}>
-        {/* Left Column: Profile & Security */}
         <div className={styles.column}>
-          {/* Profile Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <User size={20} />
@@ -149,11 +150,20 @@ export default function SettingsPage() {
             
             <div className={styles.avatarSection}>
               <div className={styles.avatarWrapper}>
-                <img 
-                  src={profile?.avatar || "https://i.pravatar.cc/100"} 
-                  alt="Admin" 
-                  className={styles.avatar} 
-                />
+                {/* 👇 Yahan par Main Changes kiye hain 👇 */}
+                {profile?.avatar ? (
+                  <img 
+                    src={getAvatarUrl(profile.avatar) as string} 
+                    alt={profile.name} 
+                    className={styles.avatar} 
+                  />
+                ) : (
+                  <div className={styles.defaultAvatar}>
+                    {profile?.name ? profile.name.charAt(0).toUpperCase() : "A"}
+                  </div>
+                )}
+                {/* 👆 End of Main Changes 👆 */}
+                
                 <label className={styles.changeAvatar} title="Change Photo">
                   <Camera size={16} />
                   <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
@@ -188,7 +198,6 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          {/* Password Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <Lock size={20} />
@@ -220,9 +229,7 @@ export default function SettingsPage() {
           </section>
         </div>
 
-        {/* Right Column: Preferences & System */}
         <div className={styles.column}>
-          {/* Notifications Section */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <Bell size={20} />
@@ -243,7 +250,6 @@ export default function SettingsPage() {
               </label>
             </div>
           </section>
-
         </div>
       </div>
     </DashboardLayout>
