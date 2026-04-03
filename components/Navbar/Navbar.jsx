@@ -213,7 +213,6 @@ export default function Navbar() {
           {activeTab === "menu" && (
             <div className={styles.tabPane}>
               <Link href="/" className={styles.drawerLink} onClick={closeDrawer}>Home</Link>
-              <Link href="/shop" className={styles.drawerLink} onClick={closeDrawer}>Shop</Link>
               <Link href="/orders" className={styles.drawerLink} onClick={closeDrawer}>Orders</Link>
               <Link href="/bulk-order" className={styles.drawerLink} onClick={closeDrawer}>Bulk Order</Link>
               <Link href="/about" className={styles.drawerLink} onClick={closeDrawer}>About</Link>
