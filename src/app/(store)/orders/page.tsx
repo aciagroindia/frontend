@@ -54,7 +54,7 @@ export default function OrdersPage() {
     if (authLoading || productsLoading) return;
 
     if (!isAuthenticated) {
-      router.push("/store/login");
+      router.push("/login");
       return;
     }
 
