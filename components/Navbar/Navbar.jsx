@@ -98,7 +98,7 @@ export default function Navbar() {
               onMouseEnter={() => setIsMegaMenuOpen(true)}
               onMouseLeave={() => setIsMegaMenuOpen(false)}
             >
-              <Link href="/collections/all" className={styles.menuItem} onClick={closeMegaMenu}>
+              <Link href="#" className={styles.menuItem} onClick={closeMegaMenu}>
                 Shop
                 <Image src="/assets/keyboad-arrowdown.svg" alt="" width={20} height={20} className={styles.subtleIcon} />
               </Link>
