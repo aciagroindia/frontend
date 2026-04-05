@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./Testimonials.module.css";
-// 🔥 APNE AXIOS INSTANCE KO IMPORT KAREIN (Path apne folder structure ke hisaab se adjust kar lena)
-import axiosInstance from "../../utils/axiosInstance"; 
+import axiosInstance from "../../src/utils/axiosInstance"; 
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
