@@ -2,28 +2,35 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./Testimonials.module.css";
+// 🔥 APNE AXIOS INSTANCE KO IMPORT KAREIN (Path apne folder structure ke hisaab se adjust kar lena)
+import axiosInstance from "../../utils/axiosInstance"; 
 
 export default function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
   const trackRef = useRef(null);
 
-  // ✅ FETCH FROM BACKEND
+  // ✅ FETCH FROM BACKEND USING AXIOS INSTANCE
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/reviews/testimonials");
-        const data = await res.json();
+        // Base URL axiosInstance mein already set hai, toh bas endpoint dena hai
+        const res = await axiosInstance.get("/reviews/testimonials");
+        
+        // Axios automatically data parse karta hai, toh await res.json() nahi likhna padega
+        const data = res.data;
 
         // 🔥 MAP BACKEND DATA → FRONTEND FORMAT
-        const formatted = data.testimonials.map((item) => ({
-          id: item.reviewId,
-          name: item.name,
-          text: item.comment,
-          img: item.productImage || "/certifiedIcons/image1.png",
-          rating: item.rating,
-        }));
+        if (data && data.testimonials) {
+          const formatted = data.testimonials.map((item) => ({
+            id: item.reviewId,
+            name: item.name,
+            text: item.comment,
+            img: item.productImage || "/certifiedIcons/image1.png",
+            rating: item.rating,
+          }));
 
-        setTestimonials(formatted);
+          setTestimonials(formatted);
+        }
       } catch (error) {
         console.error("Error fetching testimonials:", error);
       }
