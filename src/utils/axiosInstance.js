@@ -24,15 +24,15 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error?.response?.status === 401) {
-      // FIX: Check karein ki error kis API URL se aaya hai
+      // Check karein ki error kis API URL se aaya hai
       const requestUrl = error.config?.url || "";
       
-      // Agar error Password Change ya Login route se nahi aaya hai, tabhi logout karein
-      if (!requestUrl.includes('/password') && !requestUrl.includes('/login')) {
+      // FIX: Yahan humne '/orders' add kar diya hai taaki payment fail hone par logout na ho
+      if (!requestUrl.includes('/password') && !requestUrl.includes('/login') && !requestUrl.includes('/orders')) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = '/admin/login';
+          window.location.href = '/login';
         }
       }
     }

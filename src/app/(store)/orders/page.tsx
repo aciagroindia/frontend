@@ -19,10 +19,15 @@ interface Item {
 
 interface Order {
   id: string;
+  _id?: string; // FIX: Added for backend compatibility
   date: string;
   status: string;
   total: number;
   items: Item[];
+  // FIX: Added Payment Fields
+  paymentStatus?: string;
+  paymentMethod?: string;
+  razorpay_order_id?: string;
 }
 
 // Helper function to get user-friendly status text
@@ -75,9 +80,14 @@ export default function OrdersPage() {
 
             return {
               id: order._id,
+              _id: order._id, // FIX: Pass original DB ID
               date: formattedDate,
               status: getOrderStatusText(order.orderStatus),
               total: order.totalAmount,
+              // FIX: Now we are sending the payment details to the OrderCard!
+              paymentStatus: order.paymentStatus,
+              paymentMethod: order.paymentMethod,
+              razorpay_order_id: order.razorpay_order_id,
               items: order.orderItems.map((item: any) => {
                 const productId = item.product?._id || item.product;
                 const fullProduct = allProducts.find(p => p._id === productId);

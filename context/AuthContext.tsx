@@ -10,9 +10,9 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
-  phone?: string; // regular users ke liye
-  role?: 'user' | 'admin' | 'owner'; // regular users ke liye optional
-  isAdminApproved?: boolean;         // regular users ke liye optional
+  phone?: string; 
+  role?: 'user' | 'admin' | 'owner'; 
+  isAdminApproved?: boolean;         
 }
 
 interface AuthContextType {
@@ -22,8 +22,8 @@ interface AuthContextType {
   loading: boolean;
   login: (token: string, userData: User) => void;
   logout: () => void;
-  refreshUserStatus: () => Promise<void>; // Status check karne ke liye naya function
-  updateUser: (newUserData: Partial<User>) => void; // Function to update user data
+  refreshUserStatus: () => Promise<void>; 
+  updateUser: (newUserData: Partial<User>) => void; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,14 +37,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((newToken: string, userData: User) => {
     setUser(userData);
     setToken(newToken);
+    
+    // FIX: Ensure Axios Header gets strictly updated immediately
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(userData));
   }, []);
 
   const updateUser = useCallback((newUserData: Partial<User>) => {
     setUser(prevUser => {
-      if (!prevUser) return null; // Should not happen for a logged-in user
+      if (!prevUser) return null; 
       const updatedUser = { ...prevUser, ...newUserData };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       return updatedUser;
@@ -54,16 +57,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setUser(null);
     setToken(null);
+    
+    // FIX: Safely remove header
     delete axiosInstance.defaults.headers.common['Authorization'];
+    
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    
+    // Agar logout hote hain to home page pe jaayein
     router.push('/');
   }, [router]);
 
-  // Naya function: Backend se latest status mangwane ke liye
   const refreshUserStatus = useCallback(async () => {
     try {
-      const res = await axiosInstance.get('/auth/me'); // Maan lijiye aapka profile route hai
+      const res = await axiosInstance.get('/auth/me'); 
       if (res.data.success) {
         setUser(res.data.user);
         localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -74,12 +81,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // FIX: Page load hote hi turant token ko axios me inject karna zaroori hai
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
     if (storedToken && storedUser) {
       try {
         const userData: User = JSON.parse(storedUser);
+        // Default Header set in first render
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         login(storedToken, userData);
       } catch (error) {
         console.error("Failed to parse user from localStorage. Logging out.", error);

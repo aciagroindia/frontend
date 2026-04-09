@@ -32,6 +32,10 @@ interface OrderDetails {
     city: string;
     postalCode: string;
   };
+  // FIX: Added missing payment fields
+  paymentStatus?: string;
+  paymentMethod?: string;
+  razorpay_order_id?: string;
 }
 
 export default function OrderDetailsPage() {
@@ -59,7 +63,7 @@ export default function OrderDetailsPage() {
       try {
         const response = await axiosInstance.get(`/orders/${id}`);
         if (response.data.success) {
-          const orderData = response.data.order;
+          const orderData = response.data.data; // FIX: Ensure it maps from response.data.data based on your backend controller
 
           // Map data
           let statusText = "Processing";
@@ -76,12 +80,18 @@ export default function OrderDetailsPage() {
             date: formattedDate,
             status: statusText,
             total: orderData.totalAmount,
-            shippingAddress: orderData.shippingAddress,
+            shippingAddress: orderData.shippingInfo || orderData.shippingAddress, // Fallback for safety
+            
+            // FIX: Successfully mapped new payment fields
+            paymentStatus: orderData.paymentStatus,
+            paymentMethod: orderData.paymentMethod,
+            razorpay_order_id: orderData.razorpay_order_id,
+            
             items: orderData.orderItems.map((item: any) => {
-              const fullProduct = allProducts.find(p => p._id === item.product?._id);
-              const image = fullProduct?.image || item.image || item.product?.image || "/assets/placeholder.png";
+              const fullProduct = allProducts.find(p => p._id === item.product?._id || p._id === item.product);
+              const image = fullProduct?.image || item.image || item.product?.image || "/placeholder.png";
               return {
-                productId: item.product?._id,
+                productId: item.product?._id || item.product,
                 name: item.name || item.product?.name || "Product",
                 quantity: item.quantity,
                 price: item.price,
@@ -103,6 +113,68 @@ export default function OrderDetailsPage() {
 
     fetchOrderDetails();
   }, [id, isAuthenticated, authLoading, productsLoading, router, allProducts]);
+
+  // FIX: Added Retry Payment logic for Details Page
+  const handleRetryPayment = async () => {
+    if (!order) return;
+    
+    try {
+      const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement("script");
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
+
+      const resScript = await loadRazorpayScript();
+      if (!resScript) {
+        toast.error("Razorpay SDK failed to load. Check your connection.");
+        return;
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.total * 100,
+        currency: "INR",
+        name: "Aciagro",
+        description: "Retry Pending Payment",
+        order_id: order.razorpay_order_id,
+        handler: async function (rzpResponse: any) {
+          try {
+            const verifyRes = await axiosInstance.post("/orders/pay", {
+              orderId: order.id,
+              razorpay_payment_id: rzpResponse.razorpay_payment_id,
+              razorpay_order_id: rzpResponse.razorpay_order_id,
+              razorpay_signature: rzpResponse.razorpay_signature,
+              clearCart: false
+            });
+
+            if (verifyRes.data.success) {
+              toast.success("Payment successful! Order Confirmed.");
+              window.location.reload(); 
+            }
+          } catch (verifyError) {
+            console.error(verifyError);
+            toast.error("Payment verification failed at server!");
+          }
+        },
+        theme: { color: "#1a8e5f" },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function () {
+        toast.error("Payment Failed. Please try again.");
+      });
+      rzp.open();
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong!");
+    }
+  };
+
 
   if (loading || authLoading || productsLoading) {
     return <div className={styles.container}><p>Loading order details...</p></div>;
@@ -128,7 +200,25 @@ export default function OrderDetailsPage() {
         <div><strong>Order ID:</strong> #{order.id}</div>
         <div><strong>Date:</strong> {order.date}</div>
         <div><strong>Status:</strong> <span className={`${styles.status} ${styles[order.status.toLowerCase()]}`}>{order.status}</span></div>
+        <div>
+            <strong>Payment: </strong> 
+            <span style={{ color: order.paymentStatus === 'paid' ? 'green' : 'orange', fontWeight: 'bold' }}>
+                {order.paymentStatus === 'paid' ? 'Paid ✓' : 'Pending'}
+            </span>
+        </div>
         <div><strong>Total:</strong> ₹{order.total.toFixed(2)}</div>
+        
+        {/* FIX: Pay Now button UI */}
+        {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && (
+            <div style={{ marginTop: '1rem' }}>
+                <button 
+                    onClick={handleRetryPayment}
+                    style={{ background: "#1a8e5f", color: "white", border: "none", padding: "0.5rem 1.5rem", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
+                >
+                    Pay Now
+                </button>
+            </div>
+        )}
       </div>
 
       <div className={styles.grid}>
@@ -156,10 +246,11 @@ export default function OrderDetailsPage() {
         <div className={styles.addressSection}>
           <h2>Shipping Address</h2>
           <div className={styles.addressCard}>
-            <p><strong>{order.shippingAddress.name}</strong></p>
-            <p>{order.shippingAddress.address}</p>
-            <p>{order.shippingAddress.city}, {order.shippingAddress.postalCode}</p>
-            <p>Phone: {order.shippingAddress.phone}</p>
+            {/* Added fallback to avoid crash if shippingAddress is unexpectedly undefined */}
+            <p><strong>{order.shippingAddress?.name || 'N/A'}</strong></p>
+            <p>{order.shippingAddress?.address || 'No address provided'}</p>
+            <p>{order.shippingAddress?.city}, {order.shippingAddress?.postalCode}</p>
+            <p>Phone: {order.shippingAddress?.phone}</p>
           </div>
         </div>
       </div>

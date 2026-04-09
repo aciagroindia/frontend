@@ -9,19 +9,30 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
-// 1. Saara logic CheckoutContent naam ke function mein move kar diya
 function CheckoutContent() {
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const { cartItems, cartTotal, fetchCart } = useCart();
   const { products: allProducts } = useProducts();
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   
-  // useSearchParams ab is child component ke andar hai
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get("mode") === "buyNow";
 
   const [checkoutItems, setCheckoutItems] = useState<any[]>([]);
   const [checkoutTotal, setCheckoutTotal] = useState(0);
+
+  // FIX: Naya state add kiya hai Payment Method ke liye
+  const [paymentMethod, setPaymentMethod] = useState("Razorpay"); 
 
   useEffect(() => {
     if (isBuyNow) {
@@ -54,6 +65,12 @@ function CheckoutContent() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+      if(user) {
+          setShippingAddress(prev => ({...prev, name: user.name || prev.name}))
+      }
+  }, [user])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingAddress((prev) => ({ ...prev, [name]: value }));
@@ -61,26 +78,35 @@ function CheckoutContent() {
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isAuthenticated) {
-      toast.error("Please log in to place an order.");
-      router.push("/admin/login");
-      return;
-    }
-
-    if (checkoutItems.length === 0) {
-      toast.error("Nothing to checkout.");
-      return;
-    }
-
     try {
       setIsSubmitting(true);
+
+      // Agar Razorpay select kiya hai, toh pehle script load karo
+      if (paymentMethod === 'Razorpay') {
+        const resScript = await loadRazorpayScript();
+        if (!resScript) {
+          toast.error("Razorpay SDK failed to load. Check your internet connection.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      if (!isAuthenticated) {
+        toast.error("Please log in to proceed to payment.");
+        router.push("/login"); 
+        return;
+      }
+
+      if (checkoutItems.length === 0) {
+        toast.error("Your cart is empty. Nothing to checkout.");
+        return;
+      }
 
       const items = checkoutItems.map((item) => {
         const fullProduct = allProducts.find((p: any) => p._id === item.productId);
         const image = fullProduct?.image || item.image || "/placeholder.png";
         const baseProductId = item.productId || item._id || item.id?.split('-')[0];
-
+        
         return {
           name: item.name,
           qty: item.quantity,
@@ -102,28 +128,75 @@ function CheckoutContent() {
           state: shippingAddress.state,
           country: shippingAddress.country,
           pinCode: shippingAddress.pinCode,
-          postalCode: shippingAddress.postalCode,
           phoneNo: shippingAddress.phone,
         },
-        clearCart: !isBuyNow,
+        paymentMethod: paymentMethod, // FIX: Dynamic payment method bhej rahe hain backend ko
       };
 
       const response = await axiosInstance.post("/orders", payload);
-
+      
       if (response.data.success) {
-        toast.success("Order placed successfully!");
+        const orderData = response.data.data;
 
-        if (isBuyNow) {
-          sessionStorage.removeItem("buyNowItem");
-        } else {
-          await fetchCart();
+        // FIX: Agar COD hai, toh seedha order success kar do bina Razorpay ke
+        if (paymentMethod === 'COD') {
+          toast.success("Order Placed Successfully!");
+          if (isBuyNow) sessionStorage.removeItem("buyNowItem");
+          else await fetchCart();
+          router.push("/orders");
+          return;
         }
 
-        router.push("/orders");
+        // Agar COD nahi hai, toh Razorpay open karo
+        const rzpOrderId = response.data.razorpayOrderId;
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          amount: orderData.totalAmount * 100, // Amount in paisa
+          currency: "INR",
+          name: "Aciagro",
+          description: "Secure Payment",
+          order_id: rzpOrderId,
+          handler: async function (rzpResponse: any) {
+            try {
+              const verifyRes = await axiosInstance.post("/orders/pay", {
+                orderId: orderData._id,
+                razorpay_payment_id: rzpResponse.razorpay_payment_id,
+                razorpay_order_id: rzpResponse.razorpay_order_id,
+                razorpay_signature: rzpResponse.razorpay_signature,
+                clearCart: !isBuyNow,
+              });
+              
+              if (verifyRes.data.success) {
+                toast.success("Payment successful! Order Placed.");
+                if (isBuyNow) sessionStorage.removeItem("buyNowItem");
+                else await fetchCart();
+                router.push("/orders");
+              }
+            } catch (verifyError) {
+              console.error("Payment verification failed:", verifyError);
+              toast.error("Payment verification failed at server!");
+            }
+          },
+          prefill: {
+            name: shippingAddress.name,
+            contact: shippingAddress.phone,
+          },
+          theme: { color: "#1a8e5f" },
+        };
+        
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (response: any) {
+          console.error("Razorpay Payment Failed:", response);
+          toast.error("Payment Failed. Order saved as pending.");
+          router.push("/orders");
+        });
+        rzp.open();
+      } else {
+        toast.error(response.data.message || "Failed to create order.");
       }
     } catch (error: any) {
       console.error("Order creation failed:", error);
-      toast.error(error.response?.data?.message || "Failed to place the order.");
+      toast.error(error.response?.data?.message || "Failed to initiate payment.");
     } finally {
       setIsSubmitting(false);
     }
@@ -135,7 +208,7 @@ function CheckoutContent() {
         <h2>Authentication Required</h2>
         <p style={{ margin: "1rem 0" }}>You must be logged in to proceed with checkout.</p>
         <button
-          onClick={() => router.push("/admin/login")}
+          onClick={() => router.push("/login")}
           style={{ padding: "0.5rem 1rem", background: "#1a8e5f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
         >
           Login Now
@@ -170,8 +243,42 @@ function CheckoutContent() {
 
           <input type="text" name="country" placeholder="Country" value={shippingAddress.country} onChange={handleInputChange} required style={{ padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
 
+          {/* FIX: Payment Method Selection */}
+          <div style={{ marginTop: '1.5rem', padding: '1rem', border: '1px solid #eaeaea', borderRadius: '8px', background: '#fcfcfc' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Payment Method</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: '1rem' }}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="Razorpay"
+                  checked={paymentMethod === "Razorpay"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                />
+                💳 Pay Online (Cards / UPI / NetBanking)
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: '1rem' }}>
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="COD"
+                  checked={paymentMethod === "COD"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                />
+                💵 Cash on Delivery (COD)
+              </label>
+            </div>
+          </div>
+
+          {/* FIX: Dynamic Button Text based on Payment Method */}
           <button type="submit" disabled={isSubmitting || checkoutItems.length === 0} style={{ marginTop: '1rem', padding: "1rem", background: "#1a8e5f", color: "white", border: "none", borderRadius: "4px", cursor: isSubmitting ? "not-allowed" : "pointer", fontWeight: "bold", fontSize: "1.1rem" }}>
-            {isSubmitting ? "Processing..." : "Place Order"}
+            {isSubmitting 
+              ? "Processing..." 
+              : paymentMethod === "COD" 
+                ? "Place Order (COD)" 
+                : "Proceed to Payment"}
           </button>
         </form>
       </div>
@@ -200,7 +307,7 @@ function CheckoutContent() {
               })}
             </ul>
 
-            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "1.1rem", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #ddd" }}>
               <span>Total:</span>
               <span>Rs. {checkoutTotal.toFixed(2)}</span>
             </div>
@@ -211,10 +318,8 @@ function CheckoutContent() {
   );
 }
 
-// 2. Main Page Component jo Suspense provide karta hai
 export default function CheckoutPage() {
   return (
-    // Suspense add kiya gaya hai jisse build error fix ho jayega
     <Suspense fallback={<div style={{ padding: "4rem", textAlign: "center" }}>Loading Checkout...</div>}>
       <CheckoutContent />
     </Suspense>

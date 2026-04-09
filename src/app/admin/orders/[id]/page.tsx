@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "../../../../../components/admin-layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, User, ShoppingCart, Package, Truck } from "lucide-react";
+import { ArrowLeft, User, ShoppingCart, Package, CreditCard } from "lucide-react"; // FIX: Added CreditCard icon
 import { toast } from "react-hot-toast";
 import styles from "./page.module.css";
 
@@ -20,10 +20,9 @@ export default function OrderDetailPage() {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        // GET /api/admin/orders/:id
         const response = await axiosInstance.get(`/admin/orders/${orderId}`);
         if (response.data.success) {
-          console.log("FULL ORDER DATA:", response.data.data); // 👈 Ye line add karein
+          console.log("FULL ORDER DATA:", response.data.data);
           setOrder(response.data.data);
         }
       } catch (error) {
@@ -36,9 +35,16 @@ export default function OrderDetailPage() {
   }, [orderId]);
 
   const handleStatusChange = async (newStatus: string) => {
+    // FIX: Safety Check - Prevent shipping unpaid online orders
+    if (newStatus === 'shipped' || newStatus === 'delivered') {
+      if (order.paymentStatus === 'pending' && order.paymentMethod !== 'COD') {
+        toast.error("Cannot ship! Payment is still pending for this online order.");
+        return; // Rok do
+      }
+    }
+
     setUpdatingStatus(true);
     try {
-      // PUT /api/admin/orders/:id/status
       const response = await axiosInstance.put(`/admin/orders/${orderId}/status`, { 
         status: newStatus 
       });
@@ -122,8 +128,36 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Sidebar: Status Update */}
+          {/* Sidebar: Status Update & Payment Info */}
           <div className={styles.sideCol}>
+            
+            {/* FIX: New Payment Info Card */}
+            <div className={styles.card} style={{ marginBottom: '1.5rem' }}>
+              <div className={styles.cardHeader}><CreditCard size={20} /> <h2>Payment Info</h2></div>
+              <div style={{ marginTop: '1rem' }}>
+                <p style={{ marginBottom: '0.5rem' }}><strong>Method:</strong> {order.paymentMethod || 'Online'}</p>
+                <p>
+                  <strong>Status:</strong>{' '}
+                  <span style={{
+                    color: order.paymentStatus === 'paid' ? 'green' : 'red',
+                    fontWeight: 'bold',
+                    padding: '2px 6px',
+                    backgroundColor: order.paymentStatus === 'paid' ? '#e6ffe6' : '#ffe6e6',
+                    borderRadius: '4px'
+                  }}>
+                    {order.paymentStatus ? order.paymentStatus.toUpperCase() : 'PENDING'}
+                  </span>
+                </p>
+                
+                {/* Warning if payment is not received */}
+                {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && (
+                  <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#fff3cd', color: '#856404', borderRadius: '4px', borderLeft: '4px solid #ffeeba', fontSize: '0.9rem' }}>
+                    ⚠️ <strong>WARNING:</strong> Payment is pending for this online order. Do not process or ship until paid.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className={`${styles.card} ${styles.statusCard}`}>
               <div className={styles.cardHeader}><Package size={20} /> <h2>Order Status</h2></div>
               

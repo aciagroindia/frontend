@@ -29,14 +29,14 @@ axiosInstance.interceptors.request.use((config)=>{
 // Response Interceptor: Token expire / Unauthorized handle karne ke liye
 axiosInstance.interceptors.response.use((response)=>response, (error)=>{
     if (error?.response?.status === 401) {
-        // FIX: Check karein ki error kis API URL se aaya hai
+        // Check karein ki error kis API URL se aaya hai
         const requestUrl = error.config?.url || "";
-        // Agar error Password Change ya Login route se nahi aaya hai, tabhi logout karein
-        if (!requestUrl.includes('/password') && !requestUrl.includes('/login')) {
+        // FIX: Yahan humne '/orders' add kar diya hai taaki payment fail hone par logout na ho
+        if (!requestUrl.includes('/password') && !requestUrl.includes('/login') && !requestUrl.includes('/orders')) {
             if ("TURBOPACK compile-time truthy", 1) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '/admin/login';
+                window.location.href = '/login';
             }
         }
     }
@@ -77,6 +77,7 @@ function AuthProvider({ children }) {
         "AuthProvider.useCallback[login]": (newToken, userData)=>{
             setUser(userData);
             setToken(newToken);
+            // FIX: Ensure Axios Header gets strictly updated immediately
             __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
             localStorage.setItem('token', newToken);
             localStorage.setItem('user', JSON.stringify(userData));
@@ -86,7 +87,7 @@ function AuthProvider({ children }) {
         "AuthProvider.useCallback[updateUser]": (newUserData)=>{
             setUser({
                 "AuthProvider.useCallback[updateUser]": (prevUser)=>{
-                    if (!prevUser) return null; // Should not happen for a logged-in user
+                    if (!prevUser) return null;
                     const updatedUser = {
                         ...prevUser,
                         ...newUserData
@@ -101,19 +102,20 @@ function AuthProvider({ children }) {
         "AuthProvider.useCallback[logout]": ()=>{
             setUser(null);
             setToken(null);
+            // FIX: Safely remove header
             delete __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].defaults.headers.common['Authorization'];
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            router.push('/admin/login');
+            // Agar logout hote hain to home page pe jaayein
+            router.push('/');
         }
     }["AuthProvider.useCallback[logout]"], [
         router
     ]);
-    // Naya function: Backend se latest status mangwane ke liye
     const refreshUserStatus = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[refreshUserStatus]": async ()=>{
             try {
-                const res = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get('/auth/me'); // Maan lijiye aapka profile route hai
+                const res = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get('/auth/me');
                 if (res.data.success) {
                     setUser(res.data.user);
                     localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -125,11 +127,14 @@ function AuthProvider({ children }) {
     }["AuthProvider.useCallback[refreshUserStatus]"], []);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AuthProvider.useEffect": ()=>{
+            // FIX: Page load hote hi turant token ko axios me inject karna zaroori hai
             const storedToken = localStorage.getItem('token');
             const storedUser = localStorage.getItem('user');
             if (storedToken && storedUser) {
                 try {
                     const userData = JSON.parse(storedUser);
+                    // Default Header set in first render
+                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
                     login(storedToken, userData);
                 } catch (error) {
                     console.error("Failed to parse user from localStorage. Logging out.", error);
@@ -156,7 +161,7 @@ function AuthProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/context/AuthContext.tsx",
-        lineNumber: 93,
+        lineNumber: 103,
         columnNumber: 5
     }, this);
 }
@@ -2252,7 +2257,7 @@ function Navbar() {
                                     onMouseLeave: ()=>setIsMegaMenuOpen(false),
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                            href: "/collections/all",
+                                            href: "#",
                                             className: __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Navbar$2f$Navbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].menuItem,
                                             onClick: closeMegaMenu,
                                             children: [
@@ -2660,23 +2665,13 @@ function Navbar() {
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                        href: "/shop",
-                                        className: __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Navbar$2f$Navbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].drawerLink,
-                                        onClick: closeDrawer,
-                                        children: "Shop"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 216,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                         href: "/orders",
                                         className: __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Navbar$2f$Navbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].drawerLink,
                                         onClick: closeDrawer,
                                         children: "Orders"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 217,
+                                        lineNumber: 216,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2686,7 +2681,7 @@ function Navbar() {
                                         children: "Bulk Order"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 218,
+                                        lineNumber: 217,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -2696,7 +2691,7 @@ function Navbar() {
                                         children: "About"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 219,
+                                        lineNumber: 218,
                                         columnNumber: 15
                                     }, this),
                                     isAuthenticated ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -2713,7 +2708,7 @@ function Navbar() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                                                lineNumber: 224,
+                                                lineNumber: 223,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2732,7 +2727,7 @@ function Navbar() {
                                                 children: "Logout"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                                                lineNumber: 227,
+                                                lineNumber: 226,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -2743,7 +2738,7 @@ function Navbar() {
                                         children: "Login / Register"
                                     }, void 0, false, {
                                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 236,
+                                        lineNumber: 235,
                                         columnNumber: 17
                                     }, this)
                                 ]
@@ -2759,7 +2754,7 @@ function Navbar() {
                                     children: "Loading..."
                                 }, void 0, false, {
                                     fileName: "[project]/components/Navbar/Navbar.jsx",
-                                    lineNumber: 244,
+                                    lineNumber: 243,
                                     columnNumber: 17
                                 }, this) : categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                         href: `/collections/${cat.slug}`,
@@ -2768,12 +2763,12 @@ function Navbar() {
                                         children: cat.name
                                     }, cat._id, false, {
                                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                                        lineNumber: 247,
+                                        lineNumber: 246,
                                         columnNumber: 19
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                                lineNumber: 242,
+                                lineNumber: 241,
                                 columnNumber: 13
                             }, this)
                         ]
@@ -2807,7 +2802,7 @@ function Navbar() {
                                             className: __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$Navbar$2f$Navbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].subtleIcon
                                         }, void 0, false, {
                                             fileName: "[project]/components/Navbar/Navbar.jsx",
-                                            lineNumber: 267,
+                                            lineNumber: 266,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2819,18 +2814,18 @@ function Navbar() {
                                             onChange: (e)=>setSearchTerm(e.target.value)
                                         }, void 0, false, {
                                             fileName: "[project]/components/Navbar/Navbar.jsx",
-                                            lineNumber: 268,
+                                            lineNumber: 267,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/Navbar/Navbar.jsx",
-                                    lineNumber: 266,
+                                    lineNumber: 265,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                                lineNumber: 265,
+                                lineNumber: 264,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2839,13 +2834,13 @@ function Navbar() {
                                 children: "×"
                             }, void 0, false, {
                                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                                lineNumber: 277,
+                                lineNumber: 276,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                        lineNumber: 264,
+                        lineNumber: 263,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2855,18 +2850,18 @@ function Navbar() {
                             onResultClick: closeSearch
                         }, void 0, false, {
                             fileName: "[project]/components/Navbar/Navbar.jsx",
-                            lineNumber: 280,
+                            lineNumber: 279,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/Navbar/Navbar.jsx",
-                        lineNumber: 279,
+                        lineNumber: 278,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/Navbar/Navbar.jsx",
-                lineNumber: 263,
+                lineNumber: 262,
                 columnNumber: 7
             }, this)
         ]
