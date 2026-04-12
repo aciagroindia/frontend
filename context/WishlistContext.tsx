@@ -26,14 +26,12 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Helper to get token (axios interceptor uses it too)
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // Fetch from backend
   const fetchWishlist = useCallback(async () => {
     const token = getToken();
     if (!token) {
-       setWishlist([]); // Clear if no token
+       setWishlist([]);
        return;
     }
 
@@ -41,10 +39,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await axiosInstance.get("/wishlist");
       if (response.data.success) {
-        // Backend returns { success: true, data: { products: [...] } }
         const products = response.data.data.products.map((p: any) => ({
           ...p,
-          id: p._id, // Normalize _id for frontend compatibility
+          id: p._id, 
           image: p.image || (p.images && p.images[0]) || "",
         }));
         setWishlist(products);
@@ -56,12 +53,11 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Sync on mount or token change (login/logout handled by context reset or refresh)
   useEffect(() => {
     fetchWishlist();
   }, [fetchWishlist]);
 
-  // Toggle backend and update state
+  // ---------------- TOGGLE WISHLIST (⚡ OPTIMISTIC FAST) ----------------
   const toggleWishlist = async (product: any) => {
     const token = getToken();
     if (!token) {
@@ -69,30 +65,40 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         return;
     }
 
+    const productId = product._id || product.id;
+    const isCurrentlyInWishlist = wishlist.some(item => item.id === productId);
+    
+    // 1. Current State save karo (Rollback ke liye)
+    const prevWishlist = [...wishlist];
+
+    // 2. Instant UI Update
+    if (isCurrentlyInWishlist) {
+      setWishlist(prev => prev.filter(item => item.id !== productId));
+      toast.success("Removed from wishlist!"); // Instant feel
+    } else {
+      setWishlist(prev => [...prev, { 
+        id: productId, 
+        name: product.name, 
+        price: product.price, 
+        image: product.image || (product.images && product.images[0]) || "", 
+        slug: product.slug 
+      }]);
+      toast.success("Added to wishlist!"); // Instant feel
+    }
+
+    // 3. Background Database Call
     try {
-      // Backend: POST /api/wishlist/toggle { productId: "..." }
-      const response = await axiosInstance.post("/wishlist/toggle", { productId: product.id || product._id });
+      const response = await axiosInstance.post("/wishlist/toggle", { productId });
       
-      if (response.data.success) {
-        const isAdded = response.data.data.added;
-        
-        if (isAdded) {
-          toast.success("Added to wishlist!");
-          setWishlist(prev => [...prev, { 
-            id: product._id || product.id, 
-            name: product.name, 
-            price: product.price, 
-            image: product.image || (product.images && product.images[0]) || "", 
-            slug: product.slug 
-          }]);
-        } else {
-          toast.success("Removed from wishlist!");
-          setWishlist(prev => prev.filter(item => item.id !== (product._id || product.id)));
-        }
+      // Agar backend se proper response nahi aya toh rollback
+      if (!response.data.success) {
+        throw new Error("Failed to toggle server state");
       }
     } catch (error: any) {
+      // 4. Fallback on Error
       console.error("Toggle wishlist error:", error);
-      toast.error(error.response?.data?.message || "Something went wrong.");
+      setWishlist(prevWishlist); // Wapas purani state par set kardo
+      toast.error(error.response?.data?.message || "Action failed. Refreshing data.");
     }
   };
 

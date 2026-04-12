@@ -100,7 +100,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     fetchCart();
   }, [fetchCart]);
 
-  // ---------------- ADD TO CART ----------------
+  // ---------------- ADD TO CART (⚡ OPTIMISTIC FAST) ----------------
   const addToCart = async (
     product: any,
     quantity = 1,
@@ -111,20 +111,55 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    // 1. Current state save karo (agar api fail hui toh wapas yehi set karenge)
+    const prevItems = [...cartItems];
+    const prevTotal = cartTotal;
+    const productId = product._id || product.id;
+
+    // 2. Instant UI Update (Server ka wait kiye bina)
+    const existingItemIndex = prevItems.findIndex(i => i.productId === productId);
+    let updatedItems = [...prevItems];
+
+    if (existingItemIndex > -1) {
+      updatedItems[existingItemIndex].quantity += quantity;
+    } else {
+      updatedItems.push({
+        id: "temp-" + Date.now(), // Fake ID for immediate render
+        productId: productId,
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+        image: product.image || (product.images && product.images[0]) || "",
+        stock: product.stock || 10,
+        slug: product.slug,
+        variant: product.variant || ""
+      });
+    }
+
+    setCartItems(updatedItems);
+    setCartTotal(updatedItems.reduce((acc, i) => acc + i.price * i.quantity, 0));
+
+    if (!silent) {
+      toast.success("Added to cart!");
+      setIsCartOpen(true); // Drawer turant open ho jayega
+    }
+
+    // 3. Background me actual API Call
     try {
       const response = await axiosInstance.post("/cart/add", {
-        productId: product._id || product.id,
+        productId,
         quantity,
       });
 
       if (response.data.success) {
-        await fetchCart();
-        if (!silent) {
-          toast.success("Added to cart!");
-          setIsCartOpen(true);
-        }
+        fetchCart(); // Chupchaap background me real ID ke sath sync kar lo
+      } else {
+        throw new Error("Failed to add");
       }
     } catch (err: any) {
+      // 4. API Fail hui toh Rollback kardo
+      setCartItems(prevItems);
+      setCartTotal(prevTotal);
       if (!silent) {
         toast.error(err.response?.data?.message || "Error adding to cart.");
       }
@@ -166,7 +201,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const item = cartItems.find((i) => i.id === itemId);
     if (!item) return;
 
-    // If quantity becomes 0 or less, remove the item
     if (item.quantity + delta <= 0) {
       await removeFromCart(itemId);
       return;
@@ -215,7 +249,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// ---------------- HOOK ----------------
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context)

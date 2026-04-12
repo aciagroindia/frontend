@@ -264,25 +264,59 @@ const CartProvider = ({ children })=>{
     }["CartProvider.useEffect"], [
         fetchCart
     ]);
-    // ---------------- ADD TO CART ----------------
+    // ---------------- ADD TO CART (⚡ OPTIMISTIC FAST) ----------------
     const addToCart = async (product, quantity = 1, silent = false)=>{
         if (!isAuthenticated) {
             if (!silent) __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Please log in first.");
             return;
         }
+        // 1. Current state save karo (agar api fail hui toh wapas yehi set karenge)
+        const prevItems = [
+            ...cartItems
+        ];
+        const prevTotal = cartTotal;
+        const productId = product._id || product.id;
+        // 2. Instant UI Update (Server ka wait kiye bina)
+        const existingItemIndex = prevItems.findIndex((i)=>i.productId === productId);
+        let updatedItems = [
+            ...prevItems
+        ];
+        if (existingItemIndex > -1) {
+            updatedItems[existingItemIndex].quantity += quantity;
+        } else {
+            updatedItems.push({
+                id: "temp-" + Date.now(),
+                productId: productId,
+                name: product.name,
+                price: product.price,
+                quantity: quantity,
+                image: product.image || product.images && product.images[0] || "",
+                stock: product.stock || 10,
+                slug: product.slug,
+                variant: product.variant || ""
+            });
+        }
+        setCartItems(updatedItems);
+        setCartTotal(updatedItems.reduce((acc, i)=>acc + i.price * i.quantity, 0));
+        if (!silent) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Added to cart!");
+            setIsCartOpen(true); // Drawer turant open ho jayega
+        }
+        // 3. Background me actual API Call
         try {
             const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("/cart/add", {
-                productId: product._id || product.id,
+                productId,
                 quantity
             });
             if (response.data.success) {
-                await fetchCart();
-                if (!silent) {
-                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Added to cart!");
-                    setIsCartOpen(true);
-                }
+                fetchCart(); // Chupchaap background me real ID ke sath sync kar lo
+            } else {
+                throw new Error("Failed to add");
             }
         } catch (err) {
+            // 4. API Fail hui toh Rollback kardo
+            setCartItems(prevItems);
+            setCartTotal(prevTotal);
             if (!silent) {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(err.response?.data?.message || "Error adding to cart.");
             }
@@ -318,7 +352,6 @@ const CartProvider = ({ children })=>{
         if (!isAuthenticated) return;
         const item = cartItems.find((i)=>i.id === itemId);
         if (!item) return;
-        // If quantity becomes 0 or less, remove the item
         if (item.quantity + delta <= 0) {
             await removeFromCart(itemId);
             return;
@@ -364,7 +397,7 @@ const CartProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/CartContext.tsx",
-        lineNumber: 201,
+        lineNumber: 235,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -411,21 +444,18 @@ const WishlistProvider = ({ children })=>{
     _s();
     const [wishlist, setWishlist] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    // Helper to get token (axios interceptor uses it too)
     const getToken = ()=>("TURBOPACK compile-time truthy", 1) ? localStorage.getItem("token") : "TURBOPACK unreachable";
-    // Fetch from backend
     const fetchWishlist = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "WishlistProvider.useCallback[fetchWishlist]": async ()=>{
             const token = getToken();
             if (!token) {
-                setWishlist([]); // Clear if no token
+                setWishlist([]);
                 return;
             }
             setLoading(true);
             try {
                 const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].get("/wishlist");
                 if (response.data.success) {
-                    // Backend returns { success: true, data: { products: [...] } }
                     const products = response.data.data.products.map({
                         "WishlistProvider.useCallback[fetchWishlist].products": (p)=>({
                                 ...p,
@@ -442,7 +472,6 @@ const WishlistProvider = ({ children })=>{
             }
         }
     }["WishlistProvider.useCallback[fetchWishlist]"], []);
-    // Sync on mount or token change (login/logout handled by context reset or refresh)
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "WishlistProvider.useEffect": ()=>{
             fetchWishlist();
@@ -450,40 +479,50 @@ const WishlistProvider = ({ children })=>{
     }["WishlistProvider.useEffect"], [
         fetchWishlist
     ]);
-    // Toggle backend and update state
+    // ---------------- TOGGLE WISHLIST (⚡ OPTIMISTIC FAST) ----------------
     const toggleWishlist = async (product)=>{
         const token = getToken();
         if (!token) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Please login to manage your wishlist.");
             return;
         }
+        const productId = product._id || product.id;
+        const isCurrentlyInWishlist = wishlist.some((item)=>item.id === productId);
+        // 1. Current State save karo (Rollback ke liye)
+        const prevWishlist = [
+            ...wishlist
+        ];
+        // 2. Instant UI Update
+        if (isCurrentlyInWishlist) {
+            setWishlist((prev)=>prev.filter((item)=>item.id !== productId));
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Removed from wishlist!"); // Instant feel
+        } else {
+            setWishlist((prev)=>[
+                    ...prev,
+                    {
+                        id: productId,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image || product.images && product.images[0] || "",
+                        slug: product.slug
+                    }
+                ]);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Added to wishlist!"); // Instant feel
+        }
+        // 3. Background Database Call
         try {
-            // Backend: POST /api/wishlist/toggle { productId: "..." }
             const response = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$utils$2f$axiosInstance$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].post("/wishlist/toggle", {
-                productId: product.id || product._id
+                productId
             });
-            if (response.data.success) {
-                const isAdded = response.data.data.added;
-                if (isAdded) {
-                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Added to wishlist!");
-                    setWishlist((prev)=>[
-                            ...prev,
-                            {
-                                id: product._id || product.id,
-                                name: product.name,
-                                price: product.price,
-                                image: product.image || product.images && product.images[0] || "",
-                                slug: product.slug
-                            }
-                        ]);
-                } else {
-                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Removed from wishlist!");
-                    setWishlist((prev)=>prev.filter((item)=>item.id !== (product._id || product.id)));
-                }
+            // Agar backend se proper response nahi aya toh rollback
+            if (!response.data.success) {
+                throw new Error("Failed to toggle server state");
             }
         } catch (error) {
+            // 4. Fallback on Error
             console.error("Toggle wishlist error:", error);
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(error.response?.data?.message || "Something went wrong.");
+            setWishlist(prevWishlist); // Wapas purani state par set kardo
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hot$2d$toast$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(error.response?.data?.message || "Action failed. Refreshing data.");
         }
     };
     const isInWishlist = (id)=>{
@@ -500,7 +539,7 @@ const WishlistProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/WishlistContext.tsx",
-        lineNumber: 104,
+        lineNumber: 110,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
