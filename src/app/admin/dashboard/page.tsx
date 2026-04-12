@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // ✅ 1. useRouter import kiya
 import DashboardLayout from "../../../../components/admin-layout/DashboardLayout";
 import StatsCard from "../../../../components/dashboard/StatsCard";
 import SalesChart from "../../../../components/dashboard/SalesChart";
@@ -13,6 +14,8 @@ import { useAuth } from "../../../../context/AuthContext";
 import styles from "./dashboard.module.css";
 
 export default function DashboardPage() {
+  const router = useRouter(); // ✅ 2. Router initialize kiya
+
   const [stats, setStats] = useState({
     revenue: 0,
     orders: 0,
@@ -23,7 +26,7 @@ export default function DashboardPage() {
 
   const { isAuthenticated, loading: authLoading } = useAuth();
 
-useEffect(() => {
+  useEffect(() => {
     // 1. Agar auth load ho raha hai, toh bas wait karein (bahar nikal jayein)
     if (authLoading) {
       setLoading(true);
@@ -127,7 +130,13 @@ useEffect(() => {
         <div className={styles.recentOrdersWrapper}>
           <div className={styles.cardHeader}>
             <h3>Recent Orders</h3>
-            <button className={styles.viewAllBtn}>View All</button>
+            {/* ✅ 3. Yahan onClick function laga diya */}
+            <button 
+              className={styles.viewAllBtn} 
+              onClick={() => router.push("/admin/orders")}
+            >
+              View All
+            </button>
           </div>
           <RecentOrders />
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"; // FIX: useState import kiya custom popup ke liye
+import { useState } from "react";
 import Image from "next/image";
 import styles from "./OrderCard.module.css";
 import { useRouter } from "next/navigation";
@@ -34,8 +34,10 @@ export default function OrderCard({ order }: { order: Order }) {
   const { addToCart, setIsCartOpen } = useCart();
   const { products: allProducts } = useProducts();
   
-  // FIX: Custom Modal State
   const [showCancelModal, setShowCancelModal] = useState(false);
+  
+  // 👇 FIX 1: Local state for instant UI update without page reload
+  const [currentStatus, setCurrentStatus] = useState(order.status);
 
   const handleViewDetails = () => {
     router.push(`/orders/${order.id}`);
@@ -106,7 +108,7 @@ export default function OrderCard({ order }: { order: Order }) {
 
             if (verifyRes.data.success) {
               toast.success("Payment successful! Order Confirmed.");
-              window.location.reload();
+              setCurrentStatus("Processing"); // Update status instantly
             }
           } catch (verifyError) {
             console.error(verifyError);
@@ -127,9 +129,8 @@ export default function OrderCard({ order }: { order: Order }) {
     }
   };
 
-  // FIX: Actual cancellation logic jab user custom modal par "Yes" click kare
   const executeCancelOrder = async () => {
-    setShowCancelModal(false); // Modal band karo
+    setShowCancelModal(false); 
     try {
       toast.loading("Cancelling order...", { id: "cancel-toast" });
       
@@ -137,7 +138,8 @@ export default function OrderCard({ order }: { order: Order }) {
       
       if (response.data.success) {
         toast.success("Order cancelled successfully!", { id: "cancel-toast" });
-        window.location.reload(); 
+        // 👇 FIX 1: Instantly update UI instead of window.location.reload()
+        setCurrentStatus("Cancelled"); 
       }
     } catch (error: any) {
       console.error(error);
@@ -145,7 +147,8 @@ export default function OrderCard({ order }: { order: Order }) {
     }
   };
 
-  const isCancelled = order.status?.toLowerCase() === "cancelled";
+  // ✅ IsCancelled logic ab naye local state par kaam karega
+  const isCancelled = currentStatus?.toLowerCase() === "cancelled";
 
   return (
     <>
@@ -159,9 +162,9 @@ export default function OrderCard({ order }: { order: Order }) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
               <span
                 className={`${styles.status} ${
-                    order.status === "Delivered"
+                    currentStatus === "Delivered"
                     ? styles.delivered
-                    : order.status === "Processing"
+                    : currentStatus === "Processing"
                     ? styles.processing
                     : isCancelled
                     ? styles.cancelled
@@ -169,10 +172,11 @@ export default function OrderCard({ order }: { order: Order }) {
                 }`}
                 style={order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && !isCancelled ? { backgroundColor: '#ffeeba', color: '#856404', border: '1px solid #ffeeba' } : {}}
               >
-                {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && !isCancelled ? 'Payment Pending' : order.status}
+                {/* Dynamically show local status */}
+                {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && !isCancelled ? 'Payment Pending' : currentStatus}
               </span>
               
-              {order.paymentStatus === 'paid' && (
+              {order.paymentStatus === 'paid' && !isCancelled && (
                   <span style={{ color: "green", fontSize: "0.85rem", fontWeight: "bold" }}>
                       ✓ Paid
                   </span>
@@ -200,6 +204,7 @@ export default function OrderCard({ order }: { order: Order }) {
           <p className={styles.total}>Total: ₹{order.total}</p>
 
           <div className={styles.actions}>
+            {/* 👇 FIX 2: Dynamic Action Buttons */}
             {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && !isCancelled ? (
               <div style={{ display: 'flex', gap: '10px' }}>
                   <button 
@@ -212,13 +217,16 @@ export default function OrderCard({ order }: { order: Order }) {
                   <button 
                       className={styles.viewBtn} 
                       style={{ background: "#dc3545", color: "white", border: "none", padding: "0.5rem 1.5rem", fontWeight: "bold" }} 
-                      // FIX: Yahan ab direct function call nahi hogi, balki custom modal khulega
                       onClick={() => setShowCancelModal(true)}
                   >
                       Cancel
                   </button>
               </div>
+            ) : isCancelled ? (
+              // Agar Cancelled hai toh SIRF Reorder button dikhega
+              <button className={styles.reorderBtn} onClick={handleReorder}>Reorder</button>
             ) : (
+              // Default state (Delivered/Processing)
               <>
                 <button className={styles.viewBtn} onClick={handleViewDetails}>View Details</button>
                 <button className={styles.reorderBtn} onClick={handleReorder}>Reorder</button>
@@ -228,7 +236,6 @@ export default function OrderCard({ order }: { order: Order }) {
         </div>
       </div>
 
-      {/* FIX: Custom Cancellation Modal (Popup) */}
       {showCancelModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,

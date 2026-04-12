@@ -5,8 +5,10 @@ import { Mail, ChevronRight } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./NewCustomers.module.css";
+import { useRouter } from "next/navigation";
 
 export default function NewCustomers() {
+  const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,9 @@ export default function NewCustomers() {
         ))}
       </div>
       
-      <button className={styles.footerLink}>
+      <button className={styles.footerLink}
+      onClick={() => router.push("/admin/customers")}
+      >
         See all customers <ChevronRight size={14} />
       </button>
     </div>

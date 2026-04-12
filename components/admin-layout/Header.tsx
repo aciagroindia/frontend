@@ -34,7 +34,13 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
 
         <div className={styles.divider}></div>
 
-        <div className={styles.user}>
+        {/* 👇 Yahan par onClick lagaya aur cursor ko pointer banaya 👇 */}
+        <div 
+          className={styles.user} 
+          onClick={() => router.push("/admin/settings")}
+          style={{ cursor: "pointer" }} // Hover par hath ka nishaan aayega
+          title="Go to Settings"
+        >
           <div className={styles.avatarWrapper}>
             <img
               src={user?.avatar || "https://i.pravatar.cc/40"}
@@ -48,6 +54,8 @@ export default function Header({ toggleSidebar }: { toggleSidebar: () => void })
             <span className={styles.userRole}>{user?.role === 'owner' ? "Super Admin" : "Admin"}</span>
           </div>
         </div>
+        {/* 👆 Change End 👆 */}
+
       </div>
     </header>
   );

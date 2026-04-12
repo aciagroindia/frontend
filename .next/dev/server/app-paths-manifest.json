@@ -1,7 +1,14 @@
 {
+  "/(store)/orders/page": "app/(store)/orders/page.js",
+  "/admin/analytics/page": "app/admin/analytics/page.js",
+  "/admin/bulk-inquiries/page": "app/admin/bulk-inquiries/page.js",
+  "/admin/customers/page": "app/admin/customers/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
   "/admin/login/page": "app/admin/login/page.js",
+  "/admin/notifications/page": "app/admin/notifications/page.js",
   "/admin/orders/[id]/page": "app/admin/orders/[id]/page.js",
   "/admin/orders/page": "app/admin/orders/page.js",
+  "/admin/products/page": "app/admin/products/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
   "/page": "app/page.js"
 }

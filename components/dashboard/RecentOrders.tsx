@@ -2,24 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { Eye } from "lucide-react";
+import { useRouter } from "next/navigation"; // ✅ Router import kiya
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./RecentOrders.module.css";
 
 export default function RecentOrders() {
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const router = useRouter(); // ✅ Router initialize kiya
+  
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Agar auth state check ho raha hai, toh wait karein
     if (authLoading) {
       setLoading(true);
       return;
     }
 
-    // 2. Agar user login nahi hai, toh API call mat karein
     if (!isAuthenticated) {
       setLoading(false);
       return;
@@ -52,7 +53,6 @@ export default function RecentOrders() {
 
     fetchRecentOrders();
     
-  // 👇 FIX: Dependency array updated
   }, [authLoading, isAuthenticated]);
 
   const formatDate = (dateString: string) => {
@@ -122,7 +122,11 @@ export default function RecentOrders() {
                 </td>
 
                 <td className={styles.actionCol}>
-                  <button className={styles.viewBtn}>
+                  {/* 👇 NAYA: Eye button par routing lagayi 👇 */}
+                  <button 
+                    className={styles.viewBtn}
+                    onClick={() => router.push(`/admin/orders/${o.id}`)}
+                  >
                     <Eye size={16} />
                   </button>
                 </td>
