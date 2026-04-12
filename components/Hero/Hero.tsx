@@ -11,7 +11,7 @@ interface Banner {
   id: string;
   title: string;
   imageUrl: string;
-  link?: string; // Optional link for the banner
+  link?: string;
   order: number;
 }
 
@@ -21,16 +21,28 @@ const Hero = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 👇 1. INSTANT LOAD LOGIC: LocalStorage se purane banners turant nikal lo
+    const cachedBanners = localStorage.getItem('hero_banners');
+    if (cachedBanners) {
+      setBanners(JSON.parse(cachedBanners));
+      setLoading(false); // Cache milte hi loading khatam, UI turant dikhega!
+    }
+
+    // 👇 2. BACKGROUND SYNC: Chup-chaap naye banners check karo
     const fetchActiveBanners = async () => {
       try {
-        setLoading(true);
-        // Public endpoint, backend should only send active banners
+        // Agar cache nahi mila, tabhi loading true karo
+        if (!cachedBanners) setLoading(true); 
+
         const response = await axiosInstance.get<any[]>('/banners');
-        // Map backend's `_id` to `id` for React key prop and then sort.
         const processedBanners = response.data
           .map(banner => ({ ...banner, id: banner._id }))
           .sort((a, b) => a.order - b.order);
+
+        // Naye banners set karo aur memory me save kar lo future ke liye
         setBanners(processedBanners);
+        localStorage.setItem('hero_banners', JSON.stringify(processedBanners));
+        
       } catch (error) {
         console.error('Failed to fetch banners:', error);
       } finally {
@@ -57,7 +69,7 @@ const Hero = () => {
   }
 
   if (!banners || banners.length === 0) {
-    return null; // Agar koi banner nahi hai to kuch na dikhaye
+    return null;
   }
 
   return (
@@ -72,9 +84,9 @@ const Hero = () => {
               src={banner.imageUrl}
               alt={banner.title}
               fill
-              priority={index === 0} // Pehle banner ko jaldi load karein
+              priority={index === 0} // Pehle banner ko Network priority milti hai
               className={styles.image}
-              sizes="(max-width: 768px) 100vw, 50vw"
+              sizes="100vw" // 👇 NAYA: Hero banner poori screen leta hai, isliye 100vw lagana zyada fast hota hai (50vw se image blur ya slow ho sakti hai)
             />
           </Link>
         </div>
