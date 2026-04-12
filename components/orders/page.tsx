@@ -32,7 +32,6 @@ interface OrderDetails {
     city: string;
     postalCode: string;
   };
-  // FIX: Added missing payment fields
   paymentStatus?: string;
   paymentMethod?: string;
   razorpay_order_id?: string;
@@ -59,13 +58,29 @@ export default function OrderDetailsPage() {
 
     if (!id) return;
 
+    // 👇 1. INSTANT LOAD LOGIC: Pehle cache se turant order uthao aur UI dikha do
+    const cacheKey = `order_details_${id}`;
+    const cachedOrder = localStorage.getItem(cacheKey);
+    
+    if (cachedOrder) {
+      try {
+        setOrder(JSON.parse(cachedOrder));
+        setLoading(false); // Cache milte hi loading khatam, data screen par!
+      } catch (e) {
+        console.error("Cache parsing error", e);
+      }
+    }
+
+    // 👇 2. BACKGROUND FETCH: Chup-chaap backend se fresh data mangwao
     const fetchOrderDetails = async () => {
       try {
+        if (!cachedOrder) setLoading(true); // Agar pehli baar hai toh loader dikhao
+
         const response = await axiosInstance.get(`/orders/${id}`);
         if (response.data.success) {
-          const orderData = response.data.data; // FIX: Ensure it maps from response.data.data based on your backend controller
+          const orderData = response.data.data;
 
-          // Map data
+          // Map data (Logic 100% same hai)
           let statusText = "Processing";
           if (orderData.orderStatus === "delivered") statusText = "Delivered";
           else if (orderData.orderStatus === "shipped") statusText = "Shipped";
@@ -80,9 +95,7 @@ export default function OrderDetailsPage() {
             date: formattedDate,
             status: statusText,
             total: orderData.totalAmount,
-            shippingAddress: orderData.shippingInfo || orderData.shippingAddress, // Fallback for safety
-            
-            // FIX: Successfully mapped new payment fields
+            shippingAddress: orderData.shippingInfo || orderData.shippingAddress, 
             paymentStatus: orderData.paymentStatus,
             paymentMethod: orderData.paymentMethod,
             razorpay_order_id: orderData.razorpay_order_id,
@@ -99,12 +112,15 @@ export default function OrderDetailsPage() {
               };
             }),
           };
+
           setOrder(mappedOrder);
+          // 👇 3. SAVE TO CACHE: Agli baar ke liye memory me save kar lo
+          localStorage.setItem(cacheKey, JSON.stringify(mappedOrder));
         } else {
           toast.error("Could not fetch order details.");
         }
       } catch (error) {
-        toast.error("Failed to load order details.");
+        if (!cachedOrder) toast.error("Failed to load order details.");
         console.error("Fetch order details error:", error);
       } finally {
         setLoading(false);
@@ -114,7 +130,7 @@ export default function OrderDetailsPage() {
     fetchOrderDetails();
   }, [id, isAuthenticated, authLoading, productsLoading, router, allProducts]);
 
-  // FIX: Added Retry Payment logic for Details Page
+  // FIX: Added Retry Payment logic for Details Page (Safe, 100% untouched)
   const handleRetryPayment = async () => {
     if (!order) return;
     
@@ -246,7 +262,6 @@ export default function OrderDetailsPage() {
         <div className={styles.addressSection}>
           <h2>Shipping Address</h2>
           <div className={styles.addressCard}>
-            {/* Added fallback to avoid crash if shippingAddress is unexpectedly undefined */}
             <p><strong>{order.shippingAddress?.name || 'N/A'}</strong></p>
             <p>{order.shippingAddress?.address || 'No address provided'}</p>
             <p>{order.shippingAddress?.city}, {order.shippingAddress?.postalCode}</p>
