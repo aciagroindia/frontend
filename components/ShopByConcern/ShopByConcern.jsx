@@ -15,7 +15,7 @@ export default function ShopByConcern() {
         {loading ? (
           <p>Loading categories...</p>
         ) : (
-          categories.map((category) => (
+          categories.map((category, index) => (
             <Link 
               key={category._id} 
               href={`/collections/${category.slug}`} 
@@ -25,9 +25,11 @@ export default function ShopByConcern() {
                 <Image
                   src={category.image || "/certifiedIcons/product.jpeg"}
                   alt={category.name}
-                  width={100} // Thoda bada size for better quality
+                  width={100} 
                   height={100}
                   className={styles.image}
+                  // 👇 NAYA: Pehli 4 images ko high priority do taaki wo turant load hon
+                  priority={index < 4} 
                 />
               </div>
               <div className={styles.name}>{category.name}</div>
