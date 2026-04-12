@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "../../../../components/admin-layout/DashboardLayout";
 import AdvancedTable from "../../../../components/admin-ui/AdvancedTable";
-import axiosInstance from "@/utils/axiosInstance"; // ✅ use this
+import axiosInstance from "@/utils/axiosInstance"; 
 import styles from "./OrdersPage.module.css";
 import { toast } from "react-hot-toast";
 
@@ -28,7 +28,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const response = await axiosInstance.get("/admin/orders"); // ✅ FIXED
+      const response = await axiosInstance.get("/admin/orders"); 
       if (response.data.success) {
         setOrders(response.data.data || response.data.orders || []);
       }
@@ -47,7 +47,7 @@ export default function OrdersPage() {
   const handleShipOrder = async (orderId: string) => {
     setProcessingId(orderId);
     try {
-      const response = await axiosInstance.post(`/admin/orders/${orderId}/ship`); // ✅ FIXED
+      const response = await axiosInstance.post(`/admin/orders/${orderId}/ship`); 
       if (response.data.success) {
         toast.success("Order shipped successfully!");
         setOrders(prev =>
@@ -61,24 +61,6 @@ export default function OrdersPage() {
     }
   };
 
-  const handleTrack = async (orderId: string) => {
-    try {
-      const response = await axiosInstance.get(`/admin/orders/${orderId}/track`); // ✅ FIXED
-      if (response.data.success) {
-        toast((t) => (
-          <span>
-            Current Status: <b>{response.data.status}</b>
-            <button onClick={() => toast.dismiss(t.id)} style={{ marginLeft: 10 }}>
-              Close
-            </button>
-          </span>
-        ), { duration: 4000 });
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to track order");
-    }
-  };
-
   const columns = [
     { 
       key: "id", 
@@ -87,7 +69,7 @@ export default function OrdersPage() {
         const displayId = val || row._id || '';
         return (
           <span 
-            title={displayId} // Mouse le jane par poori ID dikhegi
+            title={displayId} 
             style={{ fontSize: '0.85rem', cursor: 'help', fontFamily: 'monospace' }}
           >
             #{displayId.slice(0, 8)}...
@@ -154,18 +136,6 @@ export default function OrdersPage() {
             >
               View
             </button>
-
-            {row.trackingId && (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <button 
-                  className={styles.trackBtn} 
-                  onClick={() => handleTrack(orderId)}
-                >
-                  Track
-                </button>
-                <span className={styles.trackingId}>{row.trackingId}</span>
-              </div>
-            )}
           </div>
         );
       }

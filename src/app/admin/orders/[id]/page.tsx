@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "../../../../../components/admin-layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, User, ShoppingCart, Package, CreditCard } from "lucide-react"; // FIX: Added CreditCard icon
+import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink } from "lucide-react"; // ✅ Added Truck & ExternalLink
 import { toast } from "react-hot-toast";
 import styles from "./page.module.css";
 
@@ -16,6 +16,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState(false); // ✅ Track spinner state
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -35,11 +36,10 @@ export default function OrderDetailPage() {
   }, [orderId]);
 
   const handleStatusChange = async (newStatus: string) => {
-    // FIX: Safety Check - Prevent shipping unpaid online orders
     if (newStatus === 'shipped' || newStatus === 'delivered') {
       if (order.paymentStatus === 'pending' && order.paymentMethod !== 'COD') {
         toast.error("Cannot ship! Payment is still pending for this online order.");
-        return; // Rok do
+        return; 
       }
     }
 
@@ -49,13 +49,31 @@ export default function OrderDetailPage() {
         status: newStatus 
       });
       if (response.data.success) {
-        setOrder({ ...order, orderStatus: newStatus });
+        setOrder({ ...order, orderStatus: newStatus, trackingId: response.data.data.trackingId }); // ✅ Status aur tracking dono update ho
         toast.success("Order status updated to " + newStatus);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update status");
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  // ✅ NEW: Track Order Logic
+  const handleTrackOrder = async () => {
+    setTrackingLoading(true);
+    try {
+      const response = await axiosInstance.get(`/admin/orders/${orderId}/track`);
+      if (response.data.success && response.data.data.trackingUrl) {
+        // Customer ko naye tab me Shiprocket par bhej do
+        window.open(response.data.data.trackingUrl, '_blank');
+      } else {
+        toast.error("Tracking URL not found.");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to fetch tracking details");
+    } finally {
+      setTrackingLoading(false);
     }
   };
 
@@ -131,7 +149,7 @@ export default function OrderDetailPage() {
           {/* Sidebar: Status Update & Payment Info */}
           <div className={styles.sideCol}>
             
-            {/* FIX: New Payment Info Card */}
+            {/* Payment Info Card */}
             <div className={styles.card} style={{ marginBottom: '1.5rem' }}>
               <div className={styles.cardHeader}><CreditCard size={20} /> <h2>Payment Info</h2></div>
               <div style={{ marginTop: '1rem' }}>
@@ -149,7 +167,6 @@ export default function OrderDetailPage() {
                   </span>
                 </p>
                 
-                {/* Warning if payment is not received */}
                 {order.paymentStatus === 'pending' && order.paymentMethod !== 'COD' && (
                   <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#fff3cd', color: '#856404', borderRadius: '4px', borderLeft: '4px solid #ffeeba', fontSize: '0.9rem' }}>
                     ⚠️ <strong>WARNING:</strong> Payment is pending for this online order. Do not process or ship until paid.
@@ -158,12 +175,32 @@ export default function OrderDetailPage() {
               </div>
             </div>
 
+            {/* ✅ NEW: Shipping & Tracking Card (Sirf tab dikhega jab tracking ID ho) */}
+            {(order.trackingId && order.trackingId !== "Pending AWB") && (
+              <div className={styles.card} style={{ marginBottom: '1.5rem' }}>
+                <div className={styles.cardHeader}><Truck size={20} /> <h2>Shipping Details</h2></div>
+                <div className={styles.trackingInfo}>
+                  <p><strong>Courier:</strong> {order.courierName || "Shiprocket"}</p>
+                  <p><strong>Tracking ID:</strong> {order.trackingId}</p>
+                  
+                  <button 
+                    className={styles.trackActionBtn} 
+                    onClick={handleTrackOrder}
+                    disabled={trackingLoading}
+                  >
+                    {trackingLoading ? "Fetching..." : "Track Order Live"}
+                    <ExternalLink size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Order Status Card */}
             <div className={`${styles.card} ${styles.statusCard}`}>
               <div className={styles.cardHeader}><Package size={20} /> <h2>Order Status</h2></div>
               
-              {/* Current Status Badge */}
               <div className={`${styles.statusBadge} ${styles[order.orderStatus.replace(/\s+/g, '').toLowerCase()]}`}>
-                {order.orderStatus.toUpperCase()}
+                {updatingStatus ? "UPDATING..." : order.orderStatus.toUpperCase()}
               </div>
               
               <div className={styles.divider} />

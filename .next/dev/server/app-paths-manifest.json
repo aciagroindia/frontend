@@ -1,4 +1,7 @@
 {
-  "/(store)/orders/[id]/page": "app/(store)/orders/[id]/page.js",
-  "/admin/orders/[id]/page": "app/admin/orders/[id]/page.js"
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/orders/[id]/page": "app/admin/orders/[id]/page.js",
+  "/admin/orders/page": "app/admin/orders/page.js",
+  "/page": "app/page.js"
 }
