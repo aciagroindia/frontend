@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
+import FeaturesStrip from "./FeaturesStrip/FeaturesStrip";
 
 export default function ConditionalLayout({
   children,
@@ -22,6 +23,7 @@ export default function ConditionalLayout({
     <>
       <Navbar />
       {children}
+      <FeaturesStrip />
       <Footer />
     </>
   );
