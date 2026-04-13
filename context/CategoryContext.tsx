@@ -34,26 +34,54 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
     id: category._id,
   });
 
+  // 👇 1. UPDATE CACHE HELPER (Background sync ke liye)
+  const syncCache = (data: Category[]) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('categories_cache', JSON.stringify(data));
+    }
+  };
+
   const fetchCategories = useCallback(async () => {
-    setLoading(true);
+    // 👇 2. INSTANT LOAD: Pehle cache se data uthao aur turant dikha do
+    if (typeof window !== 'undefined') {
+      const cachedData = localStorage.getItem('categories_cache');
+      if (cachedData) {
+        try {
+          setCategories(JSON.parse(cachedData));
+          setLoading(false); // Cache milte hi UI turant load ho jayega!
+        } catch (e) {
+          console.error("Cache parse error", e);
+        }
+      }
+    }
+
+    // Agar cache nahi hai, tabhi spinner dikhega
+    setLoading((prev) => categories.length === 0 ? true : prev);
+
+    // 👇 3. BACKGROUND FETCH: Chup-chaap API se naya data check karo
     try {
       const response = await axiosInstance.get('/categories');
       if (response.data.success) {
-        setCategories(response.data.data?.map(normalizeCategory) || []);
+        const freshCategories = response.data.data?.map(normalizeCategory) || [];
+        setCategories(freshCategories);
+        syncCache(freshCategories); // Naye data ko agli baar ke liye save kar lo
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
-      toast.error("Categories load nahi ho paayin.");
+      // Galti se cache bhi na ho aur error aa jaye, tabhi toast dikhana
+      if (categories.length === 0) {
+        toast.error("Categories load nahi ho paayin.");
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [categories.length]);
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-const addCategory = useCallback(async (formData: FormData): Promise<boolean> => {
+  const addCategory = useCallback(async (formData: FormData): Promise<boolean> => {
     try {
       const response = await axiosInstance.post('/categories', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -61,7 +89,11 @@ const addCategory = useCallback(async (formData: FormData): Promise<boolean> => 
   
       if (response.data.success) {
         const newCategory = normalizeCategory(response.data.data);
-        setCategories(prev => [newCategory, ...prev]);
+        setCategories(prev => {
+          const updated = [newCategory, ...prev];
+          syncCache(updated); // ⚡ Cache me bhi turant update
+          return updated;
+        });
         toast.success('Category successfully added!');
         return true;
       }
@@ -74,12 +106,11 @@ const addCategory = useCallback(async (formData: FormData): Promise<boolean> => 
     }
   }, []);
 
-const updateCategory = useCallback(async (id: string, formData: FormData): Promise<boolean> => {
+  const updateCategory = useCallback(async (id: string, formData: FormData): Promise<boolean> => {
     if (!id) {
       toast.error("Category ID is missing. Cannot update.");
       return false;
     }
-    // For debugging: Check the ID being passed in the browser's developer console.
     console.log('Attempting to update category with ID:', id); 
     try {
       const response = await axiosInstance.put(`/categories/${id}`, formData, {
@@ -87,11 +118,13 @@ const updateCategory = useCallback(async (id: string, formData: FormData): Promi
       });
   
       if (response.data.success) {
-        const updated = normalizeCategory(response.data.data);
+        const updatedCategory = normalizeCategory(response.data.data);
   
-        setCategories(prev =>
-          prev.map(cat => cat._id === id ? updated : cat)
-        );
+        setCategories(prev => {
+          const updatedList = prev.map(cat => cat._id === id ? updatedCategory : cat);
+          syncCache(updatedList); // ⚡ Cache me bhi turant update
+          return updatedList;
+        });
   
         toast.success('Category successfully updated!');
         return true;
@@ -114,7 +147,11 @@ const updateCategory = useCallback(async (id: string, formData: FormData): Promi
       const response = await axiosInstance.delete(`/categories/${id}`);
       if (response.data.success) {
         toast.success('Category deleted!');
-        setCategories((prev) => prev.filter((cat) => cat._id !== id));
+        setCategories((prev) => {
+          const updatedList = prev.filter((cat) => cat._id !== id);
+          syncCache(updatedList); // ⚡ Cache me bhi turant delete
+          return updatedList;
+        });
         return true;
       }
       toast.error(response.data.message || 'Error deleting category');
