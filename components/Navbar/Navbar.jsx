@@ -9,8 +9,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import SearchMegaMenu from "../../components/SearchMenu/SearchMegaMenu";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
-import { useAuth } from "../../context/AuthContext"; // 1. Auth hook import kiya
+import { useAuth } from "../../context/AuthContext";
 import { useCategories } from "../../context/CategoryContext";
+
+// 👇 YAHAN IMPORT ADD KIYA HAI (Aap apne path ke hisaab se adjust kar lena)
+import TopAnnouncementBar from "../../components/TopAnnouncementBar/TopAnnouncementBar"; 
 
 // Search input ke liye ek simple debounce hook
 function useDebounce(value, delay) {
@@ -30,18 +33,18 @@ export default function Navbar() {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const { wishlist } = useWishlist();
   const { categories, loading: categoriesLoading } = useCategories();
-  const { user, isAuthenticated, logout } = useAuth(); // 2. Auth states nikali
+  const { user, isAuthenticated, logout } = useAuth(); 
   
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // Search input ke liye state
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Performance ke liye debounced term
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); 
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("categories");
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); // MegaMenu ke liye state
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); 
   
-  const searchContainerRef = useRef(null); // Desktop search ke bahar click detect karne ke liye
+  const searchContainerRef = useRef(null); 
 
   useEffect(() => {
     if (isMobileDrawerOpen || isMobileSearchOpen || isCartOpen) {
@@ -52,7 +55,6 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [isMobileDrawerOpen, isMobileSearchOpen, isCartOpen]);
 
-  // Desktop search menu ke bahar click karne par use band karne ka logic
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
@@ -78,6 +80,9 @@ export default function Navbar() {
   return (
     <>
       <header className={styles.header}>
+        {/* 👇 YAHAN COMPONENT ADD KIYA HAI - FIXED HEADER KE ANDAR */}
+        <TopAnnouncementBar />
+
         <nav className={styles.navbar}>
           <button className={styles.hamburger} onClick={() => setIsMobileDrawerOpen(true)}>
             <div className={styles.bar}></div>
@@ -133,7 +138,7 @@ export default function Navbar() {
               <Image src="/assets/search-icon.svg" alt="Search" width={20} height={20} className={styles.darkIcon} />
             </button>
 
-            {/* 3. Login/User Logic - DESKTOP */}
+            {/* Login/User Logic - DESKTOP */}
             {isAuthenticated ? (
               <div className={styles.userContainer} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span className={styles.userName} style={{ fontSize: '14px', fontWeight: '500' }}>
@@ -217,7 +222,7 @@ export default function Navbar() {
               <Link href="/bulk-order" className={styles.drawerLink} onClick={closeDrawer}>Bulk Order</Link>
               <Link href="/about" className={styles.drawerLink} onClick={closeDrawer}>About</Link>
               
-              {/* 4. Mobile Login/Logout Toggle */}
+              {/* Mobile Login/Logout Toggle */}
               {isAuthenticated ? (
                 <>
                   <div className={styles.drawerLink} style={{ color: '#1a8e5f', fontWeight: 'bold' }}>
