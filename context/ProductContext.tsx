@@ -79,7 +79,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [lastUpdatedProduct, setLastUpdatedProduct] = useState<Product | null>(null);
 
-  // 👇 1. UPDATE CACHE HELPERS (Local Memory ke liye)
+  // UPDATE CACHE HELPERS (Local Memory ke liye)
   const syncProductsCache = (data: Product[]) => {
     if (typeof window !== 'undefined') localStorage.setItem('products_cache', JSON.stringify(data));
   };
@@ -120,12 +120,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
   // Shuruaat me data fetch karein
   useEffect(() => {
-    // 👇 2. INSTANT LOAD: Pehle browser ki memory se turant dikhao
+    // 1. INSTANT LOAD: Pehle browser ki memory se turant dikhao
+    let hasCache = false;
     if (typeof window !== 'undefined') {
       const cachedProducts = localStorage.getItem('products_cache');
       const cachedBestSellers = localStorage.getItem('bestsellers_cache');
       
-      let hasCache = false;
       if (cachedProducts) {
         try { setProducts(JSON.parse(cachedProducts)); hasCache = true; } catch (e) {}
       }
@@ -137,16 +137,26 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       if (hasCache) setLoading(false);
     }
 
-    // 👇 3. BACKGROUND FETCH: Chup-chaap naya data check karo
+    // 2. BACKGROUND FETCH LOGIC (Optimized)
     const fetchInitialData = async () => {
-      setLoading(prev => (products.length === 0 && bestSellers.length === 0) ? true : prev);
-      await Promise.all([fetchProducts(), fetchBestSellers()]);
-      setLoading(false);
+      // Agar cache nahi hai, tabhi loading true dikhao
+      if (!hasCache) setLoading(true);
+
+      // Pehle sirf BestSellers fetch karo kyuki home page par yahi chahiye
+      await fetchBestSellers();
+
+      // Bestsellers aate hi loading false kar do, taaki website block na ho
+      if (!hasCache) setLoading(false);
+
+      // Baaki products background me fetch karo (halki si delay ke sath taaki network choke na ho)
+      setTimeout(() => {
+        fetchProducts();
+      }, 1000); // 1 second ka delay
     };
     
     fetchInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Eslint ignore is safe here to prevent infinite loops on mount
+  }, []); // Eslint ignore is safe here
 
   // Ek product slug se fetch karein
   const fetchProductBySlug = useCallback(async (slug: string): Promise<Product | null> => {
