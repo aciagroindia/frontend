@@ -1,0 +1,61 @@
+/* TopAnnouncementBar.module.css */
+
+.announcementContainer {
+  width: 100%;
+  background-color: rgb(26, 142, 95); /* Aapka green color */
+  padding: 8px 0;
+  overflow: hidden;
+  position: relative;
+  height: 40px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.textWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.announcementText {
+  position: absolute;
+  font-size: 14px; 
+  font-weight: bold; /* Text bold kar diya */
+  color: #ffffff; /* Text strictly white */
+  width: 100%;
+  text-align: center;
+  padding: 0 16px;
+  margin: 0;
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+  cursor: default;
+}
+
+/* Animation states */
+.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(-15px); 
+  pointer-events: none;
+}
+
+/* Tablet and Desktop Responsiveness */
+@media (min-width: 768px) {
+  .announcementContainer {
+    height: 44px; 
+  }
+  
+  .announcementText {
+    font-size: 16px; 
+  }
+}
