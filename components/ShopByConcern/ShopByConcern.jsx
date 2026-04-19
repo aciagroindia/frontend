@@ -20,6 +20,7 @@ export default function ShopByConcern() {
               key={category._id} 
               href={`/collections/${category.slug}`} 
               className={styles.card}
+              prefetch={true} /* 👇 NAYA: Forces fast background loading */
             >
               <div className={styles.imageWrapper}>
                 <Image
@@ -28,7 +29,7 @@ export default function ShopByConcern() {
                   width={100} 
                   height={100}
                   className={styles.image}
-                  // 👇 NAYA: Pehli 4 images ko high priority do taaki wo turant load hon
+                  // Pehli 4 images ko high priority do taaki wo turant load hon
                   priority={index < 4} 
                 />
               </div>

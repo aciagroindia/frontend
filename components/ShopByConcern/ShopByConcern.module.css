@@ -34,10 +34,21 @@
   border: 1px solid #e5e7eb;
 }
 
-.card:hover,
-.card:focus-visible {
-  transform: translateY(-4px); /* Halka sa lift */
-  box-shadow: 0 8px 20px rgb(0 0 0 / 0.08); /* Modern subtle shadow */
+@media (hover: hover) {
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-4px); /* Halka sa lift */
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.08); /* Modern subtle shadow */
+  }
+
+  .card:hover .image {
+    transform: scale(1.05); /* Zoom on hover */
+  }
+
+  /* ✅ CHANGE 3: HOVER GREEN EFFECT ON NAME */
+  .card:hover .name {
+    color: #16a34a; /* A nice leafy green color */
+  }
 }
 
 /* Keep Square Image Container */
@@ -56,10 +67,6 @@
   transition: transform 0.4s ease;
 }
 
-.card:hover .image {
-  transform: scale(1.05); /* Zoom on hover */
-}
-
 .name {
   width: 100%;
   padding: 10px 5px; /* Compact padding below image */
@@ -71,9 +78,4 @@
   text-align: center;
   margin-top: auto; /* Push to bottom */
   transition: color 0.3s ease; /* Smooth color change on hover */
-}
-
-/* ✅ CHANGE 3: HOVER GREEN EFFECT ON NAME */
-.card:hover .name {
-  color: #16a34a; /* A nice leafy green color */
 }
