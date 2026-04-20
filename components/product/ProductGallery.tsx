@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image"; // 👇 NAYA: Next.js optimized Image component
 import styles from "./ProductGallery.module.css";
 
 interface Product {
@@ -14,19 +15,19 @@ interface Props {
 }
 
 export default function ProductGallery({ product }: Props) {
-  // Combine the main image and the gallery images for display.
-  // The main image (`product.image`) should always be first.
   const displayImages = [product.image, ...(product.images || [])].filter(Boolean);
-
-  // State to track the index of the selected image
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   return (
     <div className={styles.galleryWrapper}>
       <div className={styles.mainImageContainer}>
-        <img
+        {/* 👇 NAYA: Optimized Main Image with priority loading */}
+        <Image
           src={displayImages[selectedIndex]}
           alt={product.name}
+          fill
+          priority={true} // Forces browser to load this immediately (LCP boost)
+          sizes="(max-width: 768px) 100vw, 50vw"
           className={styles.mainImage}
         />
       </div>
@@ -36,11 +37,18 @@ export default function ProductGallery({ product }: Props) {
           <div
             key={idx}
             className={`${styles.thumb} ${
-              idx === selectedIndex ? styles.activeThumb : ""
+              idx === selectedIndex ? styles.thumbActive : "" // Fixed class name to match CSS
             }`}
             onClick={() => setSelectedIndex(idx)}
           >
-            <img src={img} alt={`${product.name} thumbnail ${idx + 1}`} />
+            {/* 👇 NAYA: Optimized Thumbnails */}
+            <Image 
+              src={img} 
+              alt={`${product.name} thumbnail ${idx + 1}`} 
+              fill
+              sizes="80px"
+              className={styles.thumbImage}
+            />
           </div>
         ))}
       </div>

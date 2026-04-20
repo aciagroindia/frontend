@@ -16,11 +16,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative; /* 👇 NAYA: Required for Next.js Image fill */
 }
 
 .mainImage {
-  width: 100%;
-  height: 100%;
   object-fit: contain; /* Ye image ko stretch ya cut hone se rokega */
 }
 
@@ -40,15 +39,14 @@
   cursor: pointer;
   border: 2px solid transparent;
   transition: border 0.3s;
+  position: relative; /* 👇 NAYA: Required for Next.js Image fill */
 }
 
 .thumb:hover, .thumbActive {
   border-color: #0f4e35;
 }
 
-.thumb img {
-  width: 100%;
-  height: 100%;
+.thumbImage {
   object-fit: cover;
 }
 
@@ -75,15 +73,15 @@
 @media (max-width: 768px) {
   .mainImageContainer {
     aspect-ratio: auto; /* Adjust height naturally */
+    height: 60vh; /* 👇 NAYA: Added a safe fallback height since aspect-ratio: auto needs bounds for Image fill */
+    min-height: 300px; 
   }
 
   .mainImage {
     object-fit: contain;
-    width: 100%;
-    height: auto;
   }
 
-  .thumb img {
+  .thumbImage {
     object-fit: cover;
   }
 }
