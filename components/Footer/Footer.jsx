@@ -104,7 +104,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className={styles.bottom}>Developed By BOOST STAR Experts</div>
+      <div className={styles.bottom}>Developed By Sarvamidam Tech Experts</div>
     </footer>
   );
 }
