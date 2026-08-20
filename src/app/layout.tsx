@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "react-hot-toast"; // 1. Toast import kiya
 
@@ -23,6 +24,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-XENSPV6GWS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-XENSPV6GWS');
+          `}
+        </Script>
+      </head>
       <body className={inter.className}>
         {/* 2. Toaster add kiya - Isse UI change nahi hoga, sirf popups dikhenge */}
         <Toaster 
