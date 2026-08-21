@@ -1,3 +1,12 @@
 {
+  "/(store)/checkout/page": "app/(store)/checkout/page.js",
+  "/(store)/collections/[slug]/page": "app/(store)/collections/[slug]/page.js",
+  "/(store)/login/page": "app/(store)/login/page.js",
+  "/(store)/orders/page": "app/(store)/orders/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/marketing/coupons/page": "app/admin/marketing/coupons/page.js",
+  "/admin/marketing/discounts/page": "app/admin/marketing/discounts/page.js",
   "/page": "app/page.js"
 }

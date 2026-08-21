@@ -71,61 +71,82 @@ export default function OrderCard({ order }: { order: Order }) {
     }
   };
 
-  const handleRetryPayment = async () => {
-    try {
-      const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-          const script = document.createElement("script");
-          script.src = "https://checkout.razorpay.com/v1/checkout.js";
-          script.onload = () => resolve(true);
-          script.onerror = () => resolve(false);
-          document.body.appendChild(script);
-        });
-      };
-
-      const resScript = await loadRazorpayScript();
-      if (!resScript) {
-        toast.error("Razorpay SDK failed to load. Check your connection.");
+  const loadBoltScript = (src: string) => {
+    return new Promise((resolve) => {
+      if ((window as any).bolt) {
+        resolve(true);
         return;
       }
+      const existingScript = document.getElementById("payu-bolt-script");
+      if (existingScript) existingScript.remove();
+      const script = document.createElement("script");
+      script.id = "payu-bolt-script";
+      script.src = src;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.total * 100,
-        currency: "INR",
-        name: "Aciagro",
-        description: "Retry Pending Payment",
-        order_id: order.razorpay_order_id,
-        handler: async function (rzpResponse: any) {
-          try {
-            const verifyRes = await axiosInstance.post("/orders/pay", {
-              orderId: order._id || order.id,
-              razorpay_payment_id: rzpResponse.razorpay_payment_id,
-              razorpay_order_id: rzpResponse.razorpay_order_id,
-              razorpay_signature: rzpResponse.razorpay_signature,
-              clearCart: false
-            });
+  const handleRetryPayment = async () => {
+    try {
+      toast.loading("Opening secure PayU checkout...", { id: "payu-retry" });
+      const response = await axiosInstance.post(`/orders/${order._id || order.id}/payu-retry`);
 
-            if (verifyRes.data.success) {
-              toast.success("Payment successful! Order Confirmed.");
-              setCurrentStatus("Processing"); // Update status instantly
-            }
-          } catch (verifyError) {
-            console.error(verifyError);
-            toast.error("Payment verification failed at server!");
-          }
-        },
-        theme: { color: "#1a8e5f" },
-      };
+      if (response.data.success && response.data.payu) {
+        const { actionUrl, boltScriptUrl, params } = response.data.payu;
 
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", function () {
-        toast.error("Payment Failed. Please try again.");
-      });
-      rzp.open();
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong!");
+        const scriptLoaded = await loadBoltScript(boltScriptUrl || "https://jssdk.payu.in/bolt/bolt.min.js");
+
+        if (scriptLoaded && (window as any).bolt) {
+          toast.dismiss("payu-retry");
+          (window as any).bolt.launch(params, {
+            responseHandler: async function (BOLT: any) {
+              if (BOLT.response.txnStatus === "SUCCESS") {
+                try {
+                  const verifyRes = await axiosInstance.post("/orders/payu-verify", BOLT.response);
+                  if (verifyRes.data.success) {
+                    toast.success("Payment successful! Order Confirmed.");
+                    setCurrentStatus("Processing");
+                  } else {
+                    toast.error("Payment verification pending.");
+                  }
+                } catch (vErr) {
+                  console.error("Verification error:", vErr);
+                }
+              } else if (BOLT.response.txnStatus === "CANCEL") {
+                toast.error("Payment was cancelled.");
+              } else {
+                toast.error("Payment failed. Please try again.");
+              }
+            },
+            catchException: function (BOLT: any) {
+              console.error("PayU Bolt exception:", BOLT);
+              toast.error("Payment window closed or error occurred.");
+            },
+          });
+          return;
+        }
+
+        // Fallback to Hosted Form
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = actionUrl;
+        Object.keys(params).forEach((key) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = params[key] ?? "";
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        toast.error(response.data.message || "Failed to initiate payment retry.", { id: "payu-retry" });
+      }
+    } catch (error: any) {
+      console.error("Retry payment error:", error);
+      toast.error(error.response?.data?.message || "Something went wrong initiating payment.", { id: "payu-retry" });
     }
   };
 

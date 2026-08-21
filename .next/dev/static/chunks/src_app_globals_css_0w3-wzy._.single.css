@@ -338,6 +338,10 @@ img, video {
   margin-top: 86px;
 }
 
+.block {
+  display: block;
+}
+
 .flex {
   display: flex;
 }
@@ -386,6 +390,10 @@ img, video {
 
 .font-bold {
   font-weight: 700;
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 .text-gray-600 {

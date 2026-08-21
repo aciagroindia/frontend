@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../../../context/AuthContext";
 import { useProducts } from "../../../../context/ProductContext";
 import styles from "./Orders.module.css";
 import OrderCard from "../../../../components/orders/OrderCard";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-hot-toast";
 
-// Define the expected structure based on the OrderCard props
 interface Item {
   productId: string;
   name: string;
@@ -19,18 +19,17 @@ interface Item {
 
 interface Order {
   id: string;
-  _id?: string; // FIX: Added for backend compatibility
+  _id?: string;
   date: string;
   status: string;
   total: number;
   items: Item[];
-  // FIX: Added Payment Fields
   paymentStatus?: string;
   paymentMethod?: string;
   razorpay_order_id?: string;
+  payu_txnid?: string;
 }
 
-// Helper function to get user-friendly status text
 const getOrderStatusText = (status: string): string => {
   switch (status) {
     case "delivered":
@@ -46,16 +45,30 @@ const getOrderStatusText = (status: string): string => {
   }
 };
 
-export default function OrdersPage() {
+function OrdersContent() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { products: allProducts, loading: productsLoading } = useProducts();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check for PayU callback status params in URL
   useEffect(() => {
-    // Wait for auth to initialize before redirecting or fetching
+    const status = searchParams.get("status");
+    const orderId = searchParams.get("orderId");
+    const reason = searchParams.get("reason");
+
+    if (status === "success") {
+      toast.success(orderId ? `Payment Successful for Order #${orderId.slice(-6)}!` : "Payment Successful! Order Placed.", { id: "payu-status" });
+    } else if (status === "failed") {
+      const msg = reason ? `Payment Failed: ${reason.replace(/_/g, ' ')}` : "Payment was not completed or failed.";
+      toast.error(msg, { id: "payu-status" });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (authLoading || productsLoading) return;
 
     if (!isAuthenticated) {
@@ -69,9 +82,7 @@ export default function OrdersPage() {
         const response = await axiosInstance.get("/orders/my-orders");
         
         if (response.data.success) {
-          // Map backend Order schema to Frontend OrderCard UI schema
           const mappedOrders: Order[] = response.data.data.map((order: any) => {
-            // Format date to e.g., '22 Mar 2026'
             const formattedDate = new Date(order.createdAt).toLocaleDateString("en-GB", {
               day: 'numeric',
               month: 'short',
@@ -80,14 +91,14 @@ export default function OrdersPage() {
 
             return {
               id: order._id,
-              _id: order._id, // FIX: Pass original DB ID
+              _id: order._id,
               date: formattedDate,
               status: getOrderStatusText(order.orderStatus),
               total: order.totalAmount,
-              // FIX: Now we are sending the payment details to the OrderCard!
               paymentStatus: order.paymentStatus,
               paymentMethod: order.paymentMethod,
               razorpay_order_id: order.razorpay_order_id,
+              payu_txnid: order.payu_txnid,
               items: order.orderItems.map((item: any) => {
                 const productId = item.product?._id || item.product;
                 const fullProduct = allProducts.find(p => p._id === productId);
@@ -123,7 +134,7 @@ export default function OrdersPage() {
     );
   }
 
-  if (!isAuthenticated) return null; // Prevent flicker before redirect
+  if (!isAuthenticated) return null;
 
   return (
     <div className={styles.container}>
@@ -139,5 +150,13 @@ export default function OrdersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={<div className={styles.container} style={{ textAlign: "center", padding: "4rem" }}>Loading orders...</div>}>
+      <OrdersContent />
+    </Suspense>
   );
 }

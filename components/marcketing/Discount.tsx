@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { MoreHorizontal, Pencil, Trash2, Plus, Search, X } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Plus, Search, X, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 import styles from "./Discounts.module.css";
 import { fetchDiscounts, createDiscount, updateDiscount, deleteDiscount, Discount } from "../../lib/discountApi";
 import { useDebounce } from "../../lib/useDebounce";
 import ConfirmationModal from "../signUP/ConfirmationModal";
-
 
 interface DiscountModalProps {
   isOpen: boolean;
@@ -21,14 +20,20 @@ const DiscountModal = ({ isOpen, onClose, onSubmit, initialData }: DiscountModal
   const [name, setName] = useState("");
   const [type, setType] = useState<Discount['type']>("Percentage");
   const [value, setValue] = useState("");
-  const [products, setProducts] = useState("");
+  const [conditionType, setConditionType] = useState<Discount['conditionType']>("ALL_ORDERS");
+  const [minOrderAmount, setMinOrderAmount] = useState("");
+  const [maxDiscountAmount, setMaxDiscountAmount] = useState("");
+  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
       setName(initialData?.name || "");
       setType(initialData?.type || "Percentage");
-      setValue(initialData?.value || "");
-      setProducts(initialData?.products.toString() || "");
+      setValue(initialData?.value !== undefined ? initialData.value.toString() : "");
+      setConditionType(initialData?.conditionType || "ALL_ORDERS");
+      setMinOrderAmount(initialData?.minOrderAmount ? initialData.minOrderAmount.toString() : "");
+      setMaxDiscountAmount(initialData?.maxDiscountAmount ? initialData.maxDiscountAmount.toString() : "");
+      setIsActive(initialData?.isActive !== false);
     }
   }, [isOpen, initialData]);
 
@@ -38,16 +43,26 @@ const DiscountModal = ({ isOpen, onClose, onSubmit, initialData }: DiscountModal
       toast.error("Discount Name is required.");
       return;
     }
-    if (!value.trim()) {
-      toast.error("Value is required.");
+    if (!value.trim() || isNaN(Number(value)) || Number(value) <= 0) {
+      toast.error("Valid discount value is required.");
       return;
     }
-    if (!products || Number(products) < 0) {
-      toast.error("Applicable Products must be a valid number.");
+    if (type === "Percentage" && Number(value) > 100) {
+      toast.error("Percentage discount cannot exceed 100%.");
       return;
     }
 
-    const discountData = { name, type, value, products: Number(products) };
+    const discountData: any = {
+      name: name.trim(),
+      type,
+      value: Number(value),
+      conditionType,
+      minOrderAmount: minOrderAmount ? Number(minOrderAmount) : 0,
+      maxDiscountAmount: maxDiscountAmount ? Number(maxDiscountAmount) : null,
+      isActive,
+      products: [],
+    };
+
     if (initialData?.id) {
       onSubmit({ id: initialData.id, ...discountData });
     } else {
@@ -59,24 +74,102 @@ const DiscountModal = ({ isOpen, onClose, onSubmit, initialData }: DiscountModal
 
   return (
     <div className={styles.modalBackdrop}>
-      <div className={styles.modalContent}>
+      <div className={styles.modalContent} style={{ maxWidth: '540px' }}>
         <div className={styles.modalHeader}>
-          <h2>{initialData?.id ? "Edit Discount" : "Create New Discount"}</h2>
+          <h2>{initialData?.id ? "Edit Automatic Discount" : "Create Automatic Discount"}</h2>
           <button onClick={onClose} className={styles.modalCloseButton}><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          <div className={styles.formGroup}><label htmlFor="name">Discount Name</label><input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} /></div>
           <div className={styles.formGroup}>
-            <label htmlFor="type">Discount Type</label>
-            <select id="type" value={type} onChange={(e) => setType(e.target.value as Discount['type'])}>
-              <option value="Percentage">Percentage</option>
-              <option value="Fixed Amount">Fixed Amount</option>
-              <option value="Shipping">Shipping</option>
-              <option value="BOGO">BOGO</option>
+            <label htmlFor="name">Discount Title / Banner Name *</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="e.g. First Order 10% Off, Summer Sale Flat ₹100"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className={styles.formGroup} style={{ flex: 1 }}>
+              <label htmlFor="type">Discount Type *</label>
+              <select id="type" value={type} onChange={(e) => setType(e.target.value as Discount['type'])}>
+                <option value="Percentage">Percentage (%)</option>
+                <option value="Fixed Amount">Fixed Amount (₹)</option>
+                <option value="Shipping">Free Shipping</option>
+              </select>
+            </div>
+            <div className={styles.formGroup} style={{ flex: 1 }}>
+              <label htmlFor="value">
+                {type === "Percentage" ? "Discount Value (%) *" : "Discount Value (₹) *"}
+              </label>
+              <input
+                type="number"
+                id="value"
+                placeholder={type === "Percentage" ? "10" : "100"}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                min="1"
+                required
+              />
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="conditionType">Trigger Condition (Automatic Rule) *</label>
+            <select
+              id="conditionType"
+              value={conditionType}
+              onChange={(e) => setConditionType(e.target.value as Discount['conditionType'])}
+            >
+              <option value="ALL_ORDERS">All Orders (Automatic Storewide)</option>
+              <option value="FIRST_ORDER">First Order Only (New Customers)</option>
+              <option value="MIN_ORDER_VALUE">Minimum Order Value Threshold</option>
             </select>
           </div>
-          <div className={styles.formGroup}><label htmlFor="value">Value</label><input type="text" id="value" value={value} onChange={(e) => setValue(e.target.value)} /></div>
-          <div className={styles.formGroup}><label htmlFor="products">Applicable Products</label><input type="number" id="products" value={products} onChange={(e) => setProducts(e.target.value)} /></div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className={styles.formGroup} style={{ flex: 1 }}>
+              <label htmlFor="minOrderAmount">Min Order Subtotal (₹)</label>
+              <input
+                type="number"
+                id="minOrderAmount"
+                placeholder="0 (No minimum)"
+                value={minOrderAmount}
+                onChange={(e) => setMinOrderAmount(e.target.value)}
+                min="0"
+              />
+            </div>
+            {type === "Percentage" && (
+              <div className={styles.formGroup} style={{ flex: 1 }}>
+                <label htmlFor="maxDiscountAmount">Max Discount Limit (₹)</label>
+                <input
+                  type="number"
+                  id="maxDiscountAmount"
+                  placeholder="Optional Cap (e.g. 500)"
+                  value={maxDiscountAmount}
+                  onChange={(e) => setMaxDiscountAmount(e.target.value)}
+                  min="1"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className={styles.formGroup} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.5rem' }}>
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <label htmlFor="isActive" style={{ cursor: 'pointer', marginBottom: 0, fontWeight: 500 }}>
+              Enable this discount (Active)
+            </label>
+          </div>
+
           <div className={styles.modalFooter}>
             <button type="button" onClick={onClose} className={styles.secondaryButton}>Cancel</button>
             <button type="submit" className={styles.primaryButton}>{initialData?.id ? "Save Changes" : "Create Discount"}</button>
@@ -153,7 +246,7 @@ export default function DiscountsPage() {
         toast.success("Discount updated successfully!");
       } else {
         const newDiscount = await createDiscount(discountData);
-        setDiscounts(prev => [...prev, newDiscount]);
+        setDiscounts(prev => [newDiscount, ...prev]);
         toast.success("Discount created successfully!");
       }
       setIsModalOpen(false);
@@ -208,12 +301,23 @@ export default function DiscountsPage() {
   const handleOpenMenu = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
-    const DROPDOWN_WIDTH = 120; // from CSS
+    const DROPDOWN_WIDTH = 120;
     setMenuPosition({
       top: rect.bottom + window.scrollY + 5,
       left: rect.right + window.scrollX - DROPDOWN_WIDTH,
     });
     setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  const renderConditionBadge = (condition?: string, minAmount?: number) => {
+    switch (condition) {
+      case "FIRST_ORDER":
+        return <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 600 }}>🎉 First Order Only</span>;
+      case "MIN_ORDER_VALUE":
+        return <span style={{ background: '#fef3c7', color: '#92400e', padding: '3px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 600 }}>Min ₹{minAmount || 0}</span>;
+      default:
+        return <span style={{ background: '#f3f4f6', color: '#374151', padding: '3px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>All Orders</span>;
+    }
   };
 
   if (loading) {
@@ -233,31 +337,48 @@ export default function DiscountsPage() {
         </div>
         <button className={styles.addButton} onClick={openCreateModal}>
           <Plus size={18} />
-          Add Discount
+          Add Automatic Discount
         </button>
       </div>
 
       {filteredDiscounts.length === 0 ? (
-        <div className={styles.noData}>No discounts found.</div>
+        <div className={styles.noData}>No discounts found. Click "Add Automatic Discount" to create one.</div>
       ) : (
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Value</th>
-                <th>Products</th>
+                <th>Discount Name</th>
+                <th>Type & Value</th>
+                <th>Condition</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredDiscounts.map((discount) => (
                 <tr key={discount.id}>
-                  <td className={styles.discountName}>{discount.name}</td>
-                  <td>{discount.type}</td>
-                  <td>{discount.value}</td>
-                  <td>{discount.products} products</td>
+                  <td className={styles.discountName}>
+                    <strong>{discount.name}</strong>
+                  </td>
+                  <td>
+                    {discount.type === "Percentage" ? `${discount.value}% Off` : `₹${discount.value} Off`}
+                    {discount.maxDiscountAmount ? ` (Max ₹${discount.maxDiscountAmount})` : ''}
+                  </td>
+                  <td>
+                    {renderConditionBadge(discount.conditionType, discount.minOrderAmount)}
+                  </td>
+                  <td>
+                    {discount.isActive ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 600, fontSize: '0.85rem' }}>
+                        <CheckCircle size={14} /> Active
+                      </span>
+                    ) : (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#9ca3af', fontWeight: 500, fontSize: '0.85rem' }}>
+                        <XCircle size={14} /> Inactive
+                      </span>
+                    )}
+                  </td>
                   <td className={styles.actionsCell}>
                     <button
                       className={styles.actionButton}
