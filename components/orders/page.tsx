@@ -130,67 +130,18 @@ export default function OrderDetailsPage() {
     fetchOrderDetails();
   }, [id, isAuthenticated, authLoading, productsLoading, router, allProducts]);
 
-  const loadBoltScript = (src: string) => {
-    return new Promise((resolve) => {
-      if ((window as any).bolt) {
-        resolve(true);
-        return;
-      }
-      const existingScript = document.getElementById("payu-bolt-script");
-      if (existingScript) existingScript.remove();
-      const script = document.createElement("script");
-      script.id = "payu-bolt-script";
-      script.src = src;
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
-  // PayU Retry Payment logic for Details Page (Popup Overlay)
+  // PayU Retry Payment logic for Details Page (Responsive Hosted Flow)
   const handleRetryPayment = async () => {
     if (!order) return;
     
     try {
-      toast.loading("Opening secure PayU checkout...", { id: "payu-retry" });
+      toast.loading("Redirecting to secure PayU payment gateway...", { id: "payu-retry" });
       const response = await axiosInstance.post(`/orders/${order.id}/payu-retry`);
 
       if (response.data.success && response.data.payu) {
-        const { actionUrl, boltScriptUrl, params } = response.data.payu;
+        const { actionUrl, params } = response.data.payu;
 
-        const scriptLoaded = await loadBoltScript(boltScriptUrl || "https://jssdk.payu.in/bolt/bolt.min.js");
-
-        if (scriptLoaded && (window as any).bolt) {
-          toast.dismiss("payu-retry");
-          (window as any).bolt.launch(params, {
-            responseHandler: async function (BOLT: any) {
-              if (BOLT.response.txnStatus === "SUCCESS") {
-                try {
-                  const verifyRes = await axiosInstance.post("/orders/payu-verify", BOLT.response);
-                  if (verifyRes.data.success) {
-                    toast.success("Payment successful! Order Confirmed.");
-                    window.location.reload();
-                  } else {
-                    toast.error("Payment verification pending.");
-                  }
-                } catch (vErr) {
-                  console.error("Verification error:", vErr);
-                }
-              } else if (BOLT.response.txnStatus === "CANCEL") {
-                toast.error("Payment was cancelled.");
-              } else {
-                toast.error("Payment failed. Please try again.");
-              }
-            },
-            catchException: function (BOLT: any) {
-              console.error("PayU Bolt exception:", BOLT);
-              toast.error("Payment window closed or error occurred.");
-            },
-          });
-          return;
-        }
-
-        // Fallback
+        // Submit to responsive PayU Hosted Checkout (adapts dynamically to Laptop, Tablet, Mobile)
         const form = document.createElement("form");
         form.method = "POST";
         form.action = actionUrl;
