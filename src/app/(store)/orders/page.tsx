@@ -54,17 +54,29 @@ function OrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Check for PayU callback status params in URL
+  // Check for Cashfree & PayU callback status params in URL
   useEffect(() => {
+    const cfOrderId = searchParams.get("order_id");
+    const cfOrderStatus = searchParams.get("order_status");
     const status = searchParams.get("status");
     const orderId = searchParams.get("orderId");
     const reason = searchParams.get("reason");
 
-    if (status === "success") {
-      toast.success(orderId ? `Payment Successful for Order #${orderId.slice(-6)}!` : "Payment Successful! Order Placed.", { id: "payu-status" });
+    if (cfOrderId) {
+      if (cfOrderStatus === "PAID" || cfOrderStatus === "SUCCESS") {
+        toast.success("Payment Successful! Order Placed Successfully.", { id: "payment-status" });
+      } else if (cfOrderStatus === "FAILED" || cfOrderStatus === "USER_DROPPED") {
+        toast.error("Payment was not completed. You can retry paying below.", { id: "payment-status" });
+      }
+      // Instant S2S verification sync
+      axiosInstance.post("/orders/cashfree-verify", { cfOrderId }).catch((err) => {
+        console.warn("Cashfree background verification check:", err?.message);
+      });
+    } else if (status === "success") {
+      toast.success(orderId ? `Payment Successful for Order #${orderId.slice(-6)}!` : "Payment Successful! Order Placed.", { id: "payment-status" });
     } else if (status === "failed") {
       const msg = reason ? `Payment Failed: ${reason.replace(/_/g, ' ')}` : "Payment was not completed or failed.";
-      toast.error(msg, { id: "payu-status" });
+      toast.error(msg, { id: "payment-status" });
     }
   }, [searchParams]);
 

@@ -130,18 +130,60 @@ export default function OrderDetailsPage() {
     fetchOrderDetails();
   }, [id, isAuthenticated, authLoading, productsLoading, router, allProducts]);
 
-  // PayU Retry Payment logic for Details Page (Responsive Hosted Flow)
+  // Cashfree Web SDK v3 Loader
+  const loadCashfreeSDK = (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      if (typeof window === "undefined") return reject(new Error("Window not defined"));
+      if ((window as any).Cashfree) {
+        return resolve((window as any).Cashfree);
+      }
+      const script = document.createElement("script");
+      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+      script.async = true;
+      script.onload = () => {
+        if ((window as any).Cashfree) {
+          resolve((window as any).Cashfree);
+        } else {
+          reject(new Error("Cashfree SDK failed to initialize"));
+        }
+      };
+      script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
+      document.body.appendChild(script);
+    });
+  };
+
+  // Cashfree Retry Payment logic for Details Page
   const handleRetryPayment = async () => {
     if (!order) return;
     
     try {
-      toast.loading("Redirecting to secure PayU payment gateway...", { id: "payu-retry" });
-      const response = await axiosInstance.post(`/orders/${order.id}/payu-retry`);
+      toast.loading("Opening secure checkout...", { id: "cf-retry" });
+      const response = await axiosInstance.post(`/orders/${order.id}/cashfree-retry`);
 
-      if (response.data.success && response.data.payu) {
+      if (response.data.success && response.data.cashfree) {
+        const { payment_session_id, environment } = response.data.cashfree;
+        const Cashfree = await loadCashfreeSDK();
+        const cashfree = Cashfree({
+          mode: environment === "PRODUCTION" ? "production" : "sandbox",
+        });
+
+        toast.dismiss("cf-retry");
+        const result = await cashfree.checkout({
+          paymentSessionId: payment_session_id,
+          redirectTarget: "_modal",
+        });
+
+        if (result && result.paymentDetails) {
+          try {
+            await axiosInstance.post("/orders/cashfree-verify", { cfOrderId: response.data.cashfree.order_id });
+          } catch (e) {
+            console.warn(e);
+          }
+          toast.success("Payment Successful! Order Confirmed.");
+          window.location.reload();
+        }
+      } else if (response.data.payu) {
         const { actionUrl, params } = response.data.payu;
-
-        // Submit to responsive PayU Hosted Checkout (adapts dynamically to Laptop, Tablet, Mobile)
         const form = document.createElement("form");
         form.method = "POST";
         form.action = actionUrl;
@@ -155,11 +197,11 @@ export default function OrderDetailsPage() {
         document.body.appendChild(form);
         form.submit();
       } else {
-        toast.error(response.data.message || "Failed to initiate payment retry.", { id: "payu-retry" });
+        toast.error(response.data.message || "Failed to initiate payment retry.", { id: "cf-retry" });
       }
     } catch (error: any) {
       console.error("Retry payment error:", error);
-      toast.error(error.response?.data?.message || "Something went wrong initiating payment.", { id: "payu-retry" });
+      toast.error(error.response?.data?.message || "Something went wrong initiating payment.", { id: "cf-retry" });
     }
   };
 

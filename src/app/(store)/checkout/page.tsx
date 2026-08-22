@@ -25,6 +25,34 @@ import {
   X
 } from "lucide-react";
 
+// Cashfree Web SDK v3 Loader
+const loadCashfreeSDK = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === "undefined") return reject(new Error("Window not defined"));
+    if ((window as any).Cashfree) {
+      return resolve((window as any).Cashfree);
+    }
+    const existingScript = document.getElementById("cashfree-sdk-script");
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve((window as any).Cashfree));
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "cashfree-sdk-script";
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    script.onload = () => {
+      if ((window as any).Cashfree) {
+        resolve((window as any).Cashfree);
+      } else {
+        reject(new Error("Cashfree SDK failed to initialize"));
+      }
+    };
+    script.onerror = () => reject(new Error("Failed to load Cashfree SDK"));
+    document.body.appendChild(script);
+  });
+};
+
 function CheckoutContent() {
   const { cartItems, cartTotal, fetchCart } = useCart();
   const { products: allProducts } = useProducts();
@@ -53,8 +81,8 @@ function CheckoutContent() {
   } | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  // Payment Method selection: default is PayU (Online)
-  const [paymentMethod, setPaymentMethod] = useState("PayU");
+  // Payment Method selection: default is Cashfree (Online)
+  const [paymentMethod, setPaymentMethod] = useState("Cashfree");
 
   useEffect(() => {
     if (isBuyNow) {
@@ -264,13 +292,68 @@ function CheckoutContent() {
           return;
         }
 
-        // 2. PAYU RESPONSIVE CHECKOUT FLOW (Adapts dynamically to Laptop, Tablet, Mobile)
+        // 2. CASHFREE IN-APP MODAL CHECKOUT FLOW (Stays on website)
+        if (response.data.cashfree) {
+          const { payment_session_id, order_id, environment } = response.data.cashfree;
+
+          toast.loading("Opening secure payment popup...", { id: "cf-launch" });
+
+          if (isBuyNow) sessionStorage.removeItem("buyNowItem");
+          else await fetchCart();
+
+          try {
+            const Cashfree = await loadCashfreeSDK();
+            const cashfree = Cashfree({
+              mode: environment === "PRODUCTION" ? "production" : "sandbox",
+            });
+
+            toast.dismiss("cf-launch");
+
+            // Modal overlay stays directly on website without redirecting away
+            const result = await cashfree.checkout({
+              paymentSessionId: payment_session_id,
+              redirectTarget: "_modal",
+            });
+
+            if (result && result.error) {
+              console.warn("Cashfree modal closed or error:", result.error);
+              if (result.error.message && !result.error.message.includes("closed")) {
+                toast.error(result.error.message);
+              }
+              // Redirect to orders so user can see their pending order and retry anytime
+              router.push("/orders");
+              return;
+            }
+
+            if (result && result.paymentDetails) {
+              toast.loading("Verifying payment...", { id: "cf-verify" });
+              try {
+                await axiosInstance.post("/orders/cashfree-verify", { cfOrderId: order_id });
+              } catch (vErr) {
+                console.warn("Verification ping:", vErr);
+              }
+              toast.success("Payment Successful! Order Confirmed.", { id: "cf-verify" });
+              router.push(`/orders?order_id=${order_id}&order_status=PAID`);
+              return;
+            }
+
+            // Fallback for any redirection inside modal
+            router.push("/orders");
+            return;
+          } catch (sdkErr: any) {
+            console.error("Cashfree SDK launch failed:", sdkErr);
+            toast.error("Failed to launch checkout popup. Redirecting to orders...", { id: "cf-launch" });
+            router.push("/orders");
+            return;
+          }
+        }
+
+        // 3. LEGACY PAYU FALLBACK FLOW
         if (response.data.payu) {
           const { actionUrl, params } = response.data.payu;
 
-          toast.loading("Redirecting to secure PayU payment gateway...", { id: "payu-launch" });
+          toast.loading("Redirecting to payment gateway...", { id: "payu-launch" });
 
-          // Submit standard form to PayU Hosted Checkout which automatically adjusts to any device screen size
           const form = document.createElement("form");
           form.method = "POST";
           form.action = actionUrl;
@@ -535,11 +618,11 @@ function CheckoutContent() {
                 </div>
 
                 <div className="space-y-3">
-                  {/* PayU Online Option */}
+                  {/* Cashfree Online Option */}
                   <label
-                    onClick={() => setPaymentMethod("PayU")}
+                    onClick={() => setPaymentMethod("Cashfree")}
                     className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
-                      paymentMethod === "PayU"
+                      paymentMethod === "Cashfree"
                         ? "border-[#1a8e5f] bg-emerald-50/40 shadow-sm ring-1 ring-[#1a8e5f]"
                         : "border-gray-200 hover:border-gray-300 bg-white"
                     }`}
@@ -547,22 +630,22 @@ function CheckoutContent() {
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="PayU"
-                      checked={paymentMethod === "PayU"}
+                      value="Cashfree"
+                      checked={paymentMethod === "Cashfree"}
                       onChange={(e) => setPaymentMethod(e.target.value)}
                       className="mt-1 w-4 h-4 text-[#1a8e5f] focus:ring-[#1a8e5f] cursor-pointer"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center justify-between gap-1.5">
                         <span className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1.5">
-                          <span>Pay Online via PayU</span>
+                          <span>Pay Online (UPI, Cards, NetBanking, Wallets)</span>
                         </span>
                         <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
                           Recommended
                         </span>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                        UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, NetBanking, and Wallets.
+                        Instant, secure payments via UPI (GPay, PhonePe, Paytm, BHIM), Credit/Debit Cards, NetBanking, and Wallets.
                       </p>
                     </div>
                   </label>
@@ -613,7 +696,7 @@ function CheckoutContent() {
                   ) : paymentMethod === "COD" ? (
                     <span>Place Order (COD) • ₹{effectiveTotal.toFixed(2)}</span>
                   ) : (
-                    <span>Proceed to Pay via PayU • ₹{effectiveTotal.toFixed(2)}</span>
+                    <span>Proceed to Pay Online • ₹{effectiveTotal.toFixed(2)}</span>
                   )}
                 </button>
 
