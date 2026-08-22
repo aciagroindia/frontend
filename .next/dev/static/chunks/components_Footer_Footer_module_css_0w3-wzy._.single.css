@@ -46,6 +46,18 @@
   display: flex;
 }
 
+.Footer-module__rnk_JG__contact a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .3s;
+}
+
+@media (hover: hover) {
+  .Footer-module__rnk_JG__contact a:hover {
+    color: #1f7a3d;
+  }
+}
+
 .Footer-module__rnk_JG__list {
   margin: 0;
   padding: 0;

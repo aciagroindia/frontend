@@ -30,11 +30,12 @@ export default function Footer() {
 
           <div className={styles.contact}>
             <p>
-                <Image src="/assets/phone.svg" alt="" width={20} height={20} />
-                 +91-4552115456</p>
+              <Image src="/assets/phone.svg" alt="Phone" width={20} height={20} />
+              <a href="tel:+917597920642">+91 75979 20642</a>
+            </p>
             <p>
-              <Image src="/assets/Email.svg" alt="" width={20} height={20} />
-              info@ACIagro.com
+              <Image src="/assets/Email.svg" alt="Email" width={20} height={20} />
+              <a href="mailto:director@aciagro.com">director@aciagro.com</a>
             </p>
           </div>
 

@@ -49,6 +49,18 @@
   margin-bottom: 10px;
 }
 
+.contact a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+@media (hover: hover) {
+  .contact a:hover {
+    color: #1f7a3d;
+  }
+}
+
 /* LIST */
 .list {
   list-style: none;

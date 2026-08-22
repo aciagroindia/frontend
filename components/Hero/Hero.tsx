@@ -65,7 +65,7 @@ const Hero = () => {
 
   if (loading) {
     // Layout shift se bachne ke liye placeholder
-    return <div className={styles.heroWrapper} style={{ aspectRatio: '16 / 7', backgroundColor: '#f0f0f0' }} />;
+    return <div className={styles.heroPlaceholder} />;
   }
 
   if (!banners || banners.length === 0) {
@@ -79,18 +79,33 @@ const Hero = () => {
           key={banner.id}
           className={`${styles.slide} ${index === currentIndex ? styles.active : ''}`}
         >
-          <Link href={banner.link || '#'}>
+          <Link href={banner.link || '#'} className={styles.bannerLink}>
             <Image
               src={banner.imageUrl}
-              alt={banner.title}
-              fill
-              priority={index === 0} // Pehle banner ko Network priority milti hai
-              className={styles.image}
-              sizes="100vw" // 👇 NAYA: Hero banner poori screen leta hai, isliye 100vw lagana zyada fast hota hai (50vw se image blur ya slow ho sakti hai)
+              alt={banner.title || 'Hero Banner'}
+              width={1920}
+              height={650}
+              priority={index === 0}
+              className={styles.bannerImg}
+              sizes="100vw"
             />
           </Link>
         </div>
       ))}
+
+      {banners.length > 1 && (
+        <div className={styles.indicators}>
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              className={`${styles.dot} ${idx === currentIndex ? styles.activeDot : ''}`}
+              onClick={() => setCurrentIndex(idx)}
+              aria-label={`Go to banner ${idx + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
