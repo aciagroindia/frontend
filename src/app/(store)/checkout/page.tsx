@@ -5,10 +5,25 @@ import { useCart } from "../../../../context/CartContext";
 import { useProducts } from "../../../../context/ProductContext";
 import { useAuth } from "../../../../context/AuthContext";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import { fetchAvailableCoupons } from "../../../../lib/couponApi";
 import { toast } from "react-hot-toast";
+import {
+  MapPin,
+  CreditCard,
+  Tag,
+  ShieldCheck,
+  Truck,
+  CheckCircle2,
+  Lock,
+  ArrowLeft,
+  ShoppingBag,
+  Sparkles,
+  Loader2,
+  X
+} from "lucide-react";
 
 function CheckoutContent() {
   const { cartItems, cartTotal, fetchCart } = useCart();
@@ -36,6 +51,7 @@ function CheckoutContent() {
     code: string;
     discountAmount: number;
   } | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   // Payment Method selection: default is PayU (Online)
   const [paymentMethod, setPaymentMethod] = useState("PayU"); 
@@ -86,6 +102,22 @@ function CheckoutContent() {
     }
   }, [isAuthenticated]);
 
+  // Auto pre-fill the best eligible coupon code when conditions are met
+  useEffect(() => {
+    if (availableCoupons.length > 0 && !appliedCoupon) {
+      const currentSubtotal = discountInfo ? discountInfo.subtotal : checkoutTotal;
+      const eligible = availableCoupons.filter(
+        (c) => !c.minOrderAmount || currentSubtotal >= c.minOrderAmount
+      );
+      if (eligible.length > 0) {
+        // Pre-fill with the first eligible coupon code
+        setCouponInput(eligible[0].code);
+      } else {
+        setCouponInput("");
+      }
+    }
+  }, [availableCoupons, checkoutTotal, discountInfo, appliedCoupon]);
+
   // Preview Automatic Discounts (Coupon only included if explicitly applied by user)
   useEffect(() => {
     const fetchDiscountPreview = async () => {
@@ -125,6 +157,7 @@ function CheckoutContent() {
       return;
     }
     try {
+      setIsApplyingCoupon(true);
       const formattedItems = checkoutItems.map(item => ({
         productId: item.productId || item._id || item.id?.split('-')[0],
         price: item.price,
@@ -141,6 +174,8 @@ function CheckoutContent() {
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Unable to apply coupon.");
+    } finally {
+      setIsApplyingCoupon(false);
     }
   };
 
@@ -171,7 +206,16 @@ function CheckoutContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setShippingAddress((prev) => ({ ...prev, [name]: value }));
+    setShippingAddress((prev) => {
+      const next = { ...prev, [name]: value };
+      // Sync pinCode and postalCode if either is updated
+      if (name === "pinCode" && !prev.postalCode) {
+        next.postalCode = value;
+      } else if (name === "postalCode" && !prev.pinCode) {
+        next.pinCode = value;
+      }
+      return next;
+    });
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -321,15 +365,22 @@ function CheckoutContent() {
 
   if (!isAuthenticated) {
     return (
-      <div style={{ padding: "4rem 2rem", textAlign: "center", minHeight: "50vh" }}>
-        <h2>Authentication Required</h2>
-        <p style={{ margin: "1rem 0" }}>You must be logged in to proceed with checkout.</p>
-        <button
-          onClick={() => router.push("/login")}
-          style={{ padding: "0.5rem 1rem", background: "#1a8e5f", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}
-        >
-          Login Now
-        </button>
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+            <Lock className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h2>
+          <p className="text-gray-600 text-sm sm:text-base mb-6">
+            Please log in or create an account to securely complete your checkout.
+          </p>
+          <button
+            onClick={() => router.push("/login")}
+            className="w-full py-3 px-4 bg-[#1a8e5f] hover:bg-[#15774e] text-white font-semibold rounded-xl shadow transition-colors"
+          >
+            Login to Continue
+          </button>
+        </div>
       </div>
     );
   }
@@ -340,247 +391,564 @@ function CheckoutContent() {
   const effectiveTotal = Math.max(0, effectiveSubtotal - effectiveAutoDiscount - effectiveCouponDiscount);
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto", display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-      <div style={{ flex: "1 1 600px" }}>
-        <h1>Checkout {isBuyNow && <span style={{ fontSize: "1rem", color: "#1a8e5f", marginLeft: "1rem" }}>(Buy Now Mode)</span>}</h1>
-
-        <form onSubmit={handlePlaceOrder} style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
-          <h2>Shipping Address</h2>
-
-          <input type="text" name="name" placeholder="Full Name" value={shippingAddress.name} onChange={handleInputChange} required style={{ padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
-
-          <input type="text" name="phone" placeholder="Phone Number" value={shippingAddress.phone} onChange={handleInputChange} required style={{ padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
-
-          <input type="text" name="address" placeholder="Street Address" value={shippingAddress.address} onChange={handleInputChange} required style={{ padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
-
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <input type="text" name="city" placeholder="City" value={shippingAddress.city} onChange={handleInputChange} required style={{ flex: 1, padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
-            <input type="text" name="pinCode" placeholder="Pin Code" value={shippingAddress.pinCode} onChange={handleInputChange} required style={{ flex: 1, padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
+    <div className="min-h-screen bg-gray-50/60 pb-16 pt-4 sm:pt-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        
+        {/* Navigation Breadcrumb / Top Bar */}
+        <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/cart"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-600 hover:text-[#1a8e5f] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Cart</span>
+            </Link>
           </div>
-
-          <div style={{ display: "flex", gap: "1rem" }}>
-            <input type="text" name="postalCode" placeholder="Postal Code" value={shippingAddress.postalCode} onChange={handleInputChange} required style={{ flex: 1, padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
-            <input type="text" name="state" placeholder="State" value={shippingAddress.state} onChange={handleInputChange} required style={{ flex: 1, padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
+          <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-medium">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Secure 256-Bit SSL Checkout</span>
           </div>
+        </div>
 
-          <input type="text" name="country" placeholder="Country" value={shippingAddress.country} onChange={handleInputChange} required style={{ padding: "0.75rem", border: "1px solid #ccc", borderRadius: "4px" }} />
+        {/* Page Title */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 flex flex-wrap items-center gap-3">
+            <span>Checkout</span>
+            {isBuyNow && (
+              <span className="text-xs sm:text-sm font-semibold text-emerald-800 bg-emerald-100 border border-emerald-200 px-3 py-0.5 rounded-full">
+                ⚡ Buy Now Mode
+              </span>
+            )}
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+            Complete your order details below to place your order.
+          </p>
+        </div>
 
-          {/* Payment Method Selection */}
-          <div style={{ marginTop: '1.5rem', padding: '1rem', border: '1px solid #eaeaea', borderRadius: '8px', background: '#fcfcfc' }}>
-            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Payment Method</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: '1rem' }}>
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="PayU"
-                  checked={paymentMethod === "PayU"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ cursor: "pointer", width: "18px", height: "18px" }}
-                />
-                💳 Pay Online via PayU (UPI / Cards / NetBanking / Wallets)
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: '1rem' }}>
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="COD"
-                  checked={paymentMethod === "COD"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  style={{ cursor: "pointer", width: "18px", height: "18px" }}
-                />
-                💵 Cash on Delivery (COD)
-              </label>
-            </div>
-          </div>
-
-          {/* Button */}
-          <button type="submit" disabled={isSubmitting || checkoutItems.length === 0} style={{ marginTop: '1rem', padding: "1rem", background: "#1a8e5f", color: "white", border: "none", borderRadius: "4px", cursor: isSubmitting ? "not-allowed" : "pointer", fontWeight: "bold", fontSize: "1.1rem" }}>
-            {isSubmitting 
-              ? "Processing..." 
-              : paymentMethod === "COD" 
-                ? `Place Order (COD) - Rs. ${effectiveTotal.toFixed(2)}` 
-                : `Proceed to Pay via PayU - Rs. ${effectiveTotal.toFixed(2)}`}
-          </button>
-        </form>
-      </div>
-
-      <div style={{ flex: "1 1 400px", background: "#f9f9f9", padding: "1.5rem", borderRadius: "8px", height: "fit-content" }}>
-        <h2>Order Summary</h2>
-        {checkoutItems.length === 0 ? <p>Nothing to checkout.</p> : (
-          <>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {checkoutItems.map((item, idx) => {
-                const fullProduct = allProducts.find((p: any) => p._id === item.productId);
-                const image = fullProduct?.image || item.image;
-
-                return (
-                  <li key={idx} style={{ display: "flex", marginBottom: "1rem" }}>
-                    <div style={{ width: 60, height: 60, position: "relative" }}>
-                      <Image src={image || "/placeholder.png"} alt={item.name} fill style={{ objectFit: "cover" }} />
-                    </div>
-                    <div style={{ marginLeft: "1rem", flex: 1 }}>
-                      <strong>{item.name}</strong>
-                      <p>Qty: {item.quantity}</p>
-                    </div>
-                    <div>Rs. {(item.price * item.quantity).toFixed(2)}</div>
-                  </li>
-                );
-              })}
-            </ul>
-
-            {/* Coupons Section (Not auto-applied, user chooses and clicks Apply) */}
-            <div style={{ marginTop: '1rem', padding: '1rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#111827', marginBottom: '0.6rem' }}>
-                🎟️ Promo Coupons
-              </h3>
-
-              {appliedCoupon ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#ecfdf5', border: '1px dashed #10b981', padding: '0.6rem 0.9rem', borderRadius: '6px' }}>
-                  <div>
-                    <span style={{ color: '#047857', fontWeight: 700, fontSize: '0.95rem', display: 'block' }}>
-                      🏷️ {appliedCoupon.code} Applied
-                    </span>
-                    <span style={{ color: '#059669', fontSize: '0.85rem' }}>
-                      You save Rs. {appliedCoupon.discountAmount.toFixed(2)} with this coupon!
-                    </span>
+        {/* Main 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          
+          {/* Left Column: Form & Payment (7 Cols on desktop, 100% on mobile) */}
+          <div className="w-full lg:col-span-7 xl:col-span-7 space-y-6">
+            
+            <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6">
+              
+              {/* Shipping Address Section */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-6 md:p-7">
+                <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-gray-100">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-[#1a8e5f] flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleRemoveCoupon}
-                    style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                      1. Delivery Address
+                    </h2>
+                    <p className="text-xs text-gray-500">Where should we deliver your order?</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="e.g. Rahul Sharma"
+                      value={shippingAddress.name}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="10-digit mobile number"
+                      value={shippingAddress.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                    />
+                  </div>
+
+                  {/* Street Address */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                      Flat / House No. / Street Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="address"
+                      placeholder="House/Flat number, building, street, area"
+                      value={shippingAddress.address}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                    />
+                  </div>
+
+                  {/* City & Pin Code */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                        City / District <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="city"
+                        placeholder="e.g. Pune"
+                        value={shippingAddress.city}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                        PIN Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="pinCode"
+                        placeholder="6-digit PIN code"
+                        value={shippingAddress.pinCode}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Postal Code & State */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                        Postal Code <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="postalCode"
+                        placeholder="Postal Code"
+                        value={shippingAddress.postalCode || shippingAddress.pinCode}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                        State <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="state"
+                        placeholder="e.g. Maharashtra"
+                        value={shippingAddress.state}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                      Country <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      placeholder="Country"
+                      value={shippingAddress.country}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Method Selection Card */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-6 md:p-7">
+                <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-gray-100">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-[#1a8e5f] flex items-center justify-center flex-shrink-0">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                      2. Payment Method
+                    </h2>
+                    <p className="text-xs text-gray-500">Choose how you'd like to pay</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {/* PayU Online Option */}
+                  <label
+                    onClick={() => setPaymentMethod("PayU")}
+                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
+                      paymentMethod === "PayU"
+                        ? "border-[#1a8e5f] bg-emerald-50/40 shadow-sm ring-1 ring-[#1a8e5f]"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}
                   >
-                    Remove
-                  </button>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="PayU"
+                      checked={paymentMethod === "PayU"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mt-1 w-4 h-4 text-[#1a8e5f] focus:ring-[#1a8e5f] cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center justify-between gap-1.5">
+                        <span className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1.5">
+                          <span>Pay Online via PayU</span>
+                        </span>
+                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                          Recommended
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                        UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, NetBanking, and Wallets.
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Cash on Delivery Option */}
+                  <label
+                    onClick={() => setPaymentMethod("COD")}
+                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
+                      paymentMethod === "COD"
+                        ? "border-[#1a8e5f] bg-emerald-50/40 shadow-sm ring-1 ring-[#1a8e5f]"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="COD"
+                      checked={paymentMethod === "COD"}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="mt-1 w-4 h-4 text-[#1a8e5f] focus:ring-[#1a8e5f] cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center justify-between gap-1.5">
+                        <span className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1.5">
+                          <span>Cash on Delivery (COD)</span>
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                        Pay in cash upon receiving your order at your delivery address.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit Button (Primary on desktop, also works smoothly on mobile) */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || checkoutItems.length === 0}
+                  className="w-full py-3.5 sm:py-4 px-6 bg-[#1a8e5f] hover:bg-[#15774e] active:scale-[0.99] text-white font-bold text-base sm:text-lg rounded-xl shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Processing Order...</span>
+                    </>
+                  ) : paymentMethod === "COD" ? (
+                    <span>Place Order (COD) • ₹{effectiveTotal.toFixed(2)}</span>
+                  ) : (
+                    <span>Proceed to Pay via PayU • ₹{effectiveTotal.toFixed(2)}</span>
+                  )}
+                </button>
+
+                {/* Trust Badges */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 text-center text-[11px] sm:text-xs text-gray-500">
+                  <div className="flex items-center justify-center gap-1 bg-white p-2 rounded-lg border border-gray-100">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                    <span className="truncate">100% Secure</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-1 bg-white p-2 rounded-lg border border-gray-100">
+                    <Truck className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                    <span className="truncate">Fast Shipping</span>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1 bg-white p-2 rounded-lg border border-gray-100">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                    <span className="truncate">Verified Quality</span>
+                  </div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+
+          {/* Right Column: Order Summary & Coupons (5 Cols on desktop, Sticky on LG+) */}
+          <div className="w-full lg:col-span-5 xl:col-span-5 space-y-6 lg:sticky lg:top-24">
+            
+            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-6">
+              
+              {/* Header */}
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
+                <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-[#1a8e5f]" />
+                  <span>Order Summary</span>
+                </h2>
+                <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full">
+                  {checkoutItems.length} {checkoutItems.length === 1 ? 'item' : 'items'}
+                </span>
+              </div>
+
+              {checkoutItems.length === 0 ? (
+                <div className="py-8 text-center">
+                  <ShoppingBag className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-500 font-medium">Your cart is empty.</p>
+                  <Link href="/products" className="mt-3 inline-block text-xs font-bold text-[#1a8e5f] hover:underline">
+                    Browse Products
+                  </Link>
                 </div>
               ) : (
                 <>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                    <input
-                      type="text"
-                      placeholder="Enter Coupon Code"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      style={{ flex: 1, padding: '0.55rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 600 }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleApplyCouponCode(couponInput)}
-                      style={{ padding: '0.55rem 1.1rem', background: '#1a8e5f', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      Apply
-                    </button>
+                  {/* Items List */}
+                  <div className="max-h-72 sm:max-h-80 overflow-y-auto divide-y divide-gray-100 pr-1 mb-5">
+                    {checkoutItems.map((item, idx) => {
+                      const fullProduct = allProducts.find((p: any) => p._id === item.productId);
+                      const image = fullProduct?.image || item.image || "/placeholder.png";
+
+                      return (
+                        <div key={idx} className="py-3.5 first:pt-0 last:pb-0 flex items-center gap-3">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 relative rounded-xl overflow-hidden bg-gray-50 border border-gray-200 flex-shrink-0">
+                            <Image
+                              src={image}
+                              alt={item.name || "Product"}
+                              fill
+                              sizes="(max-width: 640px) 56px, 64px"
+                              className="object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Qty: <span className="font-medium text-gray-700">{item.quantity}</span>
+                              {item.unit && <span className="ml-1 text-gray-400">({item.unit})</span>}
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <span className="text-xs sm:text-sm font-bold text-gray-900">
+                              ₹{(item.price * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {/* List of Available Coupons to easily Tap & Apply */}
-                  {availableCoupons.length > 0 && (
-                    <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '0.6rem' }}>
-                      <p style={{ fontSize: '0.82rem', color: '#6b7280', marginBottom: '0.4rem', fontWeight: 500 }}>
-                        Available Offers for you (Click Apply to use):
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                        {availableCoupons.map((c) => {
-                          const isEligibleForMin = !c.minOrderAmount || effectiveSubtotal >= c.minOrderAmount;
-                          return (
-                            <div
-                              key={c.id}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                background: '#f9fafb',
-                                border: '1px solid #e5e7eb',
-                                padding: '0.5rem 0.75rem',
-                                borderRadius: '6px'
-                              }}
-                            >
-                              <div>
-                                <span style={{ fontWeight: 700, color: '#1f2937', fontSize: '0.9rem', background: '#e5e7eb', padding: '2px 6px', borderRadius: '3px', marginRight: '6px' }}>
-                                  {c.code}
-                                </span>
-                                <span style={{ fontSize: '0.82rem', color: '#4b5563' }}>
-                                  {c.discountType === 'Percentage' ? `${c.discountValue}% OFF` : `Flat ₹${c.discountValue} OFF`}
-                                  {c.minOrderAmount > 0 ? ` (on ₹${c.minOrderAmount}+)` : ''}
+                  {/* Promo Coupons Section - ONLY rendered if user fulfills conditions or coupon is applied */}
+                  {(() => {
+                    const eligibleCoupons = availableCoupons.filter(
+                      (c) => !c.minOrderAmount || effectiveSubtotal >= c.minOrderAmount
+                    );
+                    const showCouponSection = appliedCoupon !== null || eligibleCoupons.length > 0;
+
+                    if (!showCouponSection) return null;
+
+                    return (
+                      <div className="p-3.5 sm:p-4 bg-gray-50 rounded-xl border border-gray-200/80 mb-5 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs sm:text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                            <Tag className="w-4 h-4 text-[#1a8e5f]" />
+                            <span>Promo Coupons & Offers</span>
+                          </h3>
+                          {appliedCoupon ? (
+                            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                              Applied
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                              Offer Available
+                            </span>
+                          )}
+                        </div>
+
+                        {appliedCoupon ? (
+                          <div className="flex items-center justify-between gap-2 p-3 bg-emerald-50 border border-dashed border-emerald-300 rounded-lg">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                                <span className="font-bold text-xs sm:text-sm text-emerald-800 tracking-wider truncate">
+                                  {appliedCoupon.code}
                                 </span>
                               </div>
+                              <p className="text-[11px] sm:text-xs text-emerald-600 mt-0.5">
+                                Saved ₹{appliedCoupon.discountAmount.toFixed(2)} with this coupon!
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleRemoveCoupon}
+                              className="flex-shrink-0 p-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors text-xs font-semibold"
+                              title="Remove Coupon"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="COUPON CODE"
+                                value={couponInput}
+                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                className="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                              />
                               <button
                                 type="button"
-                                onClick={() => handleApplyCouponCode(c.code)}
-                                disabled={!isEligibleForMin}
-                                style={{
-                                  background: isEligibleForMin ? '#10b981' : '#d1d5db',
-                                  color: '#fff',
-                                  border: 'none',
-                                  padding: '3px 9px',
-                                  borderRadius: '4px',
-                                  cursor: isEligibleForMin ? 'pointer' : 'not-allowed',
-                                  fontSize: '0.82rem',
-                                  fontWeight: 600
-                                }}
+                                onClick={() => handleApplyCouponCode(couponInput)}
+                                disabled={isApplyingCoupon || !couponInput.trim()}
+                                className="px-4 py-2 bg-[#1a8e5f] hover:bg-[#15774e] disabled:opacity-50 text-white font-semibold text-xs sm:text-sm rounded-lg transition-colors flex-shrink-0"
                               >
-                                {isEligibleForMin ? 'Apply' : 'Min ₹' + c.minOrderAmount}
+                                {isApplyingCoupon ? "Applying..." : "Apply"}
                               </button>
                             </div>
-                          );
-                        })}
+
+                            {/* Pre-fill Hint */}
+                            {couponInput && (
+                              <p className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 flex-shrink-0" />
+                                <span>Code pre-filled for you! Tap <strong>Apply</strong> to get discount.</span>
+                              </p>
+                            )}
+
+                            {/* Eligible Offers List */}
+                            <div className="pt-2 border-t border-gray-200">
+                              <p className="text-[11px] font-semibold text-gray-500 mb-2">
+                                Available offers for your order:
+                              </p>
+                              <div className="space-y-2 max-h-48 overflow-y-auto pr-0.5">
+                                {eligibleCoupons.map((c) => (
+                                  <div
+                                    key={c.id || c.code}
+                                    onClick={() => {
+                                      setCouponInput(c.code);
+                                      handleApplyCouponCode(c.code);
+                                    }}
+                                    className="p-2.5 bg-white border border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/20 rounded-lg flex flex-wrap items-center justify-between gap-2 shadow-2xs cursor-pointer transition-all"
+                                  >
+                                    <div className="min-w-0">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="font-bold text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded tracking-wide">
+                                          {c.code}
+                                        </span>
+                                        <span className="text-xs font-semibold text-gray-900">
+                                          {c.discountType === 'Percentage' ? `${c.discountValue}% OFF` : `₹${c.discountValue} OFF`}
+                                        </span>
+                                      </div>
+                                      {c.minOrderAmount > 0 && (
+                                        <p className="text-[10px] mt-0.5 text-emerald-600 font-medium">
+                                          ✓ Valid on orders above ₹{c.minOrderAmount}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setCouponInput(c.code);
+                                        handleApplyCouponCode(c.code);
+                                      }}
+                                      disabled={isApplyingCoupon}
+                                      className="px-3 py-1.5 text-[11px] font-bold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs transition-colors"
+                                    >
+                                      Apply
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
+                    );
+                  })()}
+
+                  {/* Savings Banner */}
+                  {(effectiveAutoDiscount > 0 || effectiveCouponDiscount > 0) && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs sm:text-sm font-semibold flex items-center gap-2 mb-4">
+                      <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span>
+                        Total Savings: ₹{(effectiveAutoDiscount + effectiveCouponDiscount).toFixed(2)} on this order!
+                      </span>
                     </div>
                   )}
+
+                  {/* Price Breakdown */}
+                  <div className="space-y-2.5 text-xs sm:text-sm border-t border-gray-100 pt-4">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-gray-900">₹{effectiveSubtotal.toFixed(2)}</span>
+                    </div>
+
+                    {effectiveAutoDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium">
+                        <span className="flex items-center gap-1">
+                          <span>Automatic Discount ({discountInfo?.appliedDiscount?.name || 'Applied'})</span>
+                        </span>
+                        <span>- ₹{effectiveAutoDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {effectiveCouponDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium">
+                        <span className="flex items-center gap-1">
+                          <span>Coupon Discount ({appliedCoupon?.code})</span>
+                        </span>
+                        <span>- ₹{effectiveCouponDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-gray-600">
+                      <span>Delivery Charges</span>
+                      <span className="font-semibold text-emerald-700">FREE</span>
+                    </div>
+
+                    {/* Total Row */}
+                    <div className="border-t border-dashed border-gray-200 pt-3 mt-3 flex justify-between items-baseline">
+                      <div>
+                        <span className="text-sm sm:text-base font-bold text-gray-900 block">Total Amount</span>
+                        <span className="text-[11px] text-gray-400 font-normal">Inclusive of all taxes</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xl sm:text-2xl font-extrabold text-[#1a8e5f]">
+                          ₹{effectiveTotal.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
+
             </div>
 
-            {/* Price Breakdown */}
-            <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid #ddd" }}>
-              {(effectiveAutoDiscount > 0 || effectiveCouponDiscount > 0) && (
-                <div style={{
-                  background: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: '6px',
-                  padding: '0.6rem 0.8rem',
-                  marginBottom: '1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  color: '#15803d',
-                  fontSize: '0.92rem',
-                  fontWeight: 600
-                }}>
-                  <span>🎉</span>
-                  <span>Total Savings: Rs. {(effectiveAutoDiscount + effectiveCouponDiscount).toFixed(2)} on this order!</span>
-                </div>
-              )}
+          </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", color: "#555" }}>
-                <span>Subtotal:</span>
-                <span>Rs. {effectiveSubtotal.toFixed(2)}</span>
-              </div>
+        </div>
 
-              {effectiveAutoDiscount > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", color: "#16a34a", fontWeight: 600 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    🎁 Automatic Discount ({discountInfo?.appliedDiscount?.name}):
-                  </span>
-                  <span style={{ color: '#16a34a' }}>- Rs. {effectiveAutoDiscount.toFixed(2)}</span>
-                </div>
-              )}
-
-              {effectiveCouponDiscount > 0 && (
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", color: "#16a34a", fontWeight: 600 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    🏷️ Coupon Code ({appliedCoupon?.code}):
-                  </span>
-                  <span style={{ color: '#16a34a' }}>- Rs. {effectiveCouponDiscount.toFixed(2)}</span>
-                </div>
-              )}
-
-              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "1.2rem", marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px dashed #ccc" }}>
-                <span>Total to Pay:</span>
-                <span style={{ color: '#111827' }}>Rs. {effectiveTotal.toFixed(2)}</span>
-              </div>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
@@ -588,7 +956,14 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div style={{ padding: "4rem", textAlign: "center" }}>Loading Checkout...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#1a8e5f]" />
+          <p className="text-sm font-medium text-gray-600">Loading Checkout...</p>
+        </div>
+      }
+    >
       <CheckoutContent />
     </Suspense>
   );
