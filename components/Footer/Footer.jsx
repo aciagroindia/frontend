@@ -47,31 +47,14 @@ export default function Footer() {
           </div> 
         </div>
 
-        {/* Column 2 */}
-        <div className={styles.col}>
-          <h3 className={styles.heading}>CATEGORIES</h3>
-          <ul className={styles.list}>
-            <li>
-              <Link href="#">Shop All</Link>
-            </li>
-            <li>
-              <Link href="#">Herbal Juices</Link>
-            </li>
-            <li>
-              <Link href="#">Herbal Tablets</Link>
-            </li>
-            <li>
-              <Link href="#">Herbal Powders</Link>
-            </li>
-          </ul>
-        </div>
+       
 
-        {/* Column 3 */}
+        {/* Column 2 */}
         <div className={styles.col}>
           <h3 className={styles.heading}>QUICK LINKS</h3>
           <ul className={styles.list}>
             <li>
-              <Link href="#">Articles</Link>
+              <Link href="/blogs/articles">Articles</Link>
             </li>
             <li>
               <Link href="#">Contact Us</Link>
@@ -79,13 +62,10 @@ export default function Footer() {
             <li>
               <Link href="#">Our Company</Link>
             </li>
-            <li>
-              <Link href="#">Search</Link>
-            </li>
           </ul>
         </div>
 
-        {/* Column 4 */}
+        {/* Column 3 */}
         <div className={styles.col}>
           <h3 className={styles.heading}>OUR POLICIES</h3>
           <ul className={styles.list}>
@@ -105,7 +85,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className={styles.bottom}>Developed By Sarvamidam Tech Experts</div>
+      <div className={styles.bottom}>Developed By Tech Elegance Experts</div>
     </footer>
   );
 }

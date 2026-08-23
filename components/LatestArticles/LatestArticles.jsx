@@ -1,17 +1,18 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; 
 import styles from "./LatestArticles.module.css";
+import axiosInstance from "@/utils/axiosInstance";
 
-const articles = [
+const staticFallbackArticles = [
   {
     id: 1,
     title: "The Power of Ashwagandha for Stress Relief",
     description:
       "Ashwagandha, an ancient herb, helps balance stress and boosts immunity naturally.",
     img: "/certifiedIcons/latestArticle1.png",
-    // 👈 FIX: Link ko naye dynamic route format me update kiya
     link: "/blogs/articles/how-to-use-ashwagandha-powder-with-water", 
     date: "February 10, 2026",
   },
@@ -21,7 +22,7 @@ const articles = [
     description:
       "Discover simple Ayurvedic practices that improve digestion and gut health.",
     img: "/certifiedIcons/latestArticle2.png",
-    link: "/blogs/articles/digestion-tips",
+    link: "/blogs/articles/how-to-use-ashwagandha-powder-with-water",
     date: "February 5, 2026",
   },
   {
@@ -30,13 +31,43 @@ const articles = [
     description:
       "Learn how turmeric supports your immune system and overall wellness.",
     img: "/certifiedIcons/latestArticle3.png",
-    link: "/blogs/articles/turmeric",
+    link: "/blogs/articles/how-to-use-ashwagandha-powder-with-water",
     date: "January 28, 2026",
   },
 ];
 
 export default function LatestArticles() {
   const router = useRouter(); 
+  const [articles, setArticles] = useState(staticFallbackArticles);
+
+  useEffect(() => {
+    const fetchLatest = async () => {
+      try {
+        const res = await axiosInstance.get("/articles?limit=3");
+        if (res.data.success && res.data.data && res.data.data.length > 0) {
+          const mapped = res.data.data.map((item) => ({
+            id: item._id || item.id || item.slug,
+            title: item.title,
+            description: item.description,
+            img: item.image || "/certifiedIcons/latestArticle1.png",
+            link: `/blogs/articles/${item.slug}`,
+            date: item.createdAt 
+              ? new Date(item.createdAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric"
+                })
+              : "Recent"
+          }));
+          setArticles(mapped);
+        }
+      } catch (err) {
+        // Fallback to static articles gracefully
+      }
+    };
+
+    fetchLatest();
+  }, []);
 
   return (
     <section className={styles.section}>
@@ -48,9 +79,8 @@ export default function LatestArticles() {
             <article 
               key={article.id} 
               className={styles.card}
-              // 👈 FIX: Poore card ko clickable bana diya
               onClick={() => router.push(article.link)}
-              style={{ cursor: "pointer" }} // Taki mouse hover karne par pointer icon (hand) aaye
+              style={{ cursor: "pointer" }}
             >
               <div className={styles.imageWrapper}>
                 <Image
@@ -59,6 +89,7 @@ export default function LatestArticles() {
                   fill
                   className={styles.image}
                   priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
               <div className={styles.content}>

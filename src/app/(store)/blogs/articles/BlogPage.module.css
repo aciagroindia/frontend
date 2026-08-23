@@ -1,5 +1,5 @@
 .section {
-  padding: clamp(60px, 8vw, 80px) 20px;
+  padding: clamp(40px, 6vw, 70px) 20px 80px;
   background: #f9faf7;
   font-family: "Poppins", sans-serif;
   min-height: 100vh;
@@ -12,112 +12,128 @@
 }
 
 .header {
-  margin-bottom: clamp(40px, 6vw, 60px);
+  margin-bottom: clamp(35px, 5vw, 50px);
 }
 
 .heading {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  font-weight: 700;
-  margin-bottom: 15px;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  margin-bottom: 10px;
   color: #111827;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  font-size: clamp(1rem, 2.5vw, 1.1rem);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
   color: #455d45;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* GRID */
+/* GRID - AUTO FILL PREVENTS SINGLE CARD FROM EXPANDING FULL WIDTH */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 45vw, 320px), 1fr));
-  gap: clamp(24px, 4vw, 32px);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 360px));
+  gap: clamp(20px, 3vw, 32px);
   text-align: left;
+  justify-content: center;
 }
 
 /* CARD */
 .card {
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   height: 100%;
-  text-decoration: none; /* Because we will wrap the card in a Link */
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  text-decoration: none;
 }
 
 @media (hover: hover) {
   .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(46, 125, 50, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(15, 81, 50, 0.15);
+    border-color: #cbd5e1;
   }
 }
 
-/* IMAGE */
+/* IMAGE (Matching 16:9 ratio with cover fit) */
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 12;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+  background: #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .image {
-  object-fit: cover;
+  object-fit: cover !important;
+  object-position: center !important;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
-  transition: transform 0.5s ease;
+  transition: transform 0.3s ease;
 }
 
 .card:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* CONTENT */
 .content {
-  padding: clamp(20px, 3vw, 24px);
+  padding: 20px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
 .date {
-  font-size: clamp(0.8rem, 2vw, 0.85rem);
-  color: #006800; /* Primary Green */
+  font-size: 0.8rem;
+  color: #0f5132;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 /* TITLE */
 .title {
-  font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+  font-size: 1.15rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: #111827;
   line-height: 1.4;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .card:hover .title {
-  color: #006800;
+  color: #0f5132;
 }
 
 /* DESCRIPTION */
 .description {
-  font-size: clamp(0.9rem, 2.4vw, 0.95rem);
-  color: #455d45;
-  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 18px;
   line-height: 1.6;
   flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .readMore {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #006800;
+  color: #0f5132;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -130,18 +146,18 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: clamp(40px, 8vw, 60px);
+  margin-top: clamp(40px, 6vw, 60px);
 }
 
 .pageBtn {
-  width: clamp(36px, 8vw, 44px);
-  height: clamp(36px, 8vw, 44px);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   background: white;
   color: #455d45;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -151,15 +167,15 @@
 
 @media (hover: hover) {
   .pageBtn:hover:not(:disabled) {
-    border-color: #006800;
-    color: #006800;
+    border-color: #0f5132;
+    color: #0f5132;
   }
 }
 
 .pageBtn.active {
-  background: #006800;
+  background: #0f5132;
   color: white;
-  border-color: #006800;
+  border-color: #0f5132;
 }
 
 .pageBtn:disabled {

@@ -15,6 +15,7 @@ import {
   LucideIcon,
   X,
   ClipboardList,
+  BookOpen,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 
@@ -34,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Categories", href: "/admin/category", icon: Package },
+  { name: "Blogs / Articles", href: "/admin/articles", icon: BookOpen },
   {
     name: "Marketing", // FIX: Changed href to be more specific
     href: "/admin/marketing",
