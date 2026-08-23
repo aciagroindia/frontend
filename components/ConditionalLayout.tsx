@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
 import FeaturesStrip from "./FeaturesStrip/FeaturesStrip";
 import TopAnnouncementBar from "./TopAnnouncementBar/TopAnnouncementBar";
+import WhatsAppButton from "./WhatsAppButton/WhatsAppButton";
 
 export default function ConditionalLayout({
   children,
@@ -25,6 +26,7 @@ export default function ConditionalLayout({
       <TopAnnouncementBar />
       <Navbar />
       {children}
+      <WhatsAppButton />
       <FeaturesStrip />
       <Footer />
     </>

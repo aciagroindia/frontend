@@ -1,0 +1,97 @@
+.floatingContainer {
+  position: fixed;
+  right: 0 !important;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+}
+
+.whatsappBtn {
+  position: relative;
+  height: 52px;
+  width: 52px;
+  border-top-left-radius: 26px;
+  border-bottom-left-radius: 26px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background: #25D366;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -2px 4px 16px rgba(37, 211, 102, 0.45);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-right: 0 !important;
+  padding-left: 4px;
+}
+
+.whatsappBtn:hover {
+  transform: translateX(-4px);
+  box-shadow: -4px 6px 22px rgba(37, 211, 102, 0.6);
+  background: #20ba59;
+  width: 56px;
+}
+
+.whatsappIcon {
+  width: 30px;
+  height: 30px;
+  fill: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* Tooltip Badge positioned strictly to the left of the button */
+.tooltip {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+.whatsappBtn:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (max-width: 768px) {
+  .floatingContainer {
+    right: 0 !important;
+    top: 52%;
+  }
+
+  .whatsappBtn {
+    height: 46px;
+    width: 46px;
+    border-top-left-radius: 23px;
+    border-bottom-left-radius: 23px;
+  }
+
+  .whatsappIcon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .tooltip {
+    display: none !important;
+  }
+}
