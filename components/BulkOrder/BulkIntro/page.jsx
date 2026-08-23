@@ -1,13 +1,12 @@
 import React from "react";
 import styles from "./page.module.css";
 import ScrollingStrip from "../../../components/ScrollingStrip/ScrollingStrip";
+import BulkHero from "../BulkHero/BulkHero";
 
 export default function BulkIntro() {
   return (
     <>
-      <section className={styles.titleContainer}>
-        <h1 className={styles.title}>BULK ORDERS</h1>
-      </section>
+      <BulkHero />
       <ScrollingStrip />
       <section className={styles.contentContainer}>
         <div className={styles.content}>

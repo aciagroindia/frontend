@@ -23,16 +23,26 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
-      // Check karein ki error kis API URL se aaya hai
-      const requestUrl = error.config?.url || "";
-      
-      // FIX: Yahan humne '/orders' add kar diya hai taaki payment fail hone par logout na ho
+    const status = error?.response?.status;
+    const requestUrl = error.config?.url || "";
+
+    if (status === 401 || (status === 403 && requestUrl.includes('/admin/'))) {
       if (!requestUrl.includes('/password') && !requestUrl.includes('/login') && !requestUrl.includes('/orders')) {
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+          const isCurrentAdminPage = window.location.pathname.startsWith('/admin') && 
+                                     window.location.pathname !== '/admin/login' && 
+                                     window.location.pathname !== '/admin/request-access' &&
+                                     window.location.pathname !== '/admin/waiting';
+
+          if (isCurrentAdminPage) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/admin/login';
+          } else if (status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          }
         }
       }
     }

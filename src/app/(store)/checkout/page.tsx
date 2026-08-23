@@ -58,7 +58,7 @@ function CheckoutContent() {
   const { products: allProducts } = useProducts();
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
-  
+
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get("mode") === "buyNow";
 
@@ -234,7 +234,7 @@ function CheckoutContent() {
 
       if (!isAuthenticated) {
         toast.error("Please log in to proceed to payment.");
-        router.push("/login"); 
+        router.push("/login");
         return;
       }
 
@@ -247,7 +247,7 @@ function CheckoutContent() {
         const fullProduct = allProducts.find((p: any) => p._id === item.productId);
         const image = fullProduct?.image || item.image || "/placeholder.png";
         const baseProductId = item.productId || item._id || item.id?.split('-')[0];
-        
+
         return {
           name: item.name,
           qty: item.quantity,
@@ -281,7 +281,7 @@ function CheckoutContent() {
       };
 
       const response = await axiosInstance.post("/orders", payload);
-      
+
       if (response.data.success) {
         // 1. CASH ON DELIVERY FLOW
         if (paymentMethod === 'COD') {
@@ -417,7 +417,7 @@ function CheckoutContent() {
   return (
     <div className="min-h-screen bg-gray-50/60 pb-16 pt-4 sm:pt-8">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        
+
         {/* Navigation Breadcrumb / Top Bar */}
         <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -452,12 +452,12 @@ function CheckoutContent() {
 
         {/* Main 2-Column Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          
+
           {/* Left Column: Form & Payment (7 Cols on desktop, 100% on mobile) */}
           <div className="w-full lg:col-span-7 xl:col-span-7 space-y-6">
-            
+
             <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6">
-              
+
               {/* Shipping Address Section */}
               <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-6 md:p-7">
                 <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-gray-100">
@@ -621,11 +621,10 @@ function CheckoutContent() {
                   {/* Cashfree Online Option */}
                   <label
                     onClick={() => setPaymentMethod("Cashfree")}
-                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
-                      paymentMethod === "Cashfree"
+                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${paymentMethod === "Cashfree"
                         ? "border-[#1a8e5f] bg-emerald-50/40 shadow-sm ring-1 ring-[#1a8e5f]"
                         : "border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -653,11 +652,10 @@ function CheckoutContent() {
                   {/* Cash on Delivery Option */}
                   <label
                     onClick={() => setPaymentMethod("COD")}
-                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${
-                      paymentMethod === "COD"
+                    className={`flex items-start gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border-2 cursor-pointer transition-all duration-150 ${paymentMethod === "COD"
                         ? "border-[#1a8e5f] bg-emerald-50/40 shadow-sm ring-1 ring-[#1a8e5f]"
                         : "border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"
@@ -722,9 +720,9 @@ function CheckoutContent() {
 
           {/* Right Column: Order Summary & Coupons (5 Cols on desktop, Sticky on LG+) */}
           <div className="w-full lg:col-span-5 xl:col-span-5 space-y-6 lg:sticky lg:top-24">
-            
+
             <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-4 sm:p-6">
-              
+
               {/* Header */}
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
                 <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">

@@ -1,6 +1,7 @@
 {
-  "/(store)/checkout/page": "app/(store)/checkout/page.js",
-  "/(store)/login/page": "app/(store)/login/page.js",
-  "/(store)/orders/page": "app/(store)/orders/page.js",
+  "/(store)/bulk-order/page": "app/(store)/bulk-order/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/marketing/bulk-banners/page": "app/admin/marketing/bulk-banners/page.js",
   "/page": "app/page.js"
 }

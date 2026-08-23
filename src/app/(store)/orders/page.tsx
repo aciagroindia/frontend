@@ -50,7 +50,7 @@ function OrdersContent() {
   const { products: allProducts, loading: productsLoading } = useProducts();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -92,7 +92,7 @@ function OrdersContent() {
       try {
         setLoading(true);
         const response = await axiosInstance.get("/orders/my-orders");
-        
+
         if (response.data.success) {
           const mappedOrders: Order[] = response.data.data.map((order: any) => {
             const formattedDate = new Date(order.createdAt).toLocaleDateString("en-GB", {

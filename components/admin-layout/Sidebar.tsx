@@ -40,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: Megaphone,
     children: [
       { name: "Hero Banners", href: "/admin/marketing/hero-banners" },
+      { name: "Bulk Banners", href: "/admin/marketing/bulk-banners" },
       { name: "Discounts", href: "/admin/marketing/discounts" },
       { name: "Coupons", href: "/admin/marketing/coupons" },
       { name: "Certificates", href: "/admin/marketing/certificates" },

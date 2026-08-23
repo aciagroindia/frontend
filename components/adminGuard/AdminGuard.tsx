@@ -7,14 +7,22 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
+  const role = (user?.role || '').toLowerCase();
+  const hasAccess = role === 'admin' || role === 'owner' || Boolean(user?.isAdminApproved);
+
   useEffect(() => {
     if (!loading) {
-      if (!isAuthenticated || user?.role !== 'admin' || !user?.isAdminApproved) {
+      if (!isAuthenticated) {
+        router.push("/admin/login");
+        return;
+      }
+      if (!hasAccess) {
         router.push("/admin/waiting");
       }
     }
-  }, [loading, isAuthenticated, user, router]);
+  }, [loading, isAuthenticated, hasAccess, router]);
 
-  if (loading || !user?.isAdminApproved) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
+  if (!isAuthenticated || !hasAccess) return null;
   return <>{children}</>;
 }
