@@ -70,16 +70,16 @@ export default function Footer() {
           <h3 className={styles.heading}>OUR POLICIES</h3>
           <ul className={styles.list}>
             <li>
-              <Link href="#">Privacy Policy</Link>
+              <Link href="/policies/privacy-policy">Privacy Policy</Link>
             </li>
             <li>
-              <Link href="#">Cancellation Policy</Link>
+              <Link href="/policies/cancellation-policy">Cancellation Policy</Link>
             </li>
             <li>
-              <Link href="#">Shipping Policy</Link>
+              <Link href="/policies/shipping-policy">Shipping Policy</Link>
             </li>
             <li>
-              <Link href="#">Terms of Service</Link>
+              <Link href="/policies/terms-of-service">Terms of Service</Link>
             </li>
           </ul>
         </div>

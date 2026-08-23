@@ -3,10 +3,12 @@
   "/(store)/blogs/articles/[slug]/page": "app/(store)/blogs/articles/[slug]/page.js",
   "/(store)/blogs/articles/page": "app/(store)/blogs/articles/page.js",
   "/(store)/bulk-order/page": "app/(store)/bulk-order/page.js",
+  "/(store)/policies/[slug]/page": "app/(store)/policies/[slug]/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/admin/articles/page": "app/admin/articles/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
   "/admin/login/page": "app/admin/login/page.js",
   "/admin/marketing/bulk-banners/page": "app/admin/marketing/bulk-banners/page.js",
+  "/admin/policies/page": "app/admin/policies/page.js",
   "/page": "app/page.js"
 }

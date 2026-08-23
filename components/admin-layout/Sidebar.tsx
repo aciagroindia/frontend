@@ -16,6 +16,7 @@ import {
   X,
   ClipboardList,
   BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import styles from "./Sidebar.module.css";
 
@@ -36,6 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Categories", href: "/admin/category", icon: Package },
   { name: "Blogs / Articles", href: "/admin/articles", icon: BookOpen },
+  { name: "Policies", href: "/admin/policies", icon: ShieldCheck },
   {
     name: "Marketing", // FIX: Changed href to be more specific
     href: "/admin/marketing",
