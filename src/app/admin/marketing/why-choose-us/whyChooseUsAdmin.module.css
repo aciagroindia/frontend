@@ -1,7 +1,8 @@
 .container {
-  padding: 24px;
+  padding: clamp(14px, 3vw, 24px);
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .header {
@@ -14,33 +15,35 @@
 }
 
 .title {
-  font-size: 1.6rem;
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
   font-weight: 700;
   color: #111827;
   margin-bottom: 4px;
 }
 
 .subtitle {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #6b7280;
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .saveBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   background: #2e7d32;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -61,13 +64,14 @@
 .resetBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 10px 14px;
   background: #ffffff;
   color: #4b5563;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -82,7 +86,7 @@
 .grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 28px;
+  gap: clamp(16px, 3vw, 28px);
   align-items: start;
 }
 
@@ -90,22 +94,25 @@
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: clamp(14px, 2.5vw, 24px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .cardTitle {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #1f2937;
   display: flex;
@@ -114,12 +121,13 @@
 }
 
 .formGroup {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
+  width: 100%;
 }
 
 .label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #374151;
   margin-bottom: 6px;
@@ -128,14 +136,15 @@
 .input,
 .textarea {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #111827;
   background: #ffffff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .input:focus,
@@ -147,25 +156,27 @@
 
 .textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 90px;
 }
 
 .formRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 14px;
 }
 
 /* Image Upload Area */
 .uploadContainer {
   border: 2px dashed #d1d5db;
   border-radius: 12px;
-  padding: 20px;
+  padding: clamp(14px, 3vw, 20px);
   text-align: center;
   background: #fafafa;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .uploadContainer:hover {
@@ -174,35 +185,36 @@
 }
 
 .uploadIconWrapper {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #e8f5e9;
   color: #2e7d32;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
 }
 
 .uploadText {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #374151;
   margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .uploadHint {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b7280;
 }
 
 .imagePreviewBox {
-  margin-top: 16px;
+  margin-top: 14px;
   position: relative;
   width: 100%;
   max-width: 320px;
-  height: 260px;
+  height: 240px;
   margin-left: auto;
   margin-right: auto;
   border-radius: 12px;
@@ -213,6 +225,7 @@
   justify-content: center;
   padding: 12px;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .previewImg {
@@ -229,11 +242,11 @@
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   margin-top: 14px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #1e40af;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 /* Points List Editor */
@@ -241,20 +254,22 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 14px;
+  padding: 12px;
   margin-bottom: 12px;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pointCardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .pointIndex {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #2e7d32;
   text-transform: uppercase;
@@ -281,12 +296,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: #f3f4f6;
   color: #374151;
   border: 1px dashed #9ca3af;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
@@ -303,38 +318,41 @@
 /* Live Preview Side Panel */
 .previewSticky {
   position: sticky;
-  top: 90px;
+  top: 85px;
+  width: 100%;
 }
 
 .livePreviewWrapper {
   background: linear-gradient(135deg, #f3faf6, #ffffff);
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: clamp(16px, 3vw, 24px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .livePreviewBadge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #2e7d32;
   background: #e8f5e9;
   padding: 4px 10px;
   border-radius: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .previewSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .previewTag {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   letter-spacing: 2px;
   color: #2e7d32;
   font-weight: 700;
@@ -342,11 +360,12 @@
 }
 
 .previewHeading {
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
   font-weight: 800;
   color: #111827;
   line-height: 1.25;
   margin: 6px 0;
+  word-break: break-word;
 }
 
 .previewHeading span {
@@ -354,26 +373,27 @@
 }
 
 .previewDesc {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #4b5563;
   line-height: 1.6;
+  word-break: break-word;
 }
 
 .previewPoints {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 8px 0;
+  gap: 8px;
+  margin: 6px 0;
 }
 
 .previewPointItem strong {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: #111827;
 }
 
 .previewPointItem p {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b7280;
   margin: 2px 0 0 0;
 }
@@ -381,21 +401,24 @@
 .previewImgContainer {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 200px;
   border-radius: 12px;
   background: radial-gradient(circle, #d8f3e8 0%, transparent 70%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .previewImgDisplay {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
 }
+
+/* ================= MOBILE MEDIA QUERIES ================= */
 
 @media (max-width: 1024px) {
   .grid {
@@ -403,5 +426,32 @@
   }
   .previewSticky {
     position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .saveBtn, .resetBtn {
+    width: 100%;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .imagePreviewBox {
+    max-width: 100%;
+    height: 200px;
   }
 }

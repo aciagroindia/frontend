@@ -1,46 +1,49 @@
 .container {
-  padding: 24px;
+  padding: clamp(14px, 3vw, 24px);
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
-  gap: 16px;
+  margin-bottom: 20px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .title {
-  font-size: 1.6rem;
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
   font-weight: 700;
   color: #111827;
   margin-bottom: 4px;
 }
 
 .subtitle {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #6b7280;
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .saveBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   background: #2e7d32;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -61,13 +64,14 @@
 .resetBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 10px 14px;
   background: #ffffff;
   color: #4b5563;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -82,13 +86,14 @@
 .previewBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 10px 14px;
   background: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -101,21 +106,27 @@
 /* Tabs */
 .tabsContainer {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   overflow-x: auto;
   padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  display: none;
 }
 
 .tabBtn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 18px;
+  gap: 6px;
+  padding: 10px 16px;
   border: none;
   background: transparent;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #6b7280;
   cursor: pointer;
@@ -124,6 +135,7 @@
   white-space: nowrap;
   transition: all 0.2s ease;
   border-radius: 6px 6px 0 0;
+  flex-shrink: 0;
 }
 
 .tabBtn:hover {
@@ -142,24 +154,25 @@
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
-  padding: 24px;
+  padding: clamp(14px, 2.5vw, 24px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   margin-bottom: 24px;
+  width: 100%;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f3f4f6;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .cardTitle {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #1f2937;
   display: flex;
@@ -171,19 +184,20 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #4b5563;
   cursor: pointer;
 }
 
 .formGroup {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
+  width: 100%;
 }
 
 .label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #374151;
   margin-bottom: 6px;
@@ -193,14 +207,15 @@
 .textarea,
 .select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: #111827;
   background: #ffffff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .input:focus,
@@ -213,25 +228,26 @@
 
 .textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 90px;
 }
 
 .formRow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 14px;
 }
 
 /* Color Picker & Styling Controls */
 .colorGroup {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .colorInput {
-  width: 44px;
-  height: 40px;
+  width: 42px;
+  height: 38px;
   padding: 2px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
@@ -241,50 +257,28 @@
 
 .colorHex {
   font-family: monospace;
-  font-size: 0.9rem;
-  padding: 8px 12px;
+  font-size: 0.88rem;
+  padding: 6px 10px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   color: #374151;
 }
 
-.colorSwatches {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-}
-
-.swatch {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-  box-shadow: 0 0 0 1px #d1d5db;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-}
-
-.swatch:hover {
-  transform: scale(1.2);
-}
-
 /* Background Type Selector */
 .bgTypeToggle {
   display: flex;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .bgTypeOption {
   flex: 1;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #4b5563;
   cursor: pointer;
@@ -302,12 +296,14 @@
 .uploadContainer {
   border: 2px dashed #d1d5db;
   border-radius: 12px;
-  padding: 20px;
+  padding: clamp(14px, 3vw, 20px);
   text-align: center;
   background: #fafafa;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .uploadContainer:hover {
@@ -316,26 +312,27 @@
 }
 
 .uploadIconWrapper {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #e8f5e9;
   color: #2e7d32;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 10px;
+  margin: 0 auto 8px;
 }
 
 .uploadText {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #374151;
   margin-bottom: 4px;
+  word-break: break-word;
 }
 
 .uploadHint {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b7280;
 }
 
@@ -352,6 +349,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .previewImg {
@@ -365,24 +363,26 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 20px;
+  padding: clamp(14px, 2.5vw, 20px);
   margin-bottom: 18px;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .customSectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid #e5e7eb;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .customSectionNumber {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: #2e7d32;
   text-transform: uppercase;
@@ -414,18 +414,18 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 11px 18px;
   background: #f3f4f6;
   color: #1f2937;
   border: 2px dashed #9ca3af;
   border-radius: 10px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
   justify-content: center;
   transition: all 0.2s ease;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .addCustomBtn:hover {
@@ -442,9 +442,41 @@
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  font-size: 0.875rem;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
   color: #166534;
-  line-height: 1.5;
+  line-height: 1.45;
+}
+
+/* ================= MOBILE MEDIA QUERIES ================= */
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .saveBtn, .resetBtn, .previewBtn {
+    width: 100%;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .bgTypeToggle {
+    flex-direction: column;
+  }
+
+  .imagePreviewBox {
+    max-width: 100%;
+  }
 }
