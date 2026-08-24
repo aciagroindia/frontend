@@ -49,6 +49,7 @@ const NAV_ITEMS: NavItem[] = [
       { name: "Coupons", href: "/admin/marketing/coupons" },
       { name: "Certificates", href: "/admin/marketing/certificates" },
       { name: "About Media", href: "/admin/marketing/about-media" },
+      { name: "Why Choose Us", href: "/admin/marketing/why-choose-us" },
     ],
   },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
