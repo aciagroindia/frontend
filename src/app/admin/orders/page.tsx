@@ -7,6 +7,7 @@ import AdvancedTable from "../../../../components/admin-ui/AdvancedTable";
 import axiosInstance from "@/utils/axiosInstance"; 
 import styles from "./OrdersPage.module.css";
 import { toast } from "react-hot-toast";
+import { Trash2, Sparkles, AlertCircle } from "lucide-react";
 
 interface Order {
   id: string;
@@ -24,7 +25,8 @@ export default function OrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [cleaning, setCleaning] = useState(false);
 
   const fetchOrders = async () => {
     try {
@@ -44,24 +46,127 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  const handleShipOrder = async (orderId: string) => {
-    setProcessingId(orderId);
+  const cancelledCount = orders.filter(
+    (o) => (o.orderStatus || "").toLowerCase() === "cancelled"
+  ).length;
+
+  const handleDeleteSingle = async (orderId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this order record? This cannot be undone.")) {
+      return;
+    }
+
     try {
-      const response = await axiosInstance.post(`/admin/orders/${orderId}/ship`); 
-      if (response.data.success) {
-        toast.success("Order shipped successfully!");
-        setOrders(prev =>
-          prev.map(o => o._id === orderId ? response.data.data : o)
-        );
+      const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
+      if (res.data.success) {
+        toast.success("Order deleted successfully");
+        setOrders((prev) => prev.filter((o) => (o._id || o.id) !== orderId));
+        setSelectedIds((prev) => prev.filter((id) => id !== orderId));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to ship order");
+      toast.error(error.response?.data?.message || "Failed to delete order");
+    }
+  };
+
+  const handleCleanCancelled = async () => {
+    if (cancelledCount === 0) {
+      toast.success("No cancelled orders found to clean!");
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete all ${cancelledCount} cancelled orders?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setCleaning(true);
+      const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
+      if (res.data.success) {
+        toast.success(res.data.message || "Cancelled orders cleaned up successfully!");
+        setOrders((prev) =>
+          prev.filter((o) => (o.orderStatus || "").toLowerCase() !== "cancelled")
+        );
+        setSelectedIds([]);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to clean cancelled orders");
     } finally {
-      setProcessingId(null);
+      setCleaning(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to delete ${selectedIds.length} selected orders? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setCleaning(true);
+      const res = await axiosInstance.post("/admin/orders/bulk-delete", {
+        ids: selectedIds,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "Selected orders deleted successfully");
+        setOrders((prev) =>
+          prev.filter((o) => !selectedIds.includes(o._id || o.id))
+        );
+        setSelectedIds([]);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete selected orders");
+    } finally {
+      setCleaning(false);
+    }
+  };
+
+  const toggleSelectRow = (orderId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === orders.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(orders.map((o) => o._id || o.id));
     }
   };
 
   const columns = [
+    {
+      key: "select",
+      label: (
+        <input
+          type="checkbox"
+          checked={orders.length > 0 && selectedIds.length === orders.length}
+          onChange={toggleSelectAll}
+          title="Select All"
+          style={{ cursor: "pointer" }}
+        />
+      ),
+      render: (_: any, row: Order) => {
+        const id = row._id || row.id;
+        return (
+          <input
+            type="checkbox"
+            checked={selectedIds.includes(id)}
+            onChange={() => toggleSelectRow(id)}
+            style={{ cursor: "pointer" }}
+          />
+        );
+      },
+    },
     { 
       key: "id", 
       label: "Order ID", 
@@ -74,7 +179,7 @@ export default function OrdersPage() {
           >
             #{displayId.slice(0, 8)}...
           </span>
-        )
+        );
       }
     },
     { 
@@ -136,6 +241,13 @@ export default function OrdersPage() {
             >
               View
             </button>
+            <button
+              className={styles.deleteBtn}
+              onClick={(e) => handleDeleteSingle(orderId, e)}
+              title="Delete Order Record"
+            >
+              <Trash2 size={14} />
+            </button>
           </div>
         );
       }
@@ -143,7 +255,13 @@ export default function OrdersPage() {
   ];
 
   if (loading) {
-    return <DashboardLayout><div className={styles.card}>Loading orders...</div></DashboardLayout>;
+    return (
+      <DashboardLayout>
+        <div className={styles.card} style={{ padding: "24px" }}>
+          Loading orders...
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
@@ -152,6 +270,29 @@ export default function OrdersPage() {
         <div>
           <h1 className={styles.title}>Orders Management</h1>
           <p className={styles.subtitle}>Manage and track your store orders</p>
+        </div>
+
+        <div className={styles.headerActions}>
+          {selectedIds.length > 0 && (
+            <button
+              className={styles.bulkDeleteBtn}
+              onClick={handleBulkDelete}
+              disabled={cleaning}
+            >
+              <Trash2 size={16} />
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+
+          <button
+            className={styles.cleanCancelledBtn}
+            onClick={handleCleanCancelled}
+            disabled={cleaning || cancelledCount === 0}
+            title="Clean all cancelled orders from table"
+          >
+            <Sparkles size={16} />
+            Clean Cancelled Orders ({cancelledCount})
+          </button>
         </div>
       </div>
 

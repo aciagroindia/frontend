@@ -6,6 +6,7 @@ import AdvancedTable from "../../../../components/admin-ui/AdvancedTable";
 import Modal from "../../../../components/admin-ui/Modal";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
+import { Trash2, Sparkles } from "lucide-react";
 import styles from "./BulkInquiryPage.module.css";
 
 interface BulkInquiry {
@@ -22,6 +23,8 @@ export default function BulkInquiryPage() {
   const [inquiries, setInquiries] = useState<BulkInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] = useState<BulkInquiry | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [cleaning, setCleaning] = useState(false);
 
   const fetchInquiries = async () => {
     try {
@@ -42,6 +45,8 @@ export default function BulkInquiryPage() {
     fetchInquiries();
   }, []);
 
+  const closedCount = inquiries.filter((i) => i.status === "Closed").length;
+
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       const res = await axiosInstance.patch(`/admin/inquiries/${id}`, {
@@ -49,12 +54,11 @@ export default function BulkInquiryPage() {
       });
       if (res.data.success) {
         toast.success("Status updated");
-        // Update local state
         setInquiries((prev) =>
           prev.map((item) => (item._id === id ? { ...item, status: newStatus as any } : item))
         );
         if (selectedInquiry?._id === id) {
-          setSelectedInquiry(null);
+          setSelectedInquiry((prev) => prev ? { ...prev, status: newStatus as any } : null);
         }
       }
     } catch (error) {
@@ -62,7 +66,119 @@ export default function BulkInquiryPage() {
     }
   };
 
+  const handleDeleteSingle = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this inquiry record?")) {
+      return;
+    }
+
+    try {
+      const res = await axiosInstance.delete(`/admin/inquiries/${id}`);
+      if (res.data.success) {
+        toast.success("Inquiry deleted successfully");
+        setInquiries((prev) => prev.filter((item) => item._id !== id));
+        setSelectedIds((prev) => prev.filter((item) => item !== id));
+        if (selectedInquiry?._id === id) {
+          setSelectedInquiry(null);
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to delete inquiry");
+    }
+  };
+
+  const handleCleanClosed = async () => {
+    if (closedCount === 0) {
+      toast.success("No closed inquiries found to clean!");
+      return;
+    }
+
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete all ${closedCount} closed inquiries?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setCleaning(true);
+      const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
+      if (res.data.success) {
+        toast.success(res.data.message || "Closed inquiries cleaned up successfully!");
+        setInquiries((prev) => prev.filter((item) => item.status !== "Closed"));
+        setSelectedIds([]);
+      }
+    } catch (error) {
+      toast.error("Failed to clean closed inquiries");
+    } finally {
+      setCleaning(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+
+    if (
+      !confirm(
+        `Are you sure you want to delete ${selectedIds.length} selected inquiries? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setCleaning(true);
+      const res = await axiosInstance.post("/admin/inquiries/bulk-delete", {
+        ids: selectedIds,
+      });
+      if (res.data.success) {
+        toast.success(res.data.message || "Selected inquiries deleted successfully");
+        setInquiries((prev) => prev.filter((item) => !selectedIds.includes(item._id)));
+        setSelectedIds([]);
+      }
+    } catch (error) {
+      toast.error("Failed to delete selected inquiries");
+    } finally {
+      setCleaning(false);
+    }
+  };
+
+  const toggleSelectRow = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === inquiries.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(inquiries.map((i) => i._id));
+    }
+  };
+
   const columns = [
+    {
+      key: "select",
+      label: (
+        <input
+          type="checkbox"
+          checked={inquiries.length > 0 && selectedIds.length === inquiries.length}
+          onChange={toggleSelectAll}
+          title="Select All"
+          style={{ cursor: "pointer" }}
+        />
+      ),
+      render: (_: any, row: BulkInquiry) => (
+        <input
+          type="checkbox"
+          checked={selectedIds.includes(row._id)}
+          onChange={() => toggleSelectRow(row._id)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+    },
     {
       key: "createdAt",
       label: "Date",
@@ -96,9 +212,18 @@ export default function BulkInquiryPage() {
       key: "actions",
       label: "Actions",
       render: (_: any, row: BulkInquiry) => (
-        <button className={styles.viewBtn} onClick={() => setSelectedInquiry(row)}>
-          View
-        </button>
+        <div className={styles.tableActions}>
+          <button className={styles.viewBtn} onClick={() => setSelectedInquiry(row)}>
+            View
+          </button>
+          <button
+            className={styles.deleteBtn}
+            onClick={(e) => handleDeleteSingle(row._id, e)}
+            title="Delete Inquiry Record"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       ),
     },
   ];
@@ -109,6 +234,29 @@ export default function BulkInquiryPage() {
         <div className={styles.titleArea}>
           <h1 className={styles.title}>Bulk Order Inquiries</h1>
           <p className={styles.subtitle}>Manage and track large order requests</p>
+        </div>
+
+        <div className={styles.headerActions}>
+          {selectedIds.length > 0 && (
+            <button
+              className={styles.bulkDeleteBtn}
+              onClick={handleBulkDelete}
+              disabled={cleaning}
+            >
+              <Trash2 size={16} />
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
+
+          <button
+            className={styles.cleanClosedBtn}
+            onClick={handleCleanClosed}
+            disabled={cleaning || closedCount === 0}
+            title="Clean all closed inquiries from table"
+          >
+            <Sparkles size={16} />
+            Clean Closed Inquiries ({closedCount})
+          </button>
         </div>
       </div>
 
@@ -161,6 +309,17 @@ export default function BulkInquiryPage() {
                 <option value="Contacted">Contacted</option>
                 <option value="Closed">Closed</option>
               </select>
+            </div>
+
+            <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                className={styles.bulkDeleteBtn}
+                style={{ fontSize: "0.85rem", padding: "6px 12px" }}
+                onClick={() => handleDeleteSingle(selectedInquiry._id)}
+              >
+                <Trash2 size={14} /> Delete Inquiry
+              </button>
             </div>
           </div>
         )}

@@ -1,8 +1,15 @@
 {
   "/(store)/about/page": "app/(store)/about/page.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/admin/bulk-inquiries/page": "app/admin/bulk-inquiries/page.js",
+  "/admin/category/page": "app/admin/category/page.js",
+  "/admin/customers/page": "app/admin/customers/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
   "/admin/marketing/about-page/page": "app/admin/marketing/about-page/page.js",
   "/admin/marketing/why-choose-us/page": "app/admin/marketing/why-choose-us/page.js",
+  "/admin/orders/[id]/page": "app/admin/orders/[id]/page.js",
+  "/admin/orders/page": "app/admin/orders/page.js",
+  "/admin/policies/page": "app/admin/policies/page.js",
+  "/admin/products/page": "app/admin/products/page.js",
   "/page": "app/page.js"
 }

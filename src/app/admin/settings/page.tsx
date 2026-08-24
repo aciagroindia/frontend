@@ -12,7 +12,11 @@ import {
   LogOut, 
   MessageCircle, 
   ExternalLink, 
-  CheckCircle2 
+  CheckCircle2,
+  Database,
+  Trash2,
+  Sparkles,
+  RefreshCw
 } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../../../context/AuthContext";
@@ -29,6 +33,14 @@ export default function SettingsPage() {
   const [profileForm, setProfileForm] = useState({ name: "", email: "" });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
   const [isProfileUnchanged, setIsProfileUnchanged] = useState(true);
+
+  // Database Cleanup State
+  const [cleanupStats, setCleanupStats] = useState({
+    cancelledOrders: 0,
+    closedInquiries: 0,
+    totalNotifications: 0,
+  });
+  const [isCleaning, setIsCleaning] = useState(false);
 
   // WhatsApp Config state
   const [whatsAppForm, setWhatsAppForm] = useState({
@@ -84,6 +96,16 @@ export default function SettingsPage() {
         }
       } catch (error) {
         console.error("Error fetching WhatsApp config:", error);
+      }
+
+      try {
+        // 3. Database Cleanup Stats
+        const statsRes = await axiosInstance.get("/admin/settings/cleanup-stats");
+        if (statsRes.data.success && statsRes.data.data) {
+          setCleanupStats(statsRes.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching cleanup stats:", error);
       } finally {
         setLoading(false);
       }
@@ -91,6 +113,108 @@ export default function SettingsPage() {
 
     fetchSettingsData();
   }, []);
+
+  const fetchCleanupStats = async () => {
+    try {
+      setIsCleaning(true);
+      const statsRes = await axiosInstance.get("/admin/settings/cleanup-stats");
+      if (statsRes.data.success && statsRes.data.data) {
+        setCleanupStats(statsRes.data.data);
+        toast.success("Cleanup stats refreshed");
+      }
+    } catch (error) {
+      toast.error("Failed to refresh stats");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
+  const handleCleanCancelledOrders = async () => {
+    if (cleanupStats.cancelledOrders === 0) {
+      toast.success("No cancelled orders to clean");
+      return;
+    }
+    if (!confirm(`Delete all ${cleanupStats.cancelledOrders} cancelled orders permanently?`)) return;
+
+    try {
+      setIsCleaning(true);
+      const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
+      if (res.data.success) {
+        toast.success(res.data.message || "Cancelled orders cleaned!");
+        setCleanupStats((prev) => ({ ...prev, cancelledOrders: 0 }));
+      }
+    } catch (error: any) {
+      toast.error("Failed to clean cancelled orders");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
+  const handleCleanClosedInquiries = async () => {
+    if (cleanupStats.closedInquiries === 0) {
+      toast.success("No closed inquiries to clean");
+      return;
+    }
+    if (!confirm(`Delete all ${cleanupStats.closedInquiries} closed inquiries permanently?`)) return;
+
+    try {
+      setIsCleaning(true);
+      const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
+      if (res.data.success) {
+        toast.success(res.data.message || "Closed inquiries cleaned!");
+        setCleanupStats((prev) => ({ ...prev, closedInquiries: 0 }));
+      }
+    } catch (error: any) {
+      toast.error("Failed to clean closed inquiries");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
+  const handleCleanNotifications = async () => {
+    if (cleanupStats.totalNotifications === 0) {
+      toast.success("No notifications to clean");
+      return;
+    }
+    if (!confirm(`Clear all ${cleanupStats.totalNotifications} notification logs?`)) return;
+
+    try {
+      setIsCleaning(true);
+      await axiosInstance.put("/admin/notifications/clear-all");
+      toast.success("All notifications cleared!");
+      setCleanupStats((prev) => ({ ...prev, totalNotifications: 0 }));
+    } catch (error: any) {
+      toast.error("Failed to clear notifications");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
+
+  const handleMasterPurge = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to purge all cancelled orders, closed inquiries, and notifications in one click?"
+      )
+    )
+      return;
+
+    try {
+      setIsCleaning(true);
+      const res = await axiosInstance.post("/admin/settings/purge-unwanted");
+      if (res.data.success) {
+        toast.success("All unwanted records purged successfully!");
+        setCleanupStats({
+          cancelledOrders: 0,
+          closedInquiries: 0,
+          totalNotifications: 0,
+        });
+      }
+    } catch (error: any) {
+      toast.error("Failed to purge unwanted records");
+    } finally {
+      setIsCleaning(false);
+    }
+  };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -420,6 +544,101 @@ export default function SettingsPage() {
                   </a>
                 </div>
               </form>
+            </section>
+
+            {/* 🧹 Database & Table Maintenance Hub */}
+            <section className={`${styles.section} ${styles.cleanupHub}`}>
+              <div className={styles.sectionHeader}>
+                <Database size={20} color="#0284c7" />
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                  <h3>Database & Table Maintenance</h3>
+                  <button
+                    type="button"
+                    onClick={fetchCleanupStats}
+                    disabled={isCleaning}
+                    style={{ background: "none", border: "none", color: "#0284c7", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.8rem", fontWeight: 600 }}
+                  >
+                    <RefreshCw size={13} className={isCleaning ? "animate-spin" : ""} /> Refresh
+                  </button>
+                </div>
+              </div>
+
+              <p style={{ fontSize: "0.84rem", color: "#64748b", margin: "0 0 14px 0" }}>
+                Remove cancelled orders, closed inquiries, and old records to keep your dashboard clean and fast.
+              </p>
+
+              <div className={styles.cleanupGrid}>
+                {/* 1. Cancelled Orders */}
+                <div className={styles.cleanupItem}>
+                  <div className={styles.cleanupInfo}>
+                    <h4>
+                      Cancelled Orders
+                      <span className={styles.cleanupCount}>{cleanupStats.cancelledOrders}</span>
+                    </h4>
+                    <p>Permanently removes all orders with 'Cancelled' status</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.cleanupItemBtn}
+                    onClick={handleCleanCancelledOrders}
+                    disabled={isCleaning || cleanupStats.cancelledOrders === 0}
+                  >
+                    <Trash2 size={13} /> Clean
+                  </button>
+                </div>
+
+                {/* 2. Closed Inquiries */}
+                <div className={styles.cleanupItem}>
+                  <div className={styles.cleanupInfo}>
+                    <h4>
+                      Closed Inquiries
+                      <span className={styles.cleanupCount}>{cleanupStats.closedInquiries}</span>
+                    </h4>
+                    <p>Purges processed & closed bulk customer inquiries</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.cleanupItemBtn}
+                    onClick={handleCleanClosedInquiries}
+                    disabled={isCleaning || cleanupStats.closedInquiries === 0}
+                  >
+                    <Trash2 size={13} /> Clean
+                  </button>
+                </div>
+
+                {/* 3. Notifications */}
+                <div className={styles.cleanupItem}>
+                  <div className={styles.cleanupInfo}>
+                    <h4>
+                      Old Notifications
+                      <span className={styles.cleanupCount}>{cleanupStats.totalNotifications}</span>
+                    </h4>
+                    <p>Clears all notification logs from the dashboard</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.cleanupItemBtn}
+                    onClick={handleCleanNotifications}
+                    disabled={isCleaning || cleanupStats.totalNotifications === 0}
+                  >
+                    <Trash2 size={13} /> Clean
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles.masterPurgeBtn}
+                onClick={handleMasterPurge}
+                disabled={
+                  isCleaning ||
+                  (cleanupStats.cancelledOrders === 0 &&
+                    cleanupStats.closedInquiries === 0 &&
+                    cleanupStats.totalNotifications === 0)
+                }
+              >
+                <Sparkles size={16} /> Purge All Unwanted Records
+              </button>
             </section>
 
             {/* Notifications */}

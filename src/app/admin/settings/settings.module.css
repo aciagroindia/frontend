@@ -337,6 +337,109 @@
   transform: translateX(22px);
 }
 
+/* DATABASE CLEANUP & TABLE MAINTENANCE */
+.cleanupHub {
+  border-top: 3px solid #0284c7;
+}
+
+.cleanupGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 1.2rem;
+}
+
+.cleanupItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.cleanupInfo h4 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cleanupInfo p {
+  margin: 2px 0 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.cleanupCount {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e2e8f0;
+  color: #334155;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.cleanupItemBtn {
+  background: white;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.cleanupItemBtn:hover:not(:disabled) {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+.cleanupItemBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.masterPurgeBtn {
+  width: 100%;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.masterPurgeBtn:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.masterPurgeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* DANGER ZONE */
 .dangerZone {
   border: 1px solid #fee2e2;
