@@ -1,5 +1,8 @@
 {
+  "/(store)/about/page": "app/(store)/about/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/marketing/about-page/page": "app/admin/marketing/about-page/page.js",
   "/admin/marketing/why-choose-us/page": "app/admin/marketing/why-choose-us/page.js",
   "/page": "app/page.js"
 }

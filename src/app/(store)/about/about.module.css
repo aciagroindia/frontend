@@ -1,29 +1,48 @@
 .container {
   background-color: #f3f9f6;
+  overflow-x: hidden;
 }
 
 /* ================= HERO ================= */
 
 .hero {
   padding: clamp(80px, 12vw, 140px) 5%;
-  background: linear-gradient(rgba(20,133,78,0.85), rgba(20,133,78,0.85)),
-    url("/banner1.jpg");
   background-size: cover;
   background-position: center;
-  color: white;
+  position: relative;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 133, 78, 0.85);
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 840px;
+  margin: 0 auto;
 }
 
 .hero h1 {
   font-size: clamp(1.8rem, 5vw, 2.8rem);
   margin-bottom: 16px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .hero p {
   max-width: 700px;
   margin: auto;
-  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
   line-height: 1.6;
+  opacity: 0.95;
 }
 
 /* ================= SECTIONS ================= */
@@ -31,24 +50,30 @@
 .section {
   padding: clamp(60px, 8vw, 90px) 8%;
   text-align: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
 }
 
 .altSection {
   padding: clamp(60px, 8vw, 90px) 8%;
-  background-color: #fffdf8;
   text-align: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
 }
 
 .section h2,
 .altSection h2 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
   margin-bottom: 20px;
+  font-weight: 700;
 }
 
 .section p,
 .altSection p {
-  font-size: clamp(0.9rem, 2.4vw, 1rem);
-  line-height: 1.7;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.8;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -56,45 +81,64 @@
 /* ================= TEXT BLOCK ================= */
 
 .textBlock {
-  max-width: 800px;
+  max-width: 820px;
   margin: auto;
 }
 
 .textBlock h2 {
   color: #14854e;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.storyParagraph {
+  margin-bottom: 16px;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.8;
 }
 
 /* ================= SPLIT SECTION ================= */
 
 .split {
   display: flex;
-  gap: clamp(24px, 5vw, 40px);
+  gap: clamp(30px, 6vw, 60px);
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.splitReverse {
+  flex-direction: row-reverse;
 }
 
 .imageWrapper {
   position: relative;
-  width: clamp(280px, 40vw, 500px);
+  width: clamp(280px, 40vw, 480px);
   aspect-ratio: 4 / 3;
   border-radius: 16px;
   overflow: hidden;
   flex-shrink: 0;
+  background: #f0f0f0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .image {
-  object-fit: cover;
+  object-fit: cover !important;
 }
 
 .textSide {
   flex: 1;
-  min-width: 260px;
+  min-width: 280px;
   text-align: left;
 }
 
 .textSide h2 {
   margin-bottom: 16px;
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  font-weight: 700;
 }
 
 /* ================= METRICS ================= */
@@ -107,15 +151,27 @@
   background-color: #14854e;
   color: white;
   text-align: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
 }
 
 .metrics h3 {
-  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   margin-bottom: 8px;
+  font-weight: 800;
 }
 
 .metrics p {
-  font-size: clamp(0.85rem, 2.3vw, 1rem);
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  opacity: 0.95;
+}
+
+@media (max-width: 480px) {
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
 }
 
 /* ================= CLOSING ================= */
@@ -123,22 +179,74 @@
 .closing {
   padding: clamp(70px, 10vw, 110px) 5%;
   text-align: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
 }
 
 .closing h2 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
   margin-bottom: 16px;
+  font-weight: 700;
 }
 
 .closing p {
-  font-size: clamp(0.9rem, 2.4vw, 1rem);
-}/* In d:\aciagro\src\app\about\about.module.css */
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  max-width: 600px;
+  margin: 0 auto;
+}
 
-@media (max-width: 480px) {
-  .metrics {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem; /* Optional: Adjust the gap for smaller screens */
-  }
+/* ================= DYNAMIC CUSTOM SECTIONS ================= */
+
+.customSection {
+  padding: clamp(60px, 8vw, 100px) 8%;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.customContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.customCenterContent {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.customTag {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+}
+
+.customTitle {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  margin-bottom: 18px;
+  line-height: 1.25;
+}
+
+.customBody {
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.customBannerContent {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: clamp(40px, 6vw, 60px) 20px;
 }
 
 /* ================= GALLERY ================= */
@@ -151,7 +259,13 @@
 
 .gallery h2 {
   font-size: clamp(1.5rem, 4vw, 2rem);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.gallery p {
+  color: #6b7280;
+  font-size: 0.95rem;
 }
 
 .galleryGrid {
