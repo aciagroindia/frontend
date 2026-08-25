@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "../../../../../components/admin-layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink } from "lucide-react"; // ✅ Added Truck & ExternalLink
+import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink, Trash2 } from "lucide-react"; 
 import { toast } from "react-hot-toast";
 import styles from "./page.module.css";
 
@@ -16,7 +16,8 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [trackingLoading, setTrackingLoading] = useState(false); // ✅ Track spinner state
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -35,6 +36,25 @@ export default function OrderDetailPage() {
     if (orderId) fetchOrder();
   }, [orderId]);
 
+  const handleDeleteOrder = async () => {
+    if (!confirm("Are you sure you want to delete this order record permanently?")) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
+      if (res.data.success) {
+        toast.success("Order deleted successfully");
+        router.push("/admin/orders");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to delete order");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleStatusChange = async (newStatus: string) => {
     if (newStatus === 'shipped' || newStatus === 'delivered') {
       if (order.paymentStatus === 'pending' && order.paymentMethod !== 'COD') {
@@ -49,7 +69,7 @@ export default function OrderDetailPage() {
         status: newStatus 
       });
       if (response.data.success) {
-        setOrder({ ...order, orderStatus: newStatus, trackingId: response.data.data.trackingId }); // ✅ Status aur tracking dono update ho
+        setOrder({ ...order, orderStatus: newStatus, trackingId: response.data.data.trackingId });
         toast.success("Order status updated to " + newStatus);
       }
     } catch (error: any) {
@@ -59,13 +79,12 @@ export default function OrderDetailPage() {
     }
   };
 
-  // ✅ NEW: Track Order Logic
+  // Track Order Logic
   const handleTrackOrder = async () => {
     setTrackingLoading(true);
     try {
       const response = await axiosInstance.get(`/admin/orders/${orderId}/track`);
       if (response.data.success && response.data.data.trackingUrl) {
-        // Customer ko naye tab me Shiprocket par bhej do
         window.open(response.data.data.trackingUrl, '_blank');
       } else {
         toast.error("Tracking URL not found.");
@@ -94,6 +113,27 @@ export default function OrderDetailPage() {
               <p className={styles.subtitle}>ID: #{order._id.toUpperCase()}</p>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={handleDeleteOrder}
+            disabled={deleting}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "#fef2f2",
+              color: "#ef4444",
+              border: "1px solid #fecaca",
+              padding: "8px 14px",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={16} /> Delete Order
+          </button>
         </div>
 
         <div className={styles.layoutGrid}>

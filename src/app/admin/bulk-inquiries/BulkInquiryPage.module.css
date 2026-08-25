@@ -62,13 +62,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  min-width: 85px;
 }
 
 .deleteBtn {
-  background: transparent;
-  border: 1px solid #f87171;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   color: #ef4444;
-  padding: 5px 8px;
+  padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;

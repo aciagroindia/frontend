@@ -58,11 +58,36 @@
   background: #dc2626;
 }
 
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+  min-width: 85px;
+}
+
+.viewBtn {
+  background-color: transparent;
+  border: 1px solid #10b981;
+  color: #10b981;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+}
+
+.viewBtn:hover {
+  background-color: #ecfdf5;
+}
+
 .deleteBtn {
-  background: transparent;
-  border: 1px solid #f87171;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   color: #ef4444;
-  padding: 4px 8px;
+  padding: 6px 8px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -75,34 +100,26 @@
   background: #fee2e2;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0;
-}
+@media (max-width: 640px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 
-.subtitle {
-  color: #718096;
-  font-size: 0.9rem;
-  margin-top: 4px;
-}
+  .headerActions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
-.card {
-  background: white;
-  border-radius: 12px;
-}
-
-.viewBtn{
-background-color: transparent;
-border: 1px solid #10b981;
-color: #10b981;
-padding: 4px 10px;
-border-radius: 6px;
-cursor: pointer;
-text-transform: capitalize;
-font-weight: 500;
-
+  .cleanCancelledBtn,
+  .bulkDeleteBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+  }
 }
 /* Status Badges */
 .badge {
