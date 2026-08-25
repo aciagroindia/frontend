@@ -7,7 +7,9 @@
   flex-direction: column;
   flex-shrink: 0;
   border-right: 1px solid #0b3d26;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 60;
 }
 
 .top {
@@ -24,10 +26,19 @@
 
 .closeBtn {
   display: none;
-  background: none;
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   color: white;
+  padding: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .nav {
@@ -99,21 +110,28 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 999;
+    bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: 275px;
+    max-width: 85vw;
+    z-index: 1001;
     transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.open {
     transform: translateX(0);
   }
 
-   .top {
+  .top {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 1.1rem 1.3rem;
   }
 
   .closeBtn {
-    display: block;
+    display: flex;
   }
 }

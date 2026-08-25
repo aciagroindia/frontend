@@ -54,6 +54,15 @@ export default function DashboardLayout({
         closeSidebar={() => setIsSidebarOpen(false)}
       />
 
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className={styles.backdrop}
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <div className={styles.main}>
         <Header toggleSidebar={() => setIsSidebarOpen((prev)=>!prev)} />
 
