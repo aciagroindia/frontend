@@ -146,6 +146,7 @@ export default function OrdersPage() {
   const columns = [
     {
       key: "select",
+      sortable: false,
       label: (
         <input
           type="checkbox"
@@ -231,6 +232,7 @@ export default function OrdersPage() {
     {
       key: "actions",
       label: "Actions",
+      sortable: false,
       render: (_: any, row: Order) => {
         const orderId = row._id || row.id;
         return (

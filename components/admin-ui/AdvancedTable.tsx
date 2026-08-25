@@ -6,7 +6,7 @@ import styles from "./AdvancedTable.module.css";
 
 interface Column {
   key: string;
-  label: string;
+  label: React.ReactNode;
   sortable?: boolean;
   render?: (value: any, row: any) => React.ReactNode;
 }

@@ -161,6 +161,7 @@ export default function BulkInquiryPage() {
   const columns = [
     {
       key: "select",
+      sortable: false,
       label: (
         <input
           type="checkbox"
@@ -211,6 +212,7 @@ export default function BulkInquiryPage() {
     {
       key: "actions",
       label: "Actions",
+      sortable: false,
       render: (_: any, row: BulkInquiry) => (
         <div className={styles.tableActions}>
           <button className={styles.viewBtn} onClick={() => setSelectedInquiry(row)}>
