@@ -21,6 +21,7 @@ import {
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../../../context/AuthContext";
 import { toast } from "react-hot-toast";
+import ConfirmationModal from "../../../../components/signUP/ConfirmationModal";
 import styles from "./settings.module.css";
 
 export default function SettingsPage() {
@@ -41,6 +42,17 @@ export default function SettingsPage() {
     totalNotifications: 0,
   });
   const [isCleaning, setIsCleaning] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   // WhatsApp Config state
   const [whatsAppForm, setWhatsAppForm] = useState({
@@ -129,91 +141,113 @@ export default function SettingsPage() {
     }
   };
 
-  const handleCleanCancelledOrders = async () => {
+  const handleCleanCancelledOrders = () => {
     if (cleanupStats.cancelledOrders === 0) {
       toast.success("No cancelled orders to clean");
       return;
     }
-    if (!confirm(`Delete all ${cleanupStats.cancelledOrders} cancelled orders permanently?`)) return;
 
-    try {
-      setIsCleaning(true);
-      const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
-      if (res.data.success) {
-        toast.success(res.data.message || "Cancelled orders cleaned!");
-        setCleanupStats((prev) => ({ ...prev, cancelledOrders: 0 }));
-      }
-    } catch (error: any) {
-      toast.error("Failed to clean cancelled orders");
-    } finally {
-      setIsCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Clean Cancelled Orders",
+      message: `Delete all ${cleanupStats.cancelledOrders} cancelled orders permanently? This action cannot be undone.`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setIsCleaning(true);
+          const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
+          if (res.data.success) {
+            toast.success(res.data.message || "Cancelled orders cleaned!");
+            setCleanupStats((prev) => ({ ...prev, cancelledOrders: 0 }));
+          }
+        } catch (error: any) {
+          toast.error("Failed to clean cancelled orders");
+        } finally {
+          setIsCleaning(false);
+        }
+      },
+    });
   };
 
-  const handleCleanClosedInquiries = async () => {
+  const handleCleanClosedInquiries = () => {
     if (cleanupStats.closedInquiries === 0) {
       toast.success("No closed inquiries to clean");
       return;
     }
-    if (!confirm(`Delete all ${cleanupStats.closedInquiries} closed inquiries permanently?`)) return;
 
-    try {
-      setIsCleaning(true);
-      const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
-      if (res.data.success) {
-        toast.success(res.data.message || "Closed inquiries cleaned!");
-        setCleanupStats((prev) => ({ ...prev, closedInquiries: 0 }));
-      }
-    } catch (error: any) {
-      toast.error("Failed to clean closed inquiries");
-    } finally {
-      setIsCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Clean Closed Inquiries",
+      message: `Delete all ${cleanupStats.closedInquiries} closed inquiries permanently? This action cannot be undone.`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setIsCleaning(true);
+          const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
+          if (res.data.success) {
+            toast.success(res.data.message || "Closed inquiries cleaned!");
+            setCleanupStats((prev) => ({ ...prev, closedInquiries: 0 }));
+          }
+        } catch (error: any) {
+          toast.error("Failed to clean closed inquiries");
+        } finally {
+          setIsCleaning(false);
+        }
+      },
+    });
   };
 
-  const handleCleanNotifications = async () => {
+  const handleCleanNotifications = () => {
     if (cleanupStats.totalNotifications === 0) {
       toast.success("No notifications to clean");
       return;
     }
-    if (!confirm(`Clear all ${cleanupStats.totalNotifications} notification logs?`)) return;
 
-    try {
-      setIsCleaning(true);
-      await axiosInstance.put("/admin/notifications/clear-all");
-      toast.success("All notifications cleared!");
-      setCleanupStats((prev) => ({ ...prev, totalNotifications: 0 }));
-    } catch (error: any) {
-      toast.error("Failed to clear notifications");
-    } finally {
-      setIsCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Clear Notifications",
+      message: `Clear all ${cleanupStats.totalNotifications} notification logs?`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setIsCleaning(true);
+          await axiosInstance.put("/admin/notifications/clear-all");
+          toast.success("All notifications cleared!");
+          setCleanupStats((prev) => ({ ...prev, totalNotifications: 0 }));
+        } catch (error: any) {
+          toast.error("Failed to clear notifications");
+        } finally {
+          setIsCleaning(false);
+        }
+      },
+    });
   };
 
-  const handleMasterPurge = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to purge all cancelled orders, closed inquiries, and notifications in one click?"
-      )
-    )
-      return;
-
-    try {
-      setIsCleaning(true);
-      const res = await axiosInstance.post("/admin/settings/purge-unwanted");
-      if (res.data.success) {
-        toast.success("All unwanted records purged successfully!");
-        setCleanupStats({
-          cancelledOrders: 0,
-          closedInquiries: 0,
-          totalNotifications: 0,
-        });
-      }
-    } catch (error: any) {
-      toast.error("Failed to purge unwanted records");
-    } finally {
-      setIsCleaning(false);
-    }
+  const handleMasterPurge = () => {
+    setModalConfig({
+      isOpen: true,
+      title: "Master Database Purge",
+      message: "Are you sure you want to purge all cancelled orders, closed inquiries, and notifications in one click?",
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setIsCleaning(true);
+          const res = await axiosInstance.post("/admin/settings/purge-unwanted");
+          if (res.data.success) {
+            toast.success("All unwanted records purged successfully!");
+            setCleanupStats({
+              cancelledOrders: 0,
+              closedInquiries: 0,
+              totalNotifications: 0,
+            });
+          }
+        } catch (error: any) {
+          toast.error("Failed to purge unwanted records");
+        } finally {
+          setIsCleaning(false);
+        }
+      },
+    });
   };
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
@@ -712,6 +746,14 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
     </>
   );
 }

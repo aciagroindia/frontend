@@ -16,6 +16,7 @@ import {
   Eye,
   Layers,
 } from "lucide-react";
+import ConfirmationModal from "../../../../../components/signUP/ConfirmationModal";
 import styles from "./whyChooseUsAdmin.module.css";
 
 interface Point {
@@ -67,6 +68,7 @@ export default function WhyChooseUsAdminPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("/certifiedIcons/whychooseus.png");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const fetchSectionData = async () => {
     try {
@@ -133,12 +135,16 @@ export default function WhyChooseUsAdminPage() {
   };
 
   const handleResetToDefault = () => {
-    if (confirm("Reset all fields and image to original defaults?")) {
-      setFormData(DEFAULT_DATA);
-      setImageFile(null);
-      setImagePreview(DEFAULT_DATA.imageUrl);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+    setShowResetModal(true);
+  };
+
+  const confirmResetToDefault = () => {
+    setShowResetModal(false);
+    setFormData(DEFAULT_DATA);
+    setImageFile(null);
+    setImagePreview(DEFAULT_DATA.imageUrl);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    toast.success("Reset to defaults");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -449,6 +455,14 @@ export default function WhyChooseUsAdminPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={confirmResetToDefault}
+        title="Reset Configuration"
+        message="Reset all fields and image to original defaults? Any unsaved changes will be lost."
+      />
     </DashboardLayout>
   );
 }

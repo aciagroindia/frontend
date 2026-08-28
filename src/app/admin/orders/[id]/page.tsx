@@ -6,6 +6,7 @@ import DashboardLayout from "../../../../../components/admin-layout/DashboardLay
 import axiosInstance from "@/utils/axiosInstance";
 import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink, Trash2 } from "lucide-react"; 
 import { toast } from "react-hot-toast";
+import ConfirmationModal from "../../../../../components/signUP/ConfirmationModal";
 import styles from "./page.module.css";
 
 export default function OrderDetailPage() {
@@ -18,13 +19,13 @@ export default function OrderDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         const response = await axiosInstance.get(`/admin/orders/${orderId}`);
         if (response.data.success) {
-          console.log("FULL ORDER DATA:", response.data.data);
           setOrder(response.data.data);
         }
       } catch (error) {
@@ -36,11 +37,12 @@ export default function OrderDetailPage() {
     if (orderId) fetchOrder();
   }, [orderId]);
 
-  const handleDeleteOrder = async () => {
-    if (!confirm("Are you sure you want to delete this order record permanently?")) {
-      return;
-    }
+  const handleDeleteOrder = () => {
+    setIsDeleteModalOpen(true);
+  };
 
+  const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false);
     try {
       setDeleting(true);
       const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
@@ -174,10 +176,11 @@ export default function OrderDetailPage() {
 
             {/* Customer & Address Card */}
             <div className={styles.card}>
-              <div className={styles.cardHeader}><User size={20} /> <h2>Customer Info</h2></div>
+              <div className={styles.cardHeader}><User size={20} /> <h2>Delivery & Contact Info</h2></div>
               <div className={styles.infoGrid}>
-                <div><label>Customer Name</label><p>{order.customer?.name || "N/A"}</p></div>
-                <div><label>Email Address</label><p>{order.customer?.email || "N/A"}</p></div>
+                <div><label>Recipient Name</label><p>{order.shippingInfo?.name || order.customer?.name || "N/A"}</p></div>
+                <div><label>Contact Phone</label><p>{order.shippingInfo?.phone || order.shippingInfo?.phoneNo || order.customer?.phone || "N/A"}</p></div>
+                <div><label>Email Address</label><p>{order.shippingInfo?.email || order.customer?.email || "N/A"}</p></div>
                 <div className={styles.fullWidth}>
                   <label>Shipping Address</label>
                   <p>{order.shippingInfo ? `${order.shippingInfo.address}, ${order.shippingInfo.city}, ${order.shippingInfo.state} - ${order.shippingInfo.pinCode}` : 'N/A'}</p>
@@ -267,6 +270,14 @@ export default function OrderDetailPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Order"
+        message="Are you sure you want to permanently delete this order record? This action cannot be undone."
+      />
     </DashboardLayout>
   );
 }

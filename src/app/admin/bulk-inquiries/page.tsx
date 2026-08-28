@@ -7,6 +7,7 @@ import Modal from "../../../../components/admin-ui/Modal";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
 import { Trash2, Sparkles } from "lucide-react";
+import ConfirmationModal from "../../../../components/signUP/ConfirmationModal";
 import styles from "./BulkInquiryPage.module.css";
 
 interface BulkInquiry {
@@ -25,6 +26,17 @@ export default function BulkInquiryPage() {
   const [selectedInquiry, setSelectedInquiry] = useState<BulkInquiry | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [cleaning, setCleaning] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const fetchInquiries = async () => {
     try {
@@ -66,82 +78,86 @@ export default function BulkInquiryPage() {
     }
   };
 
-  const handleDeleteSingle = async (id: string, e?: React.MouseEvent) => {
+  const handleDeleteSingle = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this inquiry record?")) {
-      return;
-    }
-
-    try {
-      const res = await axiosInstance.delete(`/admin/inquiries/${id}`);
-      if (res.data.success) {
-        toast.success("Inquiry deleted successfully");
-        setInquiries((prev) => prev.filter((item) => item._id !== id));
-        setSelectedIds((prev) => prev.filter((item) => item !== id));
-        if (selectedInquiry?._id === id) {
-          setSelectedInquiry(null);
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Inquiry",
+      message: "Are you sure you want to delete this inquiry record? This cannot be undone.",
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          const res = await axiosInstance.delete(`/admin/inquiries/${id}`);
+          if (res.data.success) {
+            toast.success("Inquiry deleted successfully");
+            setInquiries((prev) => prev.filter((item) => item._id !== id));
+            setSelectedIds((prev) => prev.filter((item) => item !== id));
+            if (selectedInquiry?._id === id) {
+              setSelectedInquiry(null);
+            }
+          }
+        } catch (error) {
+          toast.error("Failed to delete inquiry");
         }
-      }
-    } catch (error) {
-      toast.error("Failed to delete inquiry");
-    }
+      },
+    });
   };
 
-  const handleCleanClosed = async () => {
+  const handleCleanClosed = () => {
     if (closedCount === 0) {
       toast.success("No closed inquiries found to clean!");
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to permanently delete all ${closedCount} closed inquiries?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setCleaning(true);
-      const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
-      if (res.data.success) {
-        toast.success(res.data.message || "Closed inquiries cleaned up successfully!");
-        setInquiries((prev) => prev.filter((item) => item.status !== "Closed"));
-        setSelectedIds([]);
-      }
-    } catch (error) {
-      toast.error("Failed to clean closed inquiries");
-    } finally {
-      setCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Clean Closed Inquiries",
+      message: `Are you sure you want to permanently delete all ${closedCount} closed inquiries?`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setCleaning(true);
+          const res = await axiosInstance.delete("/admin/inquiries/cleanup/closed");
+          if (res.data.success) {
+            toast.success(res.data.message || "Closed inquiries cleaned up successfully!");
+            setInquiries((prev) => prev.filter((item) => item.status !== "Closed"));
+            setSelectedIds([]);
+          }
+        } catch (error) {
+          toast.error("Failed to clean closed inquiries");
+        } finally {
+          setCleaning(false);
+        }
+      },
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
 
-    if (
-      !confirm(
-        `Are you sure you want to delete ${selectedIds.length} selected inquiries? This cannot be undone.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setCleaning(true);
-      const res = await axiosInstance.post("/admin/inquiries/bulk-delete", {
-        ids: selectedIds,
-      });
-      if (res.data.success) {
-        toast.success(res.data.message || "Selected inquiries deleted successfully");
-        setInquiries((prev) => prev.filter((item) => !selectedIds.includes(item._id)));
-        setSelectedIds([]);
-      }
-    } catch (error) {
-      toast.error("Failed to delete selected inquiries");
-    } finally {
-      setCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Selected Inquiries",
+      message: `Are you sure you want to delete ${selectedIds.length} selected inquiries? This action cannot be undone.`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setCleaning(true);
+          const res = await axiosInstance.post("/admin/inquiries/bulk-delete", {
+            ids: selectedIds,
+          });
+          if (res.data.success) {
+            toast.success(res.data.message || "Selected inquiries deleted successfully");
+            setInquiries((prev) => prev.filter((item) => !selectedIds.includes(item._id)));
+            setSelectedIds([]);
+          }
+        } catch (error) {
+          toast.error("Failed to delete selected inquiries");
+        } finally {
+          setCleaning(false);
+        }
+      },
+    });
   };
 
   const toggleSelectRow = (id: string) => {
@@ -326,6 +342,14 @@ export default function BulkInquiryPage() {
           </div>
         )}
       </Modal>
+
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
     </DashboardLayout>
   );
 }

@@ -90,12 +90,12 @@ export default function ProductInfo({ product }: Props) {
   // Auto-selected by default (e.g. 1000ml if single size, or first size option)
   const [selectedPlan, setSelectedPlan] = useState<Plan>(quantityOptions[0]);
 
-  // Handle case where product data updates or changes
+  // Handle case where product data updates or changes (e.g. navigation to new product)
   useEffect(() => {
     if (quantityOptions && quantityOptions.length > 0) {
       setSelectedPlan(quantityOptions[0]);
     }
-  }, [product.price, product.packages, product.unit, quantityOptions]);
+  }, [product._id, product.id]);
 
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 

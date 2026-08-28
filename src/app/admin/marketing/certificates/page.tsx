@@ -7,6 +7,7 @@ import Modal from "../../../../../components/admin-ui/Modal";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
 import { Plus, Trash2 } from "lucide-react";
+import ConfirmationModal from "../../../../../components/signUP/ConfirmationModal";
 import styles from "../../products/ProductsPage.module.css"; // Reuse product page styles
 
 interface Certificate {
@@ -22,6 +23,7 @@ export default function CertificatesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ title: "", image: null as File | null });
+  const [certToDelete, setCertToDelete] = useState<string | null>(null);
 
   const fetchCertificates = async () => {
     try {
@@ -70,16 +72,18 @@ export default function CertificatesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this certificate?")) return;
+  const handleConfirmDelete = async () => {
+    if (!certToDelete) return;
     try {
-      const res = await axiosInstance.delete(`/certificates/${id}`);
+      const res = await axiosInstance.delete(`/certificates/${certToDelete}`);
       if (res.data.success) {
         toast.success("Certificate deleted");
         fetchCertificates();
       }
     } catch (error) {
       toast.error("Failed to delete certificate");
+    } finally {
+      setCertToDelete(null);
     }
   };
 
@@ -101,7 +105,7 @@ export default function CertificatesPage() {
       key: "actions",
       label: "Actions",
       render: (_: any, row: Certificate) => (
-        <button onClick={() => handleDelete(row._id)} style={{ color: "red", border: "none", background: "none", cursor: "pointer" }}>
+        <button onClick={() => setCertToDelete(row._id)} style={{ color: "red", border: "none", background: "none", cursor: "pointer" }}>
           <Trash2 size={18} />
         </button>
       ),
@@ -161,6 +165,14 @@ export default function CertificatesPage() {
           </button>
         </form>
       </Modal>
+
+      <ConfirmationModal
+        isOpen={!!certToDelete}
+        onClose={() => setCertToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Certificate"
+        message="Are you sure you want to delete this certificate? This action cannot be undone."
+      />
     </DashboardLayout>
   );
 }

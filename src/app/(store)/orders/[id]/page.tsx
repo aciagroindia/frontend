@@ -133,10 +133,11 @@ export default function UserOrderDetailPage() {
               <div className={styles.sectionHeader}>
                 <Truck size={18} /> <h3>Delivery Address</h3>
               </div>
-              <p className={styles.addressName}>{order.customer?.name || "Customer"}</p>
+              <p className={styles.addressName}>{order.shippingInfo?.name || order.customer?.name || "Customer"}</p>
+              {order.shippingInfo?.phone && <p style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Phone: {order.shippingInfo.phone}</p>}
               <p>{order.shippingInfo?.address}</p>
               <p>{order.shippingInfo?.city}, {order.shippingInfo?.state} - {order.shippingInfo?.pinCode}</p>
-              <p>Country: {order.shippingInfo?.country}</p>
+              <p>Country: {order.shippingInfo?.country || "India"}</p>
             </div>
           </aside>
         </div>

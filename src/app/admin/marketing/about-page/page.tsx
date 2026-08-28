@@ -21,6 +21,7 @@ import {
   CheckCircle2,
   Info,
 } from "lucide-react";
+import ConfirmationModal from "../../../../../components/signUP/ConfirmationModal";
 import styles from "./aboutAdmin.module.css";
 
 interface CustomSection {
@@ -314,13 +315,32 @@ export default function AboutPageAdmin() {
     toast.success("New custom section created!");
   };
 
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   const handleRemoveCustomSection = (id: string) => {
-    if (confirm("Are you sure you want to delete this custom section?")) {
-      setConfig((prev) => ({
-        ...prev,
-        customSections: prev.customSections.filter((s) => s.id !== id),
-      }));
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Custom Section",
+      message: "Are you sure you want to delete this custom section? This action cannot be undone.",
+      onConfirm: () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        setConfig((prev) => ({
+          ...prev,
+          customSections: prev.customSections.filter((s) => s.id !== id),
+        }));
+        toast.success("Custom section removed");
+      },
+    });
   };
 
   const handleCustomSectionChange = (
@@ -374,15 +394,22 @@ export default function AboutPageAdmin() {
   };
 
   const handleResetDefaults = () => {
-    if (confirm("Reset About page configuration to default values?")) {
-      setConfig(DEFAULT_CONFIG);
-      setHeroBgFile(null);
-      setHeroBgPreview("/banner1.jpg");
-      setPhilosophyImgFile(null);
-      setPhilosophyImgPreview("/certifiedIcons/whychooseus.png");
-      setCustomFiles({});
-      setCustomPreviews({});
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Reset About Page Configuration",
+      message: "Reset About page configuration to default values? Any unsaved changes will be lost.",
+      onConfirm: () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        setConfig(DEFAULT_CONFIG);
+        setHeroBgFile(null);
+        setHeroBgPreview("/banner1.jpg");
+        setPhilosophyImgFile(null);
+        setPhilosophyImgPreview("/certifiedIcons/whychooseus.png");
+        setCustomFiles({});
+        setCustomPreviews({});
+        toast.success("Reset to defaults");
+      },
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1591,6 +1618,14 @@ export default function AboutPageAdmin() {
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
     </DashboardLayout>
   );
 }

@@ -8,6 +8,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import styles from "./OrdersPage.module.css";
 import { toast } from "react-hot-toast";
 import { Trash2, Sparkles, AlertCircle } from "lucide-react";
+import ConfirmationModal from "../../../../components/signUP/ConfirmationModal";
 
 interface Order {
   id: string;
@@ -27,6 +28,17 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [cleaning, setCleaning] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const fetchOrders = async () => {
     try {
@@ -50,83 +62,87 @@ export default function OrdersPage() {
     (o) => (o.orderStatus || "").toLowerCase() === "cancelled"
   ).length;
 
-  const handleDeleteSingle = async (orderId: string, e: React.MouseEvent) => {
+  const handleDeleteSingle = (orderId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this order record? This cannot be undone.")) {
-      return;
-    }
-
-    try {
-      const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
-      if (res.data.success) {
-        toast.success("Order deleted successfully");
-        setOrders((prev) => prev.filter((o) => (o._id || o.id) !== orderId));
-        setSelectedIds((prev) => prev.filter((id) => id !== orderId));
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete order");
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Order",
+      message: "Are you sure you want to delete this order record? This action cannot be undone.",
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          const res = await axiosInstance.delete(`/admin/orders/${orderId}`);
+          if (res.data.success) {
+            toast.success("Order deleted successfully");
+            setOrders((prev) => prev.filter((o) => (o._id || o.id) !== orderId));
+            setSelectedIds((prev) => prev.filter((id) => id !== orderId));
+          }
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || "Failed to delete order");
+        }
+      },
+    });
   };
 
-  const handleCleanCancelled = async () => {
+  const handleCleanCancelled = () => {
     if (cancelledCount === 0) {
       toast.success("No cancelled orders found to clean!");
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to permanently delete all ${cancelledCount} cancelled orders?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setCleaning(true);
-      const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
-      if (res.data.success) {
-        toast.success(res.data.message || "Cancelled orders cleaned up successfully!");
-        setOrders((prev) =>
-          prev.filter((o) => (o.orderStatus || "").toLowerCase() !== "cancelled")
-        );
-        setSelectedIds([]);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to clean cancelled orders");
-    } finally {
-      setCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Clean Cancelled Orders",
+      message: `Are you sure you want to permanently delete all ${cancelledCount} cancelled orders?`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setCleaning(true);
+          const res = await axiosInstance.delete("/admin/orders/cleanup/cancelled");
+          if (res.data.success) {
+            toast.success(res.data.message || "Cancelled orders cleaned up successfully!");
+            setOrders((prev) =>
+              prev.filter((o) => (o.orderStatus || "").toLowerCase() !== "cancelled")
+            );
+            setSelectedIds([]);
+          }
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || "Failed to clean cancelled orders");
+        } finally {
+          setCleaning(false);
+        }
+      },
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
 
-    if (
-      !confirm(
-        `Are you sure you want to delete ${selectedIds.length} selected orders? This cannot be undone.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setCleaning(true);
-      const res = await axiosInstance.post("/admin/orders/bulk-delete", {
-        ids: selectedIds,
-      });
-      if (res.data.success) {
-        toast.success(res.data.message || "Selected orders deleted successfully");
-        setOrders((prev) =>
-          prev.filter((o) => !selectedIds.includes(o._id || o.id))
-        );
-        setSelectedIds([]);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete selected orders");
-    } finally {
-      setCleaning(false);
-    }
+    setModalConfig({
+      isOpen: true,
+      title: "Delete Selected Orders",
+      message: `Are you sure you want to delete ${selectedIds.length} selected orders? This action cannot be undone.`,
+      onConfirm: async () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        try {
+          setCleaning(true);
+          const res = await axiosInstance.post("/admin/orders/bulk-delete", {
+            ids: selectedIds,
+          });
+          if (res.data.success) {
+            toast.success(res.data.message || "Selected orders deleted successfully");
+            setOrders((prev) =>
+              prev.filter((o) => !selectedIds.includes(o._id || o.id))
+            );
+            setSelectedIds([]);
+          }
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || "Failed to delete selected orders");
+        } finally {
+          setCleaning(false);
+        }
+      },
+    });
   };
 
   const toggleSelectRow = (orderId: string) => {
@@ -301,6 +317,14 @@ export default function OrdersPage() {
       <div className={styles.card}>
         <AdvancedTable columns={columns} data={orders} />
       </div>
+
+      <ConfirmationModal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title}
+        message={modalConfig.message}
+      />
     </DashboardLayout>
   );
 }
