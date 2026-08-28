@@ -4,7 +4,8 @@ import styles from "./PricingPlans.module.css";
 
 export interface Plan {
   id: number | string;
-  month: string;
+  name: string;
+  month?: string;
   details?: string;
   price: number;
   regularPrice?: number;
@@ -23,26 +24,36 @@ export default function PricingPlans({
   selectedPlan,
   onPlanSelect,
 }: PricingPlansProps) {
+  if (!plans || plans.length === 0) return null;
+
+  const currentSelection = selectedPlan?.name || selectedPlan?.month || "Standard";
+
   return (
-    <div className={styles.wrapper}>
-      {plans.map((plan) => (
-        <div
-          key={plan.id}
-          className={`${styles.card} ${
-            selectedPlan.id === plan.id ? styles.active : ""
-          }`}
-          onClick={() => onPlanSelect(plan)}
-        >
-          <div className={styles.cardLeft}>
-            <span className={styles.month}>{plan.month}</span>
-            <span className={styles.details}>{plan.details}</span>
-          </div>
-          <div className={styles.cardRight}>
-            <span className={styles.price}>₹{plan.price}</span>
-            <span className={styles.badge}>{plan.badge}</span>
-          </div>
-        </div>
-      ))}
+    <div className={styles.selectedQuantitySection}>
+      <div className={styles.header}>
+        <span className={styles.label}>Selected Quantity:</span>{" "}
+        <span className={styles.value}>{currentSelection}</span>
+      </div>
+
+      <div className={styles.buttonsList}>
+        {plans.map((plan) => {
+          const isSelected = String(selectedPlan?.id) === String(plan.id);
+          const displayName = plan.name || plan.month || "Standard";
+
+          return (
+            <button
+              key={plan.id}
+              type="button"
+              className={`${styles.quantityBtn} ${isSelected ? styles.activeBtn : ""}`}
+              onClick={() => onPlanSelect(plan)}
+              aria-pressed={isSelected}
+            >
+              {displayName}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
+

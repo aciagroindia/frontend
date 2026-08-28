@@ -7,7 +7,7 @@ import styles from "./AddProductForm.module.css";
 
 // Proper Interfaces
 interface FaqItem { id: number; question: string; answer: string; }
-interface PackageItem { id: number; name: string; details: string; price: string; regularPrice: string; discount: string; badge: string; }
+interface PackageItem { id: number; name: string; details?: string; price: string; }
 
 interface ProductFormData {
   name: string;
@@ -59,13 +59,10 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
           id: Math.random() + index, // Add a unique ID for the form state
         })) || [],
         packages: initialData.packages?.map(p => ({
-          ...p,
           id: Math.random(),
-          price: String(p.price),
-          regularPrice: String(p.regularPrice || ""),
-          discount: String(p.discount || ""),
+          name: p.name || "",
           details: p.details || "",
-          badge: p.badge || ""
+          price: String(p.price || ""),
         })) || [],
         image: null,
         images: [],
@@ -181,7 +178,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     setFormData(prev => ({ ...prev, packages: updated }));
   };
 
-  const addPackage = () => setFormData(prev => ({ ...prev, packages: [...prev.packages, { id: Date.now(), name: "", details: "", price: "", regularPrice: "", discount: "", badge: "" }] }));
+  const addPackage = () => setFormData(prev => ({ ...prev, packages: [...prev.packages, { id: Date.now(), name: "", details: "", price: "" }] }));
   const removePackage = (index: number) => setFormData(prev => ({ ...prev, packages: formData.packages.filter((_, i) => i !== index) }));
 
   const handleSubmit = async (e: FormEvent) => {
@@ -198,10 +195,9 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
 
     formPayload.append('faqs', JSON.stringify(formData.faqs.map(({ question, answer }) => ({ question, answer }))));
     formPayload.append('packages', JSON.stringify(formData.packages.map(({ id, ...rest }) => ({
-      ...rest,
+      name: rest.name,
+      details: rest.details || "",
       price: Number(rest.price),
-      regularPrice: rest.regularPrice ? Number(rest.regularPrice) : undefined,
-      discount: rest.discount ? Number(rest.discount) : undefined,
     }))));
 
     if (formData.image) formPayload.append('image', formData.image);
@@ -216,9 +212,9 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       <div className={styles.inputGroup}>
         {/* Text Inputs */}
         <input name="name" placeholder="Product Name" value={formData.name} onChange={handleChange} required />
-        <input name="price" type="number" placeholder="Price" value={formData.price} onChange={handleChange} required />
+        <input name="price" type="number" placeholder="Base Price (₹)" value={formData.price} onChange={handleChange} required />
         <input name="stock" type="number" placeholder="Stock" value={formData.stock} onChange={handleChange} required />
-        <input name="unit" placeholder="Unit" value={formData.unit} onChange={handleChange} />
+        <input name="unit" placeholder="Default Net Quantity (e.g. 500ml, 1 Litre, 1000ml, 250g)" value={formData.unit} onChange={handleChange} />
         
         <select name="category" value={formData.category} onChange={handleChange} required disabled={categoriesLoading}>
           <option value="" disabled>Category</option>
@@ -281,25 +277,32 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         <button type="button" onClick={addFaq} className={styles.addFaqBtn}>+ Add FAQ</button>
       </div>
 
-      {/* Packages Section */}
+      {/* Packages / Net Quantity Section */}
       <div className={styles.packageSection}>
-        <h4>Product Packages (Variants)</h4>
+        <h4>Product Net Quantity / Sizes (e.g. 250ml, 500ml, 1 Litre, 1000ml)</h4>
         {formData.packages.map((pkg: PackageItem, index: number) => (
           <div key={pkg.id} className={styles.packageItem}>
             <div className={styles.packageItemRow}>
-              <input name="name" placeholder="Package Name" value={pkg.name} onChange={(e) => handlePackageChange(index, e)} required />
-              <input name="details" placeholder="Details" value={pkg.details} onChange={(e) => handlePackageChange(index, e)} />
-              <input name="price" type="number" placeholder="Price" value={pkg.price} onChange={(e) => handlePackageChange(index, e)} required />
-            </div>
-            <div className={styles.packageItemRow}>
-              <input name="regularPrice" type="number" placeholder="Regular Price" value={pkg.regularPrice} onChange={(e) => handlePackageChange(index, e)} />
-              <input name="discount" type="number" placeholder="Discount %" value={pkg.discount} onChange={(e) => handlePackageChange(index, e)} />
-              <input name="badge" placeholder="Badge" value={pkg.badge} onChange={(e) => handlePackageChange(index, e)} />
+              <input
+                name="name"
+                placeholder="Quantity & Unit (e.g. 500ml, 1 Litre, 1000ml, 250g, 5L)"
+                value={pkg.name}
+                onChange={(e) => handlePackageChange(index, e)}
+                required
+              />
+              <input
+                name="price"
+                type="number"
+                placeholder="Price ₹ (e.g. 499)"
+                value={pkg.price}
+                onChange={(e) => handlePackageChange(index, e)}
+                required
+              />
             </div>
             <button type="button" onClick={() => removePackage(index)} className={styles.removePackageBtn}>&times;</button>
           </div>
         ))}
-        <button type="button" onClick={addPackage} className={styles.addPackageBtn}><span>+ Add New Package Variant</span></button>
+        <button type="button" onClick={addPackage} className={styles.addPackageBtn}><span>+ Add Quantity / Size</span></button>
       </div>
 
       <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>{isSubmitting ? "Saving..." : buttonText}</button>
