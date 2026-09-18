@@ -9,7 +9,7 @@ export default function ShopByConcern() {
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.heading}>SHOP BY CATEGORY</h2>
+      <h1 className={styles.heading}>SHOP BY CATEGORY</h1>
 
       <div className={styles.grid}>
         {loading ? (

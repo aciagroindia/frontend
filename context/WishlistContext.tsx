@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
@@ -58,7 +58,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchWishlist]);
 
   // ---------------- TOGGLE WISHLIST (⚡ OPTIMISTIC FAST) ----------------
-  const toggleWishlist = async (product: any) => {
+  const toggleWishlist = useCallback(async (product: any) => {
     const token = getToken();
     if (!token) {
         toast.error("Please login to manage your wishlist.");
@@ -66,50 +66,65 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const productId = product._id || product.id;
-    const isCurrentlyInWishlist = wishlist.some(item => item.id === productId);
-    
-    // 1. Current State save karo (Rollback ke liye)
-    const prevWishlist = [...wishlist];
+    let prevWishlist: Product[] = [];
+    let isCurrentlyInWishlist = false;
 
-    // 2. Instant UI Update
+    setWishlist((current) => {
+      prevWishlist = current;
+      isCurrentlyInWishlist = current.some((item) => item.id === productId);
+      if (isCurrentlyInWishlist) {
+        return current.filter((item) => item.id !== productId);
+      } else {
+        return [
+          ...current,
+          {
+            id: productId,
+            name: product.name,
+            price: product.price,
+            image: product.image || (product.images && product.images[0]) || "",
+            slug: product.slug,
+          },
+        ];
+      }
+    });
+
     if (isCurrentlyInWishlist) {
-      setWishlist(prev => prev.filter(item => item.id !== productId));
-      toast.success("Removed from wishlist!"); // Instant feel
+      toast.success("Removed from wishlist!");
     } else {
-      setWishlist(prev => [...prev, { 
-        id: productId, 
-        name: product.name, 
-        price: product.price, 
-        image: product.image || (product.images && product.images[0]) || "", 
-        slug: product.slug 
-      }]);
-      toast.success("Added to wishlist!"); // Instant feel
+      toast.success("Added to wishlist!");
     }
 
-    // 3. Background Database Call
+    // Background Database Call
     try {
       const response = await axiosInstance.post("/wishlist/toggle", { productId });
       
-      // Agar backend se proper response nahi aya toh rollback
       if (!response.data.success) {
         throw new Error("Failed to toggle server state");
       }
     } catch (error: any) {
-      // 4. Fallback on Error
       console.error("Toggle wishlist error:", error);
-      setWishlist(prevWishlist); // Wapas purani state par set kardo
+      setWishlist(prevWishlist);
       toast.error(error.response?.data?.message || "Action failed. Refreshing data.");
     }
-  };
+  }, []);
 
-  const isInWishlist = (id: string) => {
+  const isInWishlist = useCallback((id: string) => {
     return wishlist.some((item) => item.id === id);
-  };
+  }, [wishlist]);
+
+  const value = useMemo(
+    () => ({
+      wishlist,
+      loading,
+      toggleWishlist,
+      isInWishlist,
+      fetchWishlist,
+    }),
+    [wishlist, loading, toggleWishlist, isInWishlist, fetchWishlist]
+  );
 
   return (
-    <WishlistContext.Provider
-      value={{ wishlist, loading, toggleWishlist, isInWishlist, fetchWishlist }}
-    >
+    <WishlistContext.Provider value={value}>
       {children}
     </WishlistContext.Provider>
   );

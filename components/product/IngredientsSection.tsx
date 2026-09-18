@@ -34,8 +34,7 @@ export default function IngredientsSection() {
         {ingredients.map((item, index) => (
           <div key={index} className={styles.card}>
             <div className={styles.imageWrapper}>
-              {/* Note: Ensure images exist in public folder, or use a fallback */}
-              <img src={item.img} alt={item.title} width={80} height={80} />
+              <Image src={item.img} alt={item.title} width={80} height={80} style={{ objectFit: "contain" }} />
             </div>
             <h3>{item.title}</h3>
             <p>{item.desc}</p>

@@ -1,10 +1,10 @@
-"use client";
-
-import { useState, useEffect, use } from "react";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Article.module.css";
 import axiosInstance from "@/utils/axiosInstance";
+
+const SITE_URL = "https://aciagro.com";
 
 interface FaqItem {
   question: string;
@@ -16,102 +16,142 @@ interface ArticleData {
   title: string;
   slug: string;
   breadcrumbTitle?: string;
+  description?: string;
   image?: string;
   content: string;
+  status?: string;
   faqs?: FaqItem[];
   createdAt?: string;
 }
 
-// Transform standalone bold lines into prominent headings, while leaving inline bold intact
-const processArticleContent = (htmlContent: string) => {
-  if (!htmlContent) return "";
-  return htmlContent
-    // Standalone <p><strong>Heading</strong></p> or <p><b>Heading</b></p> -> <h2>
-    .replace(/<p>\s*<(?:strong|b)>(.*?)<\/(?:strong|b)>\s*<\/p>/gi, '<h2 class="' + styles.articleHeading + '">$1</h2>')
-    // Standalone <div><strong>Heading</strong></div> -> <h2>
-    .replace(/<div>\s*<(?:strong|b)>(.*?)<\/(?:strong|b)>\s*<\/div>/gi, '<h2 class="' + styles.articleHeading + '">$1</h2>');
-};
-
-export default function ArticleDetailPage({
-  params
-}: {
-  params: Promise<{ slug: string }> | { slug: string };
-}) {
-  const resolvedParams = params instanceof Promise ? use(params) : params;
-  const slug = resolvedParams.slug;
-
-  const [article, setArticle] = useState<ArticleData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const fetchLiveArticle = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-        const res = await axiosInstance.get(`/articles/${slug}`);
-        if (res.data.success && res.data.data) {
-          setArticle(res.data.data);
-        } else {
-          setError(true);
-        }
-      } catch (err: any) {
-        console.warn("Could not fetch live article:", err?.message);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) {
-      fetchLiveArticle();
+async function getArticle(slug: string): Promise<ArticleData | null> {
+  try {
+    const res = await axiosInstance.get(`/articles/${slug}`);
+    if (!res.data?.success || !res.data?.data) {
+      return null;
     }
-  }, [slug]);
+    const article: ArticleData = res.data.data;
+    if (article.status && article.status !== "Published") {
+      return null;
+    }
+    return article;
+  } catch (err) {
+    return null;
+  }
+}
 
-  if (loading) {
-    return (
-      <main className={styles.pageWrapper}>
-        <div className={styles.container}>
-          <div style={{ textAlign: "center", padding: "80px 20px", color: "#64748b" }}>
-            <p>Loading article...</p>
-          </div>
-        </div>
-      </main>
-    );
+function stripHtml(html: string) {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const processArticleContent = (htmlContent: string, articleTitle?: string) => {
+  if (!htmlContent) return "";
+  let processed = htmlContent;
+
+  if (articleTitle) {
+    const cleanTitle = articleTitle.trim().toLowerCase();
+    processed = processed.replace(/^\s*<h1[^>]*>([\s\S]*?)<\/h1>/i, (match, innerText) => {
+      const strippedInner = innerText.replace(/<[^>]*>/g, "").trim().toLowerCase();
+      if (
+        strippedInner === cleanTitle ||
+        strippedInner.includes(cleanTitle) ||
+        cleanTitle.includes(strippedInner)
+      ) {
+        return "";
+      }
+      return `<h2 class="${styles.articleHeading}">${innerText}</h2>`;
+    });
   }
 
-  if (error || !article) {
-    return (
-      <main className={styles.pageWrapper}>
-        <div className={styles.container}>
-          <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <h1 style={{ fontSize: "1.8rem", color: "#1e293b", marginBottom: "12px" }}>Article Not Found</h1>
-            <p style={{ color: "#64748b", marginBottom: "25px" }}>The requested article could not be found or has been moved.</p>
-            <Link 
-              href="/blogs/articles"
-              style={{
-                display: "inline-block",
-                padding: "10px 24px",
-                background: "#0f5132",
-                color: "#ffffff",
-                borderRadius: "8px",
-                fontWeight: 600,
-                textDecoration: "none"
-              }}
-            >
-              ← Back to All Articles
-            </Link>
-          </div>
-        </div>
-      </main>
+  processed = processed.replace(
+    /<h1[^>]*>([\s\S]*?)<\/h1>/gi,
+    '<h2 class="' + styles.articleHeading + '">$1</h2>'
+  );
+
+  return processed
+    .replace(
+      /<p>\s*<(?:strong|b)>(.*?)<\/(?:strong|b)>\s*<\/p>/gi,
+      '<h2 class="' + styles.articleHeading + '">$1</h2>'
+    )
+    .replace(
+      /<div>\s*<(?:strong|b)>(.*?)<\/(?:strong|b)>\s*<\/div>/gi,
+      '<h2 class="' + styles.articleHeading + '">$1</h2>'
     );
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const article = await getArticle(slug);
+
+  if (!article) {
+    return {};
+  }
+
+  const title = `${article.title} | ACI Agro Solutions`;
+  const plainDesc = article.description
+    ? stripHtml(article.description).slice(0, 160)
+    : `Read about ${article.title} on ACI Agro Solutions.`;
+  const canonicalUrl = `${SITE_URL}/blogs/articles/${article.slug}`;
+
+  return {
+    title,
+    description: plainDesc,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description: plainDesc,
+      url: canonicalUrl,
+      siteName: "ACI Agro Solutions",
+      type: "article",
+      images: article.image
+        ? [
+            {
+              url: article.image,
+              alt: article.title,
+            },
+          ]
+        : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: plainDesc,
+      images: article.image ? [article.image] : [],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+export default async function ArticleDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const article = await getArticle(slug);
+
+  if (!article) {
+    return notFound();
   }
 
   const formattedDate = article.createdAt
     ? new Date(article.createdAt).toLocaleDateString("en-US", {
         month: "long",
         day: "numeric",
-        year: "numeric"
+        year: "numeric",
       })
     : "";
 
@@ -119,15 +159,15 @@ export default function ArticleDetailPage({
     <main className={styles.pageWrapper}>
       <div className={styles.container}>
         {/* BREADCRUMB */}
-        <nav className={styles.breadcrumb}>
+        <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
           <Link href="/">Home</Link>
           <span>·</span>
           <Link href="/blogs/articles">Articles</Link>
           <span>·</span>
-          <span>{article.breadcrumbTitle || article.title}</span>
+          <span aria-current="page">{article.breadcrumbTitle || article.title}</span>
         </nav>
 
-        {/* HERO / MAIN IMAGE (No crop, full width responsive container) */}
+        {/* HERO / MAIN IMAGE */}
         {article.image && (
           <div className={styles.imageWrapper}>
             <Image
@@ -152,7 +192,9 @@ export default function ArticleDetailPage({
           {/* RICH ARTICLE BODY */}
           <div
             className={styles.content}
-            dangerouslySetInnerHTML={{ __html: processArticleContent(article.content) }}
+            dangerouslySetInnerHTML={{
+              __html: processArticleContent(article.content, article.title),
+            }}
           />
 
           {/* FAQs & ANSWERS SECTION */}

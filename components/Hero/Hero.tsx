@@ -21,36 +21,49 @@ const Hero = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 👇 1. INSTANT LOAD LOGIC: LocalStorage se purane banners turant nikal lo
-    const cachedBanners = localStorage.getItem('hero_banners');
-    if (cachedBanners) {
-      setBanners(JSON.parse(cachedBanners));
-      setLoading(false); // Cache milte hi loading khatam, UI turant dikhega!
+    let isMounted = true;
+    let cachedBanners: string | null = null;
+    try {
+      cachedBanners = localStorage.getItem('hero_banners');
+      if (cachedBanners && isMounted) {
+        const parsed = JSON.parse(cachedBanners);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setBanners(parsed);
+          setLoading(false);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse cached hero banners:', e);
     }
 
-    // 👇 2. BACKGROUND SYNC: Chup-chaap naye banners check karo
     const fetchActiveBanners = async () => {
       try {
-        // Agar cache nahi mila, tabhi loading true karo
-        if (!cachedBanners) setLoading(true); 
+        if (!cachedBanners && isMounted) setLoading(true); 
 
         const response = await axiosInstance.get<any[]>('/banners');
-        const processedBanners = response.data
-          .map(banner => ({ ...banner, id: banner._id }))
-          .sort((a, b) => a.order - b.order);
+        if (!isMounted) return;
+        const processedBanners = (response.data || [])
+          .map(banner => ({ ...banner, id: banner._id || banner.id }))
+          .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-        // Naye banners set karo aur memory me save kar lo future ke liye
-        setBanners(processedBanners);
-        localStorage.setItem('hero_banners', JSON.stringify(processedBanners));
-        
+        if (isMounted) {
+          setBanners(processedBanners);
+          try {
+            localStorage.setItem('hero_banners', JSON.stringify(processedBanners));
+          } catch (_) {}
+        }
       } catch (error) {
         console.error('Failed to fetch banners:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchActiveBanners();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -82,7 +95,7 @@ const Hero = () => {
           <Link href={banner.link || '#'} className={styles.bannerLink}>
             <Image
               src={banner.imageUrl}
-              alt={banner.title || 'Hero Banner'}
+              alt={banner.title || 'ACI Agro Solutions banner'}
               width={1920}
               height={650}
               priority={index === 0}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import styles from "./HowToUseSection.module.css";
 
 const stepsData = [
@@ -24,8 +25,14 @@ export default function HowToUseSection() {
             className={`${styles.card} ${activeStep.id === step.id ? styles.active : ""}`}
             onClick={() => setActiveStep(step)}
           >
-            <div className={styles.imageWrapper}>
-              <img src={step.img} alt={step.label} />
+            <div className={styles.imageWrapper} style={{ position: "relative" }}>
+              <Image
+                src={step.img}
+                alt={step.label}
+                fill
+                style={{ objectFit: "contain" }}
+                sizes="(max-width: 500px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              />
             </div>
             <h3>{step.label}</h3>
           </div>

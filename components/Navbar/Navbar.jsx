@@ -92,7 +92,7 @@ export default function Navbar() {
 
           <Link href="/" className={styles.logoLink}>
             <div className={styles.logo}>
-              <Image src="/assets/Aci logo.png" alt="Logo" width={60} height={60} />
+              <Image src="/assets/Aci logo.png" alt="ACI Agro Solutions" width={60} height={60} />
             </div>
           </Link>
 

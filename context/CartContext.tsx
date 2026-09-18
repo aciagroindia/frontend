@@ -7,6 +7,7 @@ import React, {
   useEffect,
   ReactNode,
   useCallback,
+  useMemo,
 } from "react";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/utils/axiosInstance";
@@ -101,7 +102,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchCart]);
 
   // ---------------- ADD TO CART (⚡ OPTIMISTIC FAST) ----------------
-  const addToCart = async (
+  const addToCart = useCallback(async (
     product: any,
     quantity = 1,
     silent = false
@@ -111,40 +112,46 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // 1. Current state save karo (agar api fail hui toh wapas yehi set karenge)
-    const prevItems = [...cartItems];
-    const prevTotal = cartTotal;
     const productId = product._id || product.id;
+    let prevItems: CartItem[] = [];
+    let prevTotal = 0;
 
-    // 2. Instant UI Update (Server ka wait kiye bina)
-    const existingItemIndex = prevItems.findIndex(i => i.productId === productId);
-    let updatedItems = [...prevItems];
+    setCartItems((currItems) => {
+      prevItems = [...currItems];
+      const existingItemIndex = currItems.findIndex((i) => i.productId === productId);
+      let updatedItems = [...currItems];
 
-    if (existingItemIndex > -1) {
-      updatedItems[existingItemIndex].quantity += quantity;
-    } else {
-      updatedItems.push({
-        id: "temp-" + Date.now(), // Fake ID for immediate render
-        productId: productId,
-        name: product.name,
-        price: product.price,
-        quantity: quantity,
-        image: product.image || (product.images && product.images[0]) || "",
-        stock: product.stock || 10,
-        slug: product.slug,
-        variant: product.variant || ""
-      });
-    }
+      if (existingItemIndex > -1) {
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + quantity,
+        };
+      } else {
+        updatedItems.push({
+          id: "temp-" + Date.now(),
+          productId: productId,
+          name: product.name,
+          price: product.price,
+          quantity: quantity,
+          image: product.image || (product.images && product.images[0]) || "",
+          stock: product.stock || 10,
+          slug: product.slug,
+          variant: product.variant || "",
+        });
+      }
+      return updatedItems;
+    });
 
-    setCartItems(updatedItems);
-    setCartTotal(updatedItems.reduce((acc, i) => acc + i.price * i.quantity, 0));
+    setCartTotal((currTotal) => {
+      prevTotal = currTotal;
+      return currTotal + (Number(product.price) || 0) * quantity;
+    });
 
     if (!silent) {
       toast.success("Added to cart!");
-      setIsCartOpen(true); // Drawer turant open ho jayega
+      setIsCartOpen(true);
     }
 
-    // 3. Background me actual API Call
     try {
       const response = await axiosInstance.post("/cart/add", {
         productId,
@@ -152,50 +159,55 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (response.data.success) {
-        fetchCart(); // Chupchaap background me real ID ke sath sync kar lo
+        fetchCart();
       } else {
         throw new Error("Failed to add");
       }
     } catch (err: any) {
-      // 4. API Fail hui toh Rollback kardo
       setCartItems(prevItems);
       setCartTotal(prevTotal);
       if (!silent) {
         toast.error(err.response?.data?.message || "Error adding to cart.");
       }
     }
-  };
+  }, [isAuthenticated, fetchCart]);
 
   // ---------------- REMOVE ----------------
-  const removeFromCart = async (itemId: string) => {
+  const removeFromCart = useCallback(async (itemId: string) => {
     if (!isAuthenticated) return;
 
-    const prevItems = [...cartItems];
+    let prevItems: CartItem[] = [];
+    let prevTotal = 0;
 
-    // Optimistic remove
-    const updatedItems = prevItems.filter((item) => item.id !== itemId);
-    setCartItems(updatedItems);
-    setCartTotal(updatedItems.reduce((acc, i) => acc + i.price * i.quantity, 0));
+    setCartItems((curr) => {
+      prevItems = curr;
+      return curr.filter((item) => item.id !== itemId);
+    });
+
+    setCartTotal((curr) => {
+      prevTotal = curr;
+      const item = prevItems.find((i) => i.id === itemId);
+      return item ? curr - item.price * item.quantity : curr;
+    });
 
     try {
       const res = await axiosInstance.delete(`/cart/remove/${itemId}`);
 
       if (res.data?.success) {
         toast.success("Item removed from cart.");
-        await fetchCart(); // Sync with backend
+        await fetchCart();
       } else {
         throw new Error(res.data?.message || "Could not remove item.");
       }
     } catch (err: any) {
-      // Rollback on any error
       setCartItems(prevItems);
-      setCartTotal(prevItems.reduce((acc, i) => acc + i.price * i.quantity, 0));
+      setCartTotal(prevTotal);
       toast.error(err.response?.data?.message || "Failed to remove item");
     }
-  };
+  }, [isAuthenticated, fetchCart]);
 
   // ---------------- UPDATE QUANTITY ----------------
-  const updateQuantity = async (itemId: string, delta: number) => {
+  const updateQuantity = useCallback(async (itemId: string, delta: number) => {
     if (!isAuthenticated) return;
 
     const item = cartItems.find((i) => i.id === itemId);
@@ -207,8 +219,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const prevItems = [...cartItems];
+    const prevTotal = cartTotal;
 
-    // Optimistic update
     const updatedItems = cartItems.map((i) =>
       i.id === itemId ? { ...i, quantity: i.quantity + delta } : i
     );
@@ -219,31 +231,41 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const res = await axiosInstance.post("/cart/update", { itemId, delta });
 
       if (res.data?.success) {
-        await fetchCart(); // Sync with backend
+        await fetchCart();
       } else {
         throw new Error(res.data?.message || "Could not update quantity.");
       }
     } catch (err: any) {
-      // Rollback on error
       setCartItems(prevItems);
-      setCartTotal(prevItems.reduce((acc, i) => acc + i.price * i.quantity, 0));
+      setCartTotal(prevTotal);
       toast.error(err.response?.data?.message || "Update failed");
     }
-  };
+  }, [isAuthenticated, cartItems, cartTotal, fetchCart, removeFromCart]);
+
+  const value = useMemo(
+    () => ({
+      cartItems,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      isCartOpen,
+      setIsCartOpen,
+      cartTotal,
+      fetchCart,
+    }),
+    [
+      cartItems,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      isCartOpen,
+      cartTotal,
+      fetchCart,
+    ]
+  );
 
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        isCartOpen,
-        setIsCartOpen,
-        cartTotal,
-        fetchCart,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

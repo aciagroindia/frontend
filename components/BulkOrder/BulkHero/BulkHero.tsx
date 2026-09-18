@@ -20,12 +20,13 @@ export default function BulkHero() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     // 1. Instant Cache Load from localStorage
     const cachedBanners = localStorage.getItem('bulk_banners');
     if (cachedBanners) {
       try {
         const parsed = JSON.parse(cachedBanners);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed) && parsed.length > 0 && isMounted) {
           setBanners(parsed);
           setLoading(false);
         }
@@ -37,23 +38,32 @@ export default function BulkHero() {
     // 2. Background Sync with Backend API
     const fetchActiveBulkBanners = async () => {
       try {
-        if (!cachedBanners) setLoading(true);
+        if (!cachedBanners && isMounted) setLoading(true);
 
         const response = await axiosInstance.get<any[]>('/bulk-banners');
+        if (!isMounted) return;
         const processedBanners = (response.data || [])
           .map(banner => ({ ...banner, id: banner._id || banner.id }))
           .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
-        setBanners(processedBanners);
-        localStorage.setItem('bulk_banners', JSON.stringify(processedBanners));
+        if (isMounted) {
+          setBanners(processedBanners);
+          try {
+            localStorage.setItem('bulk_banners', JSON.stringify(processedBanners));
+          } catch (_) {}
+        }
       } catch (error) {
         console.error('Failed to fetch bulk banners:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchActiveBulkBanners();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -84,7 +94,7 @@ export default function BulkHero() {
           <Link href={banner.link || '#'} className={styles.bannerLink}>
             <Image
               src={banner.imageUrl}
-              alt={banner.title || 'Bulk Banner'}
+              alt={banner.title || 'ACI Agro Solutions bulk order banner'}
               width={1920}
               height={650}
               priority={index === 0}

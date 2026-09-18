@@ -15,7 +15,7 @@ export default function Footer() {
 
           <Image
             src="/assets/Aci logo.png"
-            alt="Vedist Organic"
+            alt="ACI Agro Solutions"
             width={160}
             height={60}
             className={styles.logo}
@@ -60,7 +60,7 @@ export default function Footer() {
               <Link href="#">Contact Us</Link>
             </li>
             <li>
-              <Link href="#">Our Company</Link>
+              <Link href="/about">Our Company</Link>
             </li>
           </ul>
         </div>

@@ -18,7 +18,7 @@ export default function DescriptionSection({ title, description }: Props) {
         <div className={styles.content}>
 
           {title && (
-            <h1 className={styles.title}>{title}</h1>
+            <h2 className={styles.title}>{title}</h2>
           )}
 
           <div 

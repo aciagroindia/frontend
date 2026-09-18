@@ -1,18 +1,17 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'react-hot-toast';
 
-// Backend se aane wala Product ka structure
 export interface Product {
   _id: string;
-  id: string; // _id ka alias
+  id: string;
   name: string;
   slug: string;
   description: string;
   price: number;
-  category: { _id: string; name: string; }; // Populated category
+  category: { _id: string; name: string; };
   image: string;
   images?: string[];
   faqs: { question: string; answer: string; }[];
@@ -32,7 +31,6 @@ export interface Product {
   salesCount: number;
 }
 
-// Context ka type
 interface ProductContextType {
   products: Product[];
   bestSellers: Product[];
@@ -50,8 +48,7 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-// Data ko frontend ke liye normalize karne ka function
-const normalizeProduct = (product: any): Product => {
+export const normalizeProduct = (product: any): Product => {
   const allImages = Array.from(
     new Set([product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean))
   );
@@ -79,15 +76,26 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [lastUpdatedProduct, setLastUpdatedProduct] = useState<Product | null>(null);
 
-  // UPDATE CACHE HELPERS (Local Memory ke liye)
   const syncProductsCache = (data: Product[]) => {
-    if (typeof window !== 'undefined') localStorage.setItem('products_cache', JSON.stringify(data));
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('products_cache', JSON.stringify(data));
+      } catch (e) {
+        console.warn("Products cache write skipped:", e);
+      }
+    }
   };
+  
   const syncBestSellersCache = (data: Product[]) => {
-    if (typeof window !== 'undefined') localStorage.setItem('bestsellers_cache', JSON.stringify(data));
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bestsellers_cache', JSON.stringify(data));
+      } catch (e) {
+        console.warn("Best sellers cache write skipped:", e);
+      }
+    }
   };
 
-  // Saare products fetch karein
   const fetchProducts = useCallback(async (status?: string) => {
     try {
       const url = status ? `/products?status=${status}` : '/products';
@@ -95,15 +103,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       const freshProducts = response.data?.map(normalizeProduct) || [];
       
       setProducts(freshProducts);
-      // Agar normally fetch ho raha hai (bina status filter ke), tabhi cache karo
       if (!status) syncProductsCache(freshProducts);
     } catch (error) {
       console.error("Failed to fetch products:", error);
-      if (products.length === 0) toast.error("Products load nahi ho paaye.");
     }
-  }, [products.length]);
+  }, []);
 
-  // Best-selling products fetch karein
   const fetchBestSellers = useCallback(async () => {
     try {
       const response = await axiosInstance.get('/products/best-sellers');
@@ -114,63 +119,61 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to fetch best sellers:", error);
-      if (bestSellers.length === 0) toast.error("Best sellers load nahi ho paaye.");
     }
-  }, [bestSellers.length]);
+  }, []);
 
-  // Shuruaat me data fetch karein
   useEffect(() => {
-    // 1. INSTANT LOAD: Pehle browser ki memory se turant dikhao
     let hasCache = false;
     if (typeof window !== 'undefined') {
       const cachedProducts = localStorage.getItem('products_cache');
       const cachedBestSellers = localStorage.getItem('bestsellers_cache');
       
       if (cachedProducts) {
-        try { setProducts(JSON.parse(cachedProducts)); hasCache = true; } catch (e) {}
+        try { 
+          const parsed = JSON.parse(cachedProducts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setProducts(parsed); 
+            hasCache = true; 
+          }
+        } catch (e) {}
       }
       if (cachedBestSellers) {
-        try { setBestSellers(JSON.parse(cachedBestSellers)); hasCache = true; } catch (e) {}
+        try { 
+          const parsed = JSON.parse(cachedBestSellers);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setBestSellers(parsed); 
+            hasCache = true; 
+          }
+        } catch (e) {}
       }
       
-      // Agar cache mil gaya, toh UI ko wait mat karwao
       if (hasCache) setLoading(false);
     }
 
-    // 2. BACKGROUND FETCH LOGIC (Optimized)
     const fetchInitialData = async () => {
-      // Agar cache nahi hai, tabhi loading true dikhao
       if (!hasCache) setLoading(true);
-
-      // Pehle sirf BestSellers fetch karo kyuki home page par yahi chahiye
       await fetchBestSellers();
-
-      // Bestsellers aate hi loading false kar do, taaki website block na ho
       if (!hasCache) setLoading(false);
-
-      // Baaki products background me fetch karo (halki si delay ke sath taaki network choke na ho)
+      
+      // Delay fetching full product list so initial page interactivity is prioritized
       setTimeout(() => {
         fetchProducts();
-      }, 1000); // 1 second ka delay
+      }, 1200);
     };
     
     fetchInitialData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Eslint ignore is safe here
+  }, [fetchBestSellers, fetchProducts]);
 
-  // Ek product slug se fetch karein
   const fetchProductBySlug = useCallback(async (slug: string): Promise<Product | null> => {
     try {
       const response = await axiosInstance.get(`/products/${slug}`);
       return normalizeProduct(response.data);
     } catch (error) {
       console.error(`Failed to fetch product with slug ${slug}:`, error);
-      toast.error("Product details load nahi ho paaye.");
       return null;
     }
   }, []);
 
-  // Related products fetch karein
   const fetchRelatedProducts = useCallback(async (slug: string) => {
     try {
       const response = await axiosInstance.get(`/products/related/${slug}`);
@@ -182,7 +185,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Naya product add karein
   const addProduct = useCallback(async (formData: FormData): Promise<boolean> => {
     try {
       const response = await axiosInstance.post('/products', formData, {
@@ -194,7 +196,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
         
         setProducts((prev) => {
           const updated = [newProduct, ...prev];
-          syncProductsCache(updated); // ⚡ Cache me turant update
+          syncProductsCache(updated);
           return updated;
         });
         return true;
@@ -206,7 +208,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Product update karein
   const updateProduct = useCallback(async (id: string, formData: FormData): Promise<boolean> => {
     try {
       const response = await axiosInstance.put(`/products/${id}`, formData, {
@@ -218,12 +219,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
         
         setProducts((prev) => {
           const updated = prev.map((p) => (p._id === id ? updatedProduct : p));
-          syncProductsCache(updated); // ⚡ Cache update
+          syncProductsCache(updated);
           return updated;
         });
         setBestSellers((prev) => {
           const updated = prev.map((p) => (p._id === id ? updatedProduct : p));
-          syncBestSellersCache(updated); // ⚡ Cache update
+          syncBestSellersCache(updated);
           return updated;
         });
         
@@ -239,8 +240,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Product delete karein
-  const deleteProduct = useCallback(async (id:string): Promise<boolean> => {
+  const deleteProduct = useCallback(async (id: string): Promise<boolean> => {
     try {
       const response = await axiosInstance.delete(`/products/${id}`);
       if (response.data && response.data.message) {
@@ -248,12 +248,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
         
         setProducts((prev) => {
           const updated = prev.filter((p) => p._id !== id);
-          syncProductsCache(updated); // ⚡ Cache update
+          syncProductsCache(updated);
           return updated;
         });
         setBestSellers((prev) => {
           const updated = prev.filter((p) => p._id !== id);
-          syncBestSellersCache(updated); // ⚡ Cache update
+          syncBestSellersCache(updated);
           return updated;
         });
         
@@ -267,12 +267,40 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = { products, bestSellers, relatedProducts, loading, lastUpdatedProduct, fetchProducts, fetchBestSellers, fetchProductBySlug, fetchRelatedProducts, addProduct, updateProduct, deleteProduct };
+  const value = useMemo(
+    () => ({
+      products,
+      bestSellers,
+      relatedProducts,
+      loading,
+      lastUpdatedProduct,
+      fetchProducts,
+      fetchBestSellers,
+      fetchProductBySlug,
+      fetchRelatedProducts,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+    }),
+    [
+      products,
+      bestSellers,
+      relatedProducts,
+      loading,
+      lastUpdatedProduct,
+      fetchProducts,
+      fetchBestSellers,
+      fetchProductBySlug,
+      fetchRelatedProducts,
+      addProduct,
+      updateProduct,
+      deleteProduct,
+    ]
+  );
 
   return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
 }
 
-// Custom hook
 export function useProducts() {
   const context = useContext(ProductContext);
   if (context === undefined) {

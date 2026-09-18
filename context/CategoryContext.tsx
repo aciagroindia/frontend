@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'react-hot-toast';
 
@@ -34,51 +34,54 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
     id: category._id,
   });
 
-  // 👇 1. UPDATE CACHE HELPER (Background sync ke liye)
   const syncCache = (data: Category[]) => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('categories_cache', JSON.stringify(data));
+      try {
+        localStorage.setItem('categories_cache', JSON.stringify(data));
+      } catch (e) {
+        console.warn("Categories cache write skipped:", e);
+      }
     }
   };
 
   const fetchCategories = useCallback(async () => {
-    // 👇 2. INSTANT LOAD: Pehle cache se data uthao aur turant dikha do
+    // 1. INSTANT LOAD FROM CACHE IF AVAILABLE
     if (typeof window !== 'undefined') {
       const cachedData = localStorage.getItem('categories_cache');
       if (cachedData) {
         try {
-          setCategories(JSON.parse(cachedData));
-          setLoading(false); // Cache milte hi UI turant load ho jayega!
+          const parsed = JSON.parse(cachedData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCategories(parsed);
+            setLoading(false);
+          }
         } catch (e) {
           console.error("Cache parse error", e);
         }
       }
     }
 
-    // Agar cache nahi hai, tabhi spinner dikhega
-    setLoading((prev) => categories.length === 0 ? true : prev);
-
-    // 👇 3. BACKGROUND FETCH: Chup-chaap API se naya data check karo
+    // 2. FETCH FROM API
     try {
       const response = await axiosInstance.get('/categories');
       if (response.data.success) {
         const freshCategories = response.data.data?.map(normalizeCategory) || [];
         setCategories(freshCategories);
-        syncCache(freshCategories); // Naye data ko agli baar ke liye save kar lo
+        syncCache(freshCategories);
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
-      // Galti se cache bhi na ho aur error aa jaye, tabhi toast dikhana
-      if (categories.length === 0) {
-        toast.error("Categories load nahi ho paayin.");
-      }
     } finally {
       setLoading(false);
     }
-  }, [categories.length]);
+  }, []);
 
   useEffect(() => {
+    let isMounted = true;
     fetchCategories();
+    return () => {
+      isMounted = false;
+    };
   }, [fetchCategories]);
 
   const addCategory = useCallback(async (formData: FormData): Promise<boolean> => {
@@ -91,7 +94,7 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
         const newCategory = normalizeCategory(response.data.data);
         setCategories(prev => {
           const updated = [newCategory, ...prev];
-          syncCache(updated); // ⚡ Cache me bhi turant update
+          syncCache(updated);
           return updated;
         });
         toast.success('Category successfully added!');
@@ -111,7 +114,6 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
       toast.error("Category ID is missing. Cannot update.");
       return false;
     }
-    console.log('Attempting to update category with ID:', id); 
     try {
       const response = await axiosInstance.put(`/categories/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -122,7 +124,7 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
   
         setCategories(prev => {
           const updatedList = prev.map(cat => cat._id === id ? updatedCategory : cat);
-          syncCache(updatedList); // ⚡ Cache me bhi turant update
+          syncCache(updatedList);
           return updatedList;
         });
   
@@ -149,7 +151,7 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
         toast.success('Category deleted!');
         setCategories((prev) => {
           const updatedList = prev.filter((cat) => cat._id !== id);
-          syncCache(updatedList); // ⚡ Cache me bhi turant delete
+          syncCache(updatedList);
           return updatedList;
         });
         return true;
@@ -162,8 +164,13 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const value = useMemo(
+    () => ({ categories, loading, fetchCategories, addCategory, updateCategory, deleteCategory }),
+    [categories, loading, fetchCategories, addCategory, updateCategory, deleteCategory]
+  );
+
   return (
-    <CategoryContext.Provider value={{ categories, loading, fetchCategories, addCategory, updateCategory, deleteCategory }}>
+    <CategoryContext.Provider value={value}>
       {children}
     </CategoryContext.Provider>
   );

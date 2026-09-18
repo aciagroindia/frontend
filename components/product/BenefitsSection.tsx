@@ -24,11 +24,13 @@ export default function BenefitsSection() {
       <div className={styles.grid}>
         {benefits.map((item, index) => (
           <div key={index} className={styles.card}>
-            <div className={styles.imageContainer}>
-              <img
+            <div className={styles.imageContainer} style={{ position: "relative" }}>
+              <Image
                 src={item.img}
                 alt={item.title}
+                fill
                 className={styles.image}
+                sizes="(max-width: 500px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </div>
             <div className={styles.textContainer}>

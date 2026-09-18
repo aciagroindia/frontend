@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useProducts, Product } from "../../context/ProductContext";
+import { useProducts, Product, normalizeProduct } from "../../context/ProductContext";
 import styles from "./ProductDetail.module.css";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
@@ -14,51 +15,77 @@ const RecentlyViewed = dynamic(() => import("../collection/RecentlyViewed"), { s
 
 interface Props {
   slug: string;
+  initialProduct?: any;
 }
 
-export default function ProductDetail({ slug }: Props) {
+export default function ProductDetail({ slug, initialProduct }: Props) {
   const { products, fetchProductBySlug, fetchRelatedProducts, lastUpdatedProduct } = useProducts();
   
-  // 👇 NAYA: Synchronous cache check. If we have the product in memory, load it instantly!
+  // 👇 NAYA: Synchronous cache check. If we have the product in memory or from server, load it instantly!
   const [product, setProduct] = useState<Product | null>(() => {
+    if (initialProduct && initialProduct.slug === slug) {
+      return normalizeProduct ? normalizeProduct(initialProduct) : initialProduct;
+    }
     if (lastUpdatedProduct?.slug === slug) return lastUpdatedProduct;
     const cached = products.find((p) => p.slug === slug);
     return cached || null;
   });
 
-  // 👇 NAYA: Only show loading screen if we have absolutely NO cached product
+  // 👇 NAYA: Only show loading screen if we have absolutely NO cached or initial product
   const [loading, setLoading] = useState(!product);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Track to recently viewed safely
+    if (product) {
+      try {
+        const stored = localStorage.getItem("recentlyViewed");
+        let list = stored ? JSON.parse(stored) : [];
+        if (Array.isArray(list)) {
+          list = list.filter((p: any) => p && (p._id !== product._id && p.id !== product.id));
+          list.unshift(product);
+          if (list.length > 20) list.pop();
+          localStorage.setItem("recentlyViewed", JSON.stringify(list));
+        }
+      } catch (e) {}
+    }
+
     const loadProduct = async () => {
       try {
-        // Fetch fresh from backend (source of truth) in the background
         const [freshData] = await Promise.all([
-          fetchProductBySlug(slug),
+          !product ? fetchProductBySlug(slug) : Promise.resolve(null),
           fetchRelatedProducts(slug)
         ]);
 
-        if (freshData) {
-          setProduct(freshData); // Silently update with fresh data
-          
-          // Tracking: Add to Recently Viewed
-          const stored = localStorage.getItem("recentlyViewed");
-          let list = stored ? JSON.parse(stored) : [];
-          list = list.filter((p: any) => p._id !== freshData._id);
-          list.unshift(freshData);
-          if (list.length > 20) list.pop();
-          localStorage.setItem("recentlyViewed", JSON.stringify(list));
+        if (isMounted && freshData) {
+          setProduct(freshData);
+          try {
+            const stored = localStorage.getItem("recentlyViewed");
+            let list = stored ? JSON.parse(stored) : [];
+            if (Array.isArray(list)) {
+              list = list.filter((p: any) => p && (p._id !== freshData._id && p.id !== freshData.id));
+              list.unshift(freshData);
+              if (list.length > 20) list.pop();
+              localStorage.setItem("recentlyViewed", JSON.stringify(list));
+            }
+          } catch (e) {}
         }
       } catch (error) {
         console.error("Error fetching product details:", error);
       } finally {
-        // Only matter for the initial load if there was no cache
-        setLoading(false); 
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadProduct();
-  }, [slug, fetchProductBySlug, fetchRelatedProducts, lastUpdatedProduct]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug, fetchProductBySlug, fetchRelatedProducts]);
 
   if (loading) return <div style={{ textAlign: "center", padding: "100px" }}>Loading...</div>;
 
@@ -69,8 +96,44 @@ export default function ProductDetail({ slug }: Props) {
   // ✅ TS Ignore/Check fallback just in case
   if (!product) return null;
 
+  const categorySlug =
+    product.category && typeof (product.category as any).slug === "string"
+      ? (product.category as any).slug
+      : null;
+  const categoryName = product.category?.name || null;
+
   return (
     <div className={styles.wrapper}>
+      {/* Visual Accessible Breadcrumb */}
+      <div className={styles.breadcrumbWrapper}>
+        <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+          <ol className={styles.breadcrumbList}>
+            <li className={styles.breadcrumbItem}>
+              <Link href="/" className={styles.breadcrumbLink}>
+                Home
+              </Link>
+              <span className={styles.breadcrumbSeparator}>›</span>
+            </li>
+            {categorySlug && categoryName ? (
+              <li className={styles.breadcrumbItem}>
+                <Link
+                  href={`/collections/${categorySlug}`}
+                  className={styles.breadcrumbLink}
+                >
+                  {categoryName}
+                </Link>
+                <span className={styles.breadcrumbSeparator}>›</span>
+              </li>
+            ) : null}
+            <li className={styles.breadcrumbItem}>
+              <span className={styles.breadcrumbCurrent} aria-current="page">
+                {product.name}
+              </span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
       {/* Hero Section - Loads instantly now */}
       <div className={styles.topSection}>
         <ProductGallery product={product} />

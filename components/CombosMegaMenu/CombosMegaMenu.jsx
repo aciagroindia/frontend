@@ -26,14 +26,14 @@ export default function CombosMegaMenu() {
         </div>
         <div className={styles.right}>
           <Image
-            src="/certifiedIcons/product.jpeg" // Placeholder image
-            alt="Featured Combo"
+            src="/certifiedIcons/product.jpeg"
+            alt="ACI Agro Ayurvedic Wellness Combo"
             width={350}
             height={400}
           />
-           <Image
-            src="/certifiedIcons/product.jpeg" // Placeholder image
-            alt="Featured Combo 2"
+          <Image
+            src="/certifiedIcons/product.jpeg"
+            alt="ACI Agro Ayurvedic Herbal Combo Pack"
             width={350}
             height={400}
           />

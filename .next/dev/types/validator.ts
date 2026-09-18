@@ -357,6 +357,24 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
 
 
 
+// Validate ../../../src/app/(store)/Whichlist/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/Whichlist">> = Specific
+  const handler = {} as typeof import("../../../src/app/(store)/Whichlist/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../src/app/(store)/checkout/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/checkout">> = Specific
+  const handler = {} as typeof import("../../../src/app/(store)/checkout/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../src/app/(store)/layout.tsx
 {
   type __IsExpected<Specific extends LayoutConfig<"/">> = Specific
@@ -370,6 +388,15 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
 {
   type __IsExpected<Specific extends LayoutConfig<"/login">> = Specific
   const handler = {} as typeof import("../../../src/app/(store)/login/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../src/app/(store)/orders/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/orders">> = Specific
+  const handler = {} as typeof import("../../../src/app/(store)/orders/layout.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

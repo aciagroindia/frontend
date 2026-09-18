@@ -13,6 +13,7 @@ import ConditionalLayout from "../../components/ConditionalLayout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
+  metadataBase: new URL("https://aciagro.com"),
   title: "Aci Agro Solutions",
   description: "Authentic Ayurvedic products for your well-being.",
 };

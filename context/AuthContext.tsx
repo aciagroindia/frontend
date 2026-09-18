@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'react-hot-toast';
@@ -41,15 +41,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // FIX: Ensure Axios Header gets strictly updated immediately
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    try {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (_) {}
   }, []);
 
   const updateUser = useCallback((newUserData: Partial<User>) => {
     setUser(prevUser => {
       if (!prevUser) return null; 
       const updatedUser = { ...prevUser, ...newUserData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      try {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      } catch (_) {}
       return updatedUser;
     });
   }, []);
@@ -61,8 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // FIX: Safely remove header
     delete axiosInstance.defaults.headers.common['Authorization'];
     
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } catch (_) {}
     
     // Agar logout hote hain to home page pe jaayein
     router.push('/');
@@ -73,7 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await axiosInstance.get('/auth/me'); 
       if (res.data.success) {
         setUser(res.data.user);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
+        try {
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+        } catch (_) {}
       }
     } catch (err) {
       console.error("Status refresh failed");
@@ -82,34 +90,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // FIX: Page load hote hi turant token ko axios me inject karna zaroori hai
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    try {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
-      try {
+      if (storedToken && storedUser) {
         const userData: User = JSON.parse(storedUser);
         // Default Header set in first render
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         login(storedToken, userData);
-      } catch (error) {
-        console.error("Failed to parse user from localStorage. Logging out.", error);
-        logout();
       }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage. Logging out.", error);
+      logout();
     }
     setLoading(false);
   }, [login, logout]);
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      token, 
-      isAuthenticated: !!token, 
-      loading, 
-      login, 
-      logout, 
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      isAuthenticated: !!token,
+      loading,
+      login,
+      logout,
       refreshUserStatus,
-      updateUser
-    }}>
+      updateUser,
+    }),
+    [user, token, loading, login, logout, refreshUserStatus, updateUser]
+  );
+
+  return (
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
