@@ -151,14 +151,13 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
 
     const fetchInitialData = async () => {
-      if (!hasCache) setLoading(true);
-      await fetchBestSellers();
-      if (!hasCache) setLoading(false);
-      
-      // Delay fetching full product list so initial page interactivity is prioritized
-      setTimeout(() => {
-        fetchProducts();
-      }, 1200);
+      try {
+        await Promise.all([fetchBestSellers(), fetchProducts()]);
+      } catch (e) {
+        console.error("Error fetching initial product data:", e);
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchInitialData();

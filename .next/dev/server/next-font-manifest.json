@@ -1,6 +1,6 @@
 {
   "app": {
-    "[project]/src/app/(store)/checkout/page": [
+    "[project]/src/app/(store)/collections/[slug]/page": [
       "static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2"
     ],
     "[project]/src/app/(store)/orders/page": [
