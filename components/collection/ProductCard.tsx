@@ -78,7 +78,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Heart size={18} fill={inWishlist ? "#1b7f3c" : "none"} />
       </div>
 
-      <Link href={`/products/${product.slug}`} className={styles.imageWrapper}>
+      <Link href={`/products/${product.slug}`} className={styles.imageWrapper} prefetch={true}>
         {mainImage ? (
           <Image
             src={mainImage}
@@ -97,6 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Link
           href={`/products/${product.slug}`}
           className={styles.productTitle}
+          prefetch={true}
         >
           <h3>{product.name}</h3>
         </Link>

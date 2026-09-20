@@ -20,6 +20,7 @@ interface Order {
   orderStatus: string;
   trackingId?: string;
   courierName?: string;
+  createdAt?: string;
 }
 
 export default function OrdersPage() {
@@ -244,6 +245,25 @@ export default function OrdersPage() {
           </span>
         );
       },
+    },
+    {
+      key: "createdAt",
+      label: "Date",
+      render: (val: string, row: Order) => {
+        const rawDate = val || row.createdAt;
+        if (!rawDate) return "N/A";
+        const date = new Date(rawDate);
+        if (isNaN(date.getTime())) return "N/A";
+        return (
+          <span style={{ fontSize: "0.85rem", color: "#4b5563", whiteSpace: "nowrap" }}>
+            {date.toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+        );
+      }
     },
     {
       key: "actions",

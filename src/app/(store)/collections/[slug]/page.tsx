@@ -2,6 +2,8 @@ import CollectionLayout from "../../../../../components/collection/CollectionLay
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 
+export const revalidate = 60;
+
 interface Category {
   _id: string;
   name: string;

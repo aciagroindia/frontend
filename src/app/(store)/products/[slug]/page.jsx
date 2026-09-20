@@ -2,6 +2,8 @@ import ProductDetail from "../../../../../components/product/ProductDetail";
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 
+export const revalidate = 60;
+
 const SITE_URL = "https://aciagro.com";
 
 async function getProduct(slug) {

@@ -18,9 +18,24 @@ export default function FeaturedProducts() {
     return wishlist.some((item) => item.id === id);
   };
 
-  // Loading state dikhane ke liye
-  if (loading) {
-    return <div className={styles.container}>Loading best sellers...</div>;
+  // Loading state dikhane ke liye - sleek skeleton cards
+  if (loading && bestSellers.length === 0) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.heading}>BEST SELLING PRODUCTS</h2>
+          <div className={styles.grid}>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={styles.card} style={{ pointerEvents: 'none' }}>
+                <div className={styles.imageWrapper} style={{ backgroundColor: '#f3f4f6', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ height: '18px', background: '#e5e7eb', borderRadius: '4px', margin: '12px 10px 6px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ height: '36px', background: '#e5e7eb', borderRadius: '6px', margin: '10px', animation: 'pulse 1.5s infinite' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -48,7 +63,7 @@ export default function FeaturedProducts() {
                   />
                 </div>
 
-                <Link href={`/products/${product.slug}`}>
+                <Link href={`/products/${product.slug}`} prefetch={true}>
                   <div className={styles.imageWrapper}>
                     {product.image ? (
                       <Image

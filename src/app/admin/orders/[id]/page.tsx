@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import DashboardLayout from "../../../../../components/admin-layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
-import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink, Trash2 } from "lucide-react"; 
+import { ArrowLeft, User, ShoppingCart, Package, CreditCard, Truck, ExternalLink, Trash2, Calendar, Clock } from "lucide-react"; 
 import { toast } from "react-hot-toast";
 import ConfirmationModal from "../../../../../components/signUP/ConfirmationModal";
 import styles from "./page.module.css";
@@ -20,6 +20,20 @@ export default function OrderDetailPage() {
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const formatOrderDate = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "N/A";
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -86,8 +100,13 @@ export default function OrderDetailPage() {
     setTrackingLoading(true);
     try {
       const response = await axiosInstance.get(`/admin/orders/${orderId}/track`);
-      if (response.data.success && response.data.data.trackingUrl) {
-        window.open(response.data.data.trackingUrl, '_blank');
+      if (response.data.success && response.data.data) {
+        if (response.data.data.orderStatus && response.data.data.orderStatus !== order.orderStatus) {
+          setOrder((prev: any) => prev ? { ...prev, orderStatus: response.data.data.orderStatus } : prev);
+        }
+        if (response.data.data.trackingUrl) {
+          window.open(response.data.data.trackingUrl, '_blank');
+        }
       } else {
         toast.error("Tracking URL not found.");
       }
@@ -112,7 +131,26 @@ export default function OrderDetailPage() {
             </button>
             <div>
               <h1 className={styles.title}>Order Details</h1>
-              <p className={styles.subtitle}>ID: #{order._id.toUpperCase()}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginTop: '4px' }}>
+                <p className={styles.subtitle} style={{ margin: 0 }}>ID: #{order._id.toUpperCase()}</p>
+                {order.createdAt && (
+                  <span style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '5px', 
+                    fontSize: '0.85rem', 
+                    color: '#374151', 
+                    background: '#f3f4f6', 
+                    border: '1px solid #e5e7eb',
+                    padding: '3px 10px', 
+                    borderRadius: '6px',
+                    fontWeight: 500
+                  }}>
+                    <Calendar size={14} style={{ color: '#16a34a' }} />
+                    <strong>Ordered on:</strong> {formatOrderDate(order.createdAt)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -181,6 +219,10 @@ export default function OrderDetailPage() {
                 <div><label>Recipient Name</label><p>{order.shippingInfo?.name || order.customer?.name || "N/A"}</p></div>
                 <div><label>Contact Phone</label><p>{order.shippingInfo?.phone || order.shippingInfo?.phoneNo || order.customer?.phone || "N/A"}</p></div>
                 <div><label>Email Address</label><p>{order.shippingInfo?.email || order.customer?.email || "N/A"}</p></div>
+                <div><label>Order Date & Time</label><p>{formatOrderDate(order.createdAt)}</p></div>
+                {order.deliveredAt && (
+                  <div><label>Delivered Date & Time</label><p>{formatOrderDate(order.deliveredAt)}</p></div>
+                )}
                 <div className={styles.fullWidth}>
                   <label>Shipping Address</label>
                   <p>{order.shippingInfo ? `${order.shippingInfo.address}, ${order.shippingInfo.city}, ${order.shippingInfo.state} - ${order.shippingInfo.pinCode}` : 'N/A'}</p>
@@ -223,7 +265,7 @@ export default function OrderDetailPage() {
               <div className={styles.card} style={{ marginBottom: '1.5rem' }}>
                 <div className={styles.cardHeader}><Truck size={20} /> <h2>Shipping Details</h2></div>
                 <div className={styles.trackingInfo}>
-                  <p><strong>Courier:</strong> {order.courierName || "Shiprocket"}</p>
+                  <p><strong>Courier:</strong> {order.courierName || "Delhivery"}</p>
                   <p><strong>Tracking ID:</strong> {order.trackingId}</p>
                   
                   <button 

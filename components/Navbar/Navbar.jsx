@@ -103,10 +103,20 @@ export default function Navbar() {
               onMouseEnter={() => setIsMegaMenuOpen(true)}
               onMouseLeave={() => setIsMegaMenuOpen(false)}
             >
-              <Link href="#" className={styles.menuItem} onClick={closeMegaMenu}>
+              <button 
+                type="button"
+                className={styles.menuItem} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsMegaMenuOpen(prev => !prev);
+                }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                aria-expanded={isMegaMenuOpen}
+                aria-label="Toggle Shop Menu"
+              >
                 Shop
                 <Image src="/assets/keyboad-arrowdown.svg" alt="" width={20} height={20} className={styles.subtleIcon} />
-              </Link>
+              </button>
               {isMegaMenuOpen && <MegaMenu onLinkClick={closeMegaMenu} />}
             </div>
             <Link href="/orders" className={styles.menuItem}>Orders</Link>

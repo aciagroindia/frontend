@@ -27,7 +27,7 @@ const CategoryContext = createContext<CategoryContextType | undefined>(undefined
 
 export function CategoryProvider({ children }: { children: ReactNode }) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const normalizeCategory = (category: any): Category => ({
     ...category,

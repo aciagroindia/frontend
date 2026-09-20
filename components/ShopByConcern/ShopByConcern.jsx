@@ -12,15 +12,20 @@ export default function ShopByConcern() {
       <h1 className={styles.heading}>SHOP BY CATEGORY</h1>
 
       <div className={styles.grid}>
-        {loading ? (
-          <p>Loading categories...</p>
+        {loading && categories.length === 0 ? (
+          [...Array(6)].map((_, i) => (
+            <div key={i} className={styles.card} style={{ pointerEvents: 'none' }}>
+              <div className={styles.imageWrapper} style={{ background: '#f3f4f6', animation: 'pulse 1.5s infinite' }} />
+              <div className={styles.name} style={{ color: '#d1d5db' }}>...</div>
+            </div>
+          ))
         ) : (
           categories.map((category, index) => (
             <Link 
               key={category._id} 
               href={`/collections/${category.slug}`} 
               className={styles.card}
-              prefetch={true} /* 👇 NAYA: Forces fast background loading */
+              prefetch={true}
             >
               <div className={styles.imageWrapper}>
                 <Image
@@ -29,7 +34,6 @@ export default function ShopByConcern() {
                   width={100} 
                   height={100}
                   className={styles.image}
-                  // Pehli 4 images ko high priority do taaki wo turant load hon
                   priority={index < 4} 
                 />
               </div>

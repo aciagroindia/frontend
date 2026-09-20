@@ -1,18 +1,6 @@
 {
-  "/(store)/Whichlist/page": "app/(store)/Whichlist/page.js",
-  "/(store)/about/page": "app/(store)/about/page.js",
-  "/(store)/blogs/articles/[slug]/page": "app/(store)/blogs/articles/[slug]/page.js",
-  "/(store)/blogs/articles/page": "app/(store)/blogs/articles/page.js",
-  "/(store)/bulk-order/page": "app/(store)/bulk-order/page.js",
   "/(store)/checkout/page": "app/(store)/checkout/page.js",
-  "/(store)/collections/[slug]/page": "app/(store)/collections/[slug]/page.js",
-  "/(store)/login/page": "app/(store)/login/page.js",
   "/(store)/orders/page": "app/(store)/orders/page.js",
-  "/(store)/policies/[slug]/page": "app/(store)/policies/[slug]/page.js",
-  "/(store)/products/[slug]/page": "app/(store)/products/[slug]/page.js",
-  "/(store)/signup/page": "app/(store)/signup/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
-  "/robots.txt/route": "app/robots.txt/route.js",
-  "/sitemap.xml/route": "app/sitemap.xml/route.js"
+  "/admin/orders/page": "app/admin/orders/page.js",
+  "/page": "app/page.js"
 }
