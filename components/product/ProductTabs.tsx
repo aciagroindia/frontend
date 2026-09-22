@@ -1,23 +1,182 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-hot-toast";
 import axiosInstance from "@/utils/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./ProductTabs.module.css";
+import { CheckCircle2, Leaf, HelpCircle, Star, MessageSquare, Info, ShieldCheck } from "lucide-react";
 
 interface Props {
   product: any;
   onReviewSubmit?: () => void;
 }
 
-export default function ProductTabs({ product, onReviewSubmit }: Props) {
-  const [activeTab, setActiveTab] = useState("faq");
+interface ParsedSection {
+  id: string;
+  title: string;
+  content: string;
+  type: "overview" | "benefits" | "ingredients" | "usage" | "general";
+}
 
+/**
+ * Parses raw text/HTML or structured sections into clean tab content blocks
+ */
+function parseProductSections(product: any): ParsedSection[] {
+  const sections: ParsedSection[] = [];
+
+  // Case 1: Structured descriptionSections array exists
+  if (Array.isArray(product?.descriptionSections) && product.descriptionSections.length > 0) {
+    product.descriptionSections.forEach((sec: any, idx: number) => {
+      const rawTitle = (sec.title || "").trim();
+      const content = (sec.content || "").trim();
+      if (!content && !rawTitle) return;
+
+      const lower = rawTitle.toLowerCase();
+      let type: ParsedSection["type"] = "general";
+      if (lower.includes("benefit")) type = "benefits";
+      else if (lower.includes("ingredient")) type = "ingredients";
+      else if (lower.includes("use") || lower.includes("direction") || lower.includes("dosage")) type = "usage";
+      else if (lower.includes("overview") || lower.includes("about") || lower.includes("description")) type = "overview";
+
+      sections.push({
+        id: `sec-${idx}`,
+        title: rawTitle || (idx === 0 ? "Description" : `Section ${idx + 1}`),
+        content,
+        type,
+      });
+    });
+
+    if (sections.length > 0) return sections;
+  }
+
+  // Case 2: Parse raw string description
+  const rawDesc = product?.description || "";
+  if (!rawDesc) {
+    return [
+      {
+        id: "overview",
+        title: "Description",
+        content: "100% pure authentic Ayurvedic formulation crafted with natural herbal ingredients.",
+        type: "overview",
+      },
+    ];
+  }
+
+  // Normalize HTML
+  const clean = rawDesc
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/?strong>/gi, "")
+    .replace(/<\/?b>/gi, "")
+    .replace(/<[^>]*>/g, "")
+    .trim();
+
+  const headerRegex = /(?:^|\n)\s*(Ingredients|Key Ingredients|Active Ingredients|Key Benefits & Features|Key Benefits|Benefits|Product Benefits|Directions of Use|Directions for Use|Suggested Use|How to Use|Usage|Product Overview|Product Description|About the Product|Storage Instructions|Safety Information)\s*(?::|-)?\s*/gi;
+
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let currentHeading: string | undefined = undefined;
+
+  while ((match = headerRegex.exec(clean)) !== null) {
+    const textBefore = clean.substring(lastIndex, match.index).trim();
+    if (textBefore || currentHeading) {
+      const lower = (currentHeading || "").toLowerCase();
+      let type: ParsedSection["type"] = "general";
+      if (lower.includes("benefit")) type = "benefits";
+      else if (lower.includes("ingredient")) type = "ingredients";
+      else if (lower.includes("use") || lower.includes("direction") || lower.includes("dosage")) type = "usage";
+      else if (lower.includes("overview") || lower.includes("about") || lower.includes("description")) type = "overview";
+
+      sections.push({
+        id: `parsed-${sections.length}`,
+        title: currentHeading || "Description",
+        content: textBefore,
+        type,
+      });
+    }
+    currentHeading = match[1].trim();
+    lastIndex = headerRegex.lastIndex;
+  }
+
+  const remaining = clean.substring(lastIndex).trim();
+  if (remaining || currentHeading) {
+    const lower = (currentHeading || "").toLowerCase();
+    let type: ParsedSection["type"] = "general";
+    if (lower.includes("benefit")) type = "benefits";
+    else if (lower.includes("ingredient")) type = "ingredients";
+    else if (lower.includes("use") || lower.includes("direction") || lower.includes("dosage")) type = "usage";
+    else if (lower.includes("overview") || lower.includes("about") || lower.includes("description")) type = "overview";
+
+    sections.push({
+      id: `parsed-${sections.length}`,
+      title: currentHeading || "Description",
+      content: remaining,
+      type,
+    });
+  }
+
+  if (sections.length === 0) {
+    sections.push({
+      id: "overview",
+      title: "Description",
+      content: clean,
+      type: "overview",
+    });
+  }
+
+  return sections.filter((s) => s.content.length > 0);
+}
+
+export default function ProductTabs({ product, onReviewSubmit }: Props) {
+  const parsedSections = useMemo(() => parseProductSections(product), [product]);
+
+  // Tab definitions: Dynamic section tabs + FAQs + Reviews
+  const tabs = useMemo(() => {
+    const list: { id: string; label: string; icon?: string; badge?: string | number }[] = [];
+
+    parsedSections.forEach((sec) => {
+      list.push({
+        id: sec.id,
+        label: sec.title,
+      });
+    });
+
+    // FAQs tab (always available or highlighted if FAQs exist)
+    const faqCount = Array.isArray(product?.faqs) ? product.faqs.length : 0;
+    list.push({
+      id: "faqs",
+      label: "FAQs",
+      badge: faqCount > 0 ? faqCount : undefined,
+    });
+
+    // Reviews tab
+    const reviewCount = product?.numReviews || 0;
+    list.push({
+      id: "reviews",
+      label: "Customer Reviews",
+      badge: reviewCount > 0 ? reviewCount : undefined,
+    });
+
+    return list;
+  }, [parsedSections, product?.faqs, product?.numReviews]);
+
+  const [activeTab, setActiveTab] = useState<string>(() => tabs[0]?.id || "faqs");
+
+  // Keep active tab valid if tabs change
+  useEffect(() => {
+    if (!tabs.some((t) => t.id === activeTab)) {
+      setActiveTab(tabs[0]?.id || "faqs");
+    }
+  }, [tabs, activeTab]);
+
+  // FAQ open/close accordion state
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  // Review states
   const { isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
-
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -81,130 +240,272 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.tabHeaders} role="tablist" aria-label="Product Tabs">
-        <button
-          id="tab-faq"
-          role="tab"
-          aria-selected={activeTab === "faq"}
-          aria-controls="panel-faq"
-          className={`${styles.tabBtn} ${activeTab === "faq" ? styles.activeTab : ""}`}
-          onClick={() => setActiveTab("faq")}
-        >
-          Frequently Asked Questions
-        </button>
-        <button
-          id="tab-reviews"
-          role="tab"
-          aria-selected={activeTab === "reviews"}
-          aria-controls="panel-reviews"
-          className={`${styles.tabBtn} ${activeTab === "reviews" ? styles.activeTab : ""}`}
-          onClick={() => setActiveTab("reviews")}
-        >
-          Customer Reviews
-        </button>
+      {/* Navigation Tab Bar - Horizontal scrollable on mobile */}
+      <div className={styles.tabHeaderContainer}>
+        <div className={styles.tabHeaders} role="tablist" aria-label="Product Information">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                id={`tab-${tab.id}`}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                className={`${styles.tabBtn} ${isActive ? styles.activeTab : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <span>{tab.label}</span>
+                {tab.badge !== undefined && (
+                  <span className={`${styles.badge} ${isActive ? styles.badgeActive : ""}`}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className={styles.tabContent}>
-        {/* FAQ Tab Panel */}
-        {activeTab === "faq" && (
-          <div id="panel-faq" role="tabpanel" aria-labelledby="tab-faq">
-            <h2 className={styles.tabSectionHeading}>Frequently Asked Questions</h2>
-            {product.faqs && product.faqs.length > 0 ? (
-              product.faqs.map((faq: any, index: number) => (
-                <div key={index} className={styles.faqItem}>
-                  <h3 className={styles.faqQuestion}>
-                    {index + 1}. {faq.question}
-                  </h3>
-                  <div className={styles.faqAnswer}>{faq.answer}</div>
+      {/* Main Tab Content Card */}
+      <div className={styles.tabContentCard}>
+        {/* Render Parsed Dynamic Content Sections */}
+        {parsedSections.map((sec) => {
+          const isSelected = activeTab === sec.id;
+          return (
+            <div
+              key={sec.id}
+              id={`panel-${sec.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${sec.id}`}
+              className={`${styles.tabPanel} ${isSelected ? styles.panelVisible : styles.panelHidden}`}
+            >
+              <div className={styles.sectionHeader}>
+                <div className={styles.sectionIcon}>
+                  {sec.type === "benefits" ? (
+                    <CheckCircle2 size={22} className={styles.iconGreen} />
+                  ) : sec.type === "ingredients" ? (
+                    <Leaf size={22} className={styles.iconGreen} />
+                  ) : sec.type === "usage" ? (
+                    <Info size={22} className={styles.iconGreen} />
+                  ) : (
+                    <ShieldCheck size={22} className={styles.iconGreen} />
+                  )}
                 </div>
-              ))
-            ) : (
-              <p>No FAQs available for this product.</p>
-            )}
+                <h2 className={styles.tabSectionHeading}>{sec.title}</h2>
+              </div>
+
+              {/* Formatted Content according to section type */}
+              {sec.type === "benefits" ? (
+                <div className={styles.benefitsGrid}>
+                  {sec.content
+                    .split(/\n|•|\*/)
+                    .map((item) => item.trim())
+                    .filter(Boolean)
+                    .map((benefit, bIdx) => (
+                      <div key={bIdx} className={styles.benefitCard}>
+                        <span className={styles.benefitBullet}>✓</span>
+                        <p className={styles.benefitText}>{benefit}</p>
+                      </div>
+                    ))}
+                </div>
+              ) : sec.type === "ingredients" ? (
+                <div className={styles.ingredientsWrapper}>
+                  <div className={styles.ingredientsBox}>
+                    <div className={styles.ingredientsGrid}>
+                      {sec.content
+                        .split(/\n|,|;/)
+                        .map((item) => item.trim())
+                        .filter(Boolean)
+                        .map((ing, iIdx) => (
+                          <div key={iIdx} className={styles.ingredientTag}>
+                            <span className={styles.leafBullet}>🌿</span>
+                            <span>{ing}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.textContent}>
+                  {sec.content
+                    .split("\n\n")
+                    .map((para, pIdx) => (
+                      <p key={pIdx} className={styles.paragraph}>
+                        {para}
+                      </p>
+                    ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* FAQs Tab Panel */}
+        <div
+          id="panel-faqs"
+          role="tabpanel"
+          aria-labelledby="tab-faqs"
+          className={`${styles.tabPanel} ${activeTab === "faqs" ? styles.panelVisible : styles.panelHidden}`}
+        >
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionIcon}>
+              <HelpCircle size={22} className={styles.iconGreen} />
+            </div>
+            <h2 className={styles.tabSectionHeading}>Frequently Asked Questions</h2>
           </div>
-        )}
+
+          {Array.isArray(product.faqs) && product.faqs.length > 0 ? (
+            <div className={styles.faqAccordion}>
+              {product.faqs.map((faq: any, index: number) => {
+                const isOpen = openFaqIndex === index;
+                return (
+                  <div key={index} className={`${styles.faqCard} ${isOpen ? styles.faqCardOpen : ""}`}>
+                    <button
+                      type="button"
+                      className={styles.faqHeaderBtn}
+                      onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                      aria-expanded={isOpen}
+                    >
+                      <span className={styles.faqNumber}>Q{index + 1}.</span>
+                      <h3 className={styles.faqQuestion}>{faq.question}</h3>
+                      <span className={styles.faqToggleIcon}>{isOpen ? "−" : "+"}</span>
+                    </button>
+                    {isOpen && (
+                      <div className={styles.faqAnswerBox}>
+                        <p className={styles.faqAnswer}>{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className={styles.emptyNotice}>
+              <p>No frequently asked questions listed for this product yet.</p>
+            </div>
+          )}
+        </div>
 
         {/* Customer Reviews Tab Panel */}
-        {activeTab === "reviews" && (
-          <div id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews">
-            <h2 className={styles.tabSectionHeading}>Customer Reviews</h2>
+        <div
+          id="panel-reviews"
+          role="tabpanel"
+          aria-labelledby="tab-reviews"
+          className={`${styles.tabPanel} ${activeTab === "reviews" ? styles.panelVisible : styles.panelHidden}`}
+        >
+          <div className={styles.sectionHeader}>
+            <div className={styles.sectionIcon}>
+              <MessageSquare size={22} className={styles.iconGreen} />
+            </div>
+            <h2 className={styles.tabSectionHeading}>Customer Reviews & Ratings</h2>
+          </div>
 
-            <div className={styles.reviewsHeader}>
-              <span className={styles.starGreen}>
+          {/* Rating Snapshot Banner */}
+          <div className={styles.ratingBanner}>
+            <div className={styles.ratingScoreBox}>
+              <div className={styles.bigScore}>
+                {product.rating ? Number(product.rating).toFixed(1) : "5.0"}
+              </div>
+              <div className={styles.starsRow}>
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i}>
-                    {i < Math.round(product.rating || 0) ? "★" : "☆"}
+                  <span
+                    key={i}
+                    style={{
+                      color: i < Math.round(product.rating || 5) ? "#1b7f3c" : "#e5e7eb",
+                      fontSize: "18px",
+                    }}
+                  >
+                    ★
                   </span>
                 ))}
-              </span>{" "}
-              {product.rating ? product.rating.toFixed(1) : "0.0"}/5 (Based on {product.numReviews || 0} reviews)
+              </div>
+              <div className={styles.totalReviewsCount}>
+                Based on {product.numReviews || 0} authentic reviews
+              </div>
             </div>
+          </div>
 
-            {/* Review Submission Form */}
-            <div className={styles.reviewForm}>
-              <div className={styles.formTitle}>Write a review</div>
-              <form onSubmit={handleReviewSubmit}>
-                <div className={styles.formGroup}>
-                  <label>Rating</label>
-                  <div className={styles.starRatingInput}>
-                    {[1, 2, 3, 4, 5].map((star) => (
+          {/* Write a review form */}
+          <div className={styles.reviewFormCard}>
+            <h3 className={styles.formTitle}>Write a Verified Customer Review</h3>
+            <form onSubmit={handleReviewSubmit}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Your Rating (Out of 5 Stars)</label>
+                <div className={styles.starRatingInput}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={styles.starBtn}
+                      onClick={() => setRating(star)}
+                      onMouseOver={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      aria-label={`Rate ${star} star`}
+                    >
                       <span
-                        key={star}
-                        className={styles.star}
-                        onClick={() => setRating(star)}
-                        onMouseOver={() => setHoverRating(star)}
-                        onMouseLeave={() => setHoverRating(0)}
                         style={{
-                          color: star <= (hoverRating || rating) ? "#1a8e5f" : "#e4e5e9",
+                          color: star <= (hoverRating || rating) ? "#1b7f3c" : "#d1d5db",
                         }}
                       >
                         ★
                       </span>
-                    ))}
-                  </div>
+                    </button>
+                  ))}
                 </div>
-                <div className={styles.formGroup}>
-                  <label htmlFor="reviewText">Review</label>
-                  <textarea
-                    id="reviewText"
-                    className={styles.textarea}
-                    value={reviewText}
-                    onChange={(e) => setReviewText(e.target.value)}
-                    placeholder="Write your comments here"
-                    required
-                  />
-                </div>
-                <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Review"}
-                </button>
-              </form>
-            </div>
+              </div>
 
-            <div className={styles.reviewsList}>
-              {loadingReviews ? (
-                <p>Loading reviews...</p>
-              ) : reviews.length > 0 ? (
-                reviews.map((review: any) => (
-                  <div key={review._id} className={styles.reviewCard}>
-                    <div className={styles.avatar}>{review.name?.charAt(0) || "U"}</div>
+              <div className={styles.formGroup}>
+                <label htmlFor="reviewText" className={styles.formLabel}>
+                  Your Experience / Feedback
+                </label>
+                <textarea
+                  id="reviewText"
+                  className={styles.textarea}
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Tell us about how this product helped you..."
+                  required
+                />
+              </div>
+
+              <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting Review..." : "Submit Review"}
+              </button>
+            </form>
+          </div>
+
+          {/* Reviews List */}
+          <div className={styles.reviewsContainer}>
+            {loadingReviews ? (
+              <div className={styles.loadingNotice}>Loading customer reviews...</div>
+            ) : reviews.length > 0 ? (
+              <div className={styles.reviewsList}>
+                {reviews.map((rev: any) => (
+                  <div key={rev._id} className={styles.reviewCard}>
+                    <div className={styles.avatar}>
+                      {rev.name?.charAt(0).toUpperCase() || "U"}
+                    </div>
                     <div className={styles.reviewBody}>
                       <div className={styles.reviewMeta}>
-                        <span>{review.name}</span>
+                        <span className={styles.reviewerName}>{rev.name}</span>
                         <span className={styles.reviewStars}>
-                          {"★".repeat(review.rating)}
-                          {"☆".repeat(5 - review.rating)}
+                          {"★".repeat(rev.rating)}
+                          {"☆".repeat(5 - rev.rating)}
                         </span>
                       </div>
-                      <p className={styles.reviewText}>"{review.comment}"</p>
+                      <p className={styles.reviewComment}>"{rev.comment}"</p>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p>No reviews yet. Be the first to review this product!</p>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyNotice}>
+                <p>No customer reviews yet. Be the first to share your thoughts!</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

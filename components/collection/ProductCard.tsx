@@ -64,10 +64,19 @@ export default function ProductCard({ product }: ProductCardProps) {
       
       {/* Wishlist Icon */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
         className={`${styles.wishlist} ${
           inWishlist ? styles.activeWishlist : ""
         }`}
         onClick={handleWishlist}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleWishlist();
+          }
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
@@ -78,11 +87,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Heart size={18} fill={inWishlist ? "#1b7f3c" : "none"} />
       </div>
 
-      <Link href={`/products/${product.slug}`} className={styles.imageWrapper} prefetch={true}>
+      <Link href={`/products/${product.slug}`} className={styles.imageWrapper} prefetch={true} aria-label={`View details for ${product.name}`}>
         {mainImage ? (
           <Image
             src={mainImage}
-            alt={product.name}
+            alt={`${product.name} - Ayurvedic Herbal Medicine`}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className={styles.productImage}
@@ -98,14 +107,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           href={`/products/${product.slug}`}
           className={styles.productTitle}
           prefetch={true}
+          aria-label={product.name}
         >
           <span className={styles.productTitleText}>{product.name}</span>
         </Link>
 
         <p className={styles.price}>₹{product.price.toFixed(2)}</p>
-        <div className={styles.stars}>★★★★★</div>
+        <div className={styles.stars} aria-label="5 out of 5 stars">★★★★★</div>
 
-        <button className={styles.button} onClick={handleAddToCart}>
+        <button className={styles.button} onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
           Add to Cart
         </button>
       </div>

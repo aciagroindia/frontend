@@ -8,9 +8,8 @@ import styles from "./ProductDetail.module.css";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
 
-// 👇 NAYA: Lazy load "niche ke sections" to speed up the initial Hero load
-const ProductTabs = dynamic(() => import("./ProductTabs"), { ssr: false });
-const RelatedProducts = dynamic(() => import("./RelatedProducts"), { ssr: false });
+import ProductTabs from "./ProductTabs";
+import RelatedProducts from "./RelatedProducts";
 const RecentlyViewed = dynamic(() => import("../collection/RecentlyViewed"), { ssr: false });
 
 interface Props {

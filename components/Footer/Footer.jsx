@@ -40,10 +40,10 @@ export default function Footer() {
           </div>
 
           <div className={styles.socials}>
-            <a href="#" className={styles.icon}><Facebook size={24} /></a>
-            <a href="#" className={styles.icon}><Instagram size={24} /></a>
-            <a href="#" className={styles.icon}><Youtube size={24} /></a>
-            <a href="#" className={styles.icon}><Linkedin size={24} /></a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className={styles.icon} aria-label="Visit ACI Agro Solutions Facebook page"><Facebook size={24} /></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className={styles.icon} aria-label="Visit ACI Agro Solutions Instagram profile"><Instagram size={24} /></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className={styles.icon} aria-label="Visit ACI Agro Solutions YouTube channel"><Youtube size={24} /></a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className={styles.icon} aria-label="Visit ACI Agro Solutions LinkedIn profile"><Linkedin size={24} /></a>
           </div> 
         </div>
 
@@ -57,7 +57,7 @@ export default function Footer() {
               <Link href="/blogs/articles">Articles</Link>
             </li>
             <li>
-              <Link href="#">Contact Us</Link>
+              <Link href="/about">Contact Us</Link>
             </li>
             <li>
               <Link href="/about">Our Company</Link>

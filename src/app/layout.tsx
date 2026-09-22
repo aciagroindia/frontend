@@ -14,8 +14,46 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   metadataBase: new URL("https://aciagro.com"),
-  title: "Aci Agro Solutions",
-  description: "Authentic Ayurvedic products for your well-being.",
+  title: {
+    default: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
+    template: "%s | ACI Agro Solutions",
+  },
+  description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+  keywords: [
+    "Ayurvedic products",
+    "Herbal wellness",
+    "ACI Agro Solutions",
+    "Buy Ayurvedic medicine online",
+    "Natural health remedies",
+    "Organic Ayurvedic products India"
+  ],
+  authors: [{ name: "ACI Agro Solutions" }],
+  creator: "ACI Agro Solutions",
+  publisher: "ACI Agro Solutions",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://aciagro.com",
+    siteName: "ACI Agro Solutions",
+    title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
+    description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
+    description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+  },
 };
 
 export default function RootLayout({
@@ -26,6 +64,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta
+          name="description"
+          content="Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions."
+        />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <Script

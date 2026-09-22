@@ -84,13 +84,13 @@ export default function Navbar() {
         <TopAnnouncementBar />
 
         <nav className={styles.navbar}>
-          <button className={styles.hamburger} onClick={() => setIsMobileDrawerOpen(true)}>
+          <button className={styles.hamburger} onClick={() => setIsMobileDrawerOpen(true)} aria-label="Open Navigation Menu">
             <div className={styles.bar}></div>
             <div className={styles.bar}></div>
             <div className={styles.bar}></div>
           </button>
 
-          <Link href="/" className={styles.logoLink}>
+          <Link href="/" className={styles.logoLink} aria-label="ACI Agro Solutions Home">
             <div className={styles.logo}>
               <Image src="/assets/Aci logo.png" alt="ACI Agro Solutions" width={60} height={60} />
             </div>
@@ -137,6 +137,7 @@ export default function Navbar() {
                   type="text" 
                   placeholder="I'm looking for..." 
                   className={styles.searchInput}
+                  aria-label="Search products"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
@@ -144,7 +145,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile search button */}
-            <button className={`${styles.iconBtn} ${styles.mobileSearchBtn}`} onClick={() => setIsMobileSearchOpen(true)}>
+            <button className={`${styles.iconBtn} ${styles.mobileSearchBtn}`} onClick={() => setIsMobileSearchOpen(true)} aria-label="Open Search">
               <Image src="/assets/search-icon.svg" alt="Search" width={20} height={20} className={styles.darkIcon} />
             </button>
 
@@ -154,18 +155,18 @@ export default function Navbar() {
                 <span className={styles.userName} style={{ fontSize: '14px', fontWeight: '500' }}>
                   Hi, {user?.name?.split(' ')[0]}
                 </span>
-                <button onClick={logout} className={styles.iconBtn} title="Logout">
+                <button onClick={logout} className={styles.iconBtn} title="Logout" aria-label="Logout">
                   <Image src="/assets/User.svg" alt="Logout" width={20} height={20} style={{ filter: 'invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }} />
                 </button>
               </div>
             ) : (
-              <Link href="/login" className={`${styles.iconBtn} ${styles.loginIcon}`}>
+              <Link href="/login" className={`${styles.iconBtn} ${styles.loginIcon}`} aria-label="Login or Register">
                 <Image src="/assets/User.svg" alt="User" width={20} height={20} />
               </Link>
             )}
 
             {/* Wishlist */}
-            <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }}>
+            <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }} aria-label="View Wishlist">
               <Image src="/assets/favourite-icon.svg" alt="Wishlist" width={20} height={20} className={styles.brightIcon} />
               {wishlist.length > 0 && (
                 <span style={{
@@ -179,7 +180,7 @@ export default function Navbar() {
             </Link>
 
             {/* Cart */}
-            <button onClick={() => setIsCartOpen(true)} className={styles.iconBtn} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, position: 'relative' }}>
+            <button onClick={() => setIsCartOpen(true)} className={styles.iconBtn} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, position: 'relative' }} aria-label="Open Cart">
               <Image src="/assets/cart.svg" alt="Cart" width={20} height={20} />
               {cartItems.length > 0 && (
                 <span style={{
@@ -204,7 +205,7 @@ export default function Navbar() {
       {/* Mobile Drawer Panel */}
       <div className={`${styles.mobileDrawer} ${isMobileDrawerOpen ? styles.drawerOpen : ""}`}>
         <div className={styles.drawerHeader}>
-          <button onClick={closeDrawer} className={styles.closeBtn}>
+          <button onClick={closeDrawer} className={styles.closeBtn} aria-label="Close Navigation Drawer">
             <Image src="/assets/Close.svg" alt="Close" width={24} height={24} />
           </button>
         </div>

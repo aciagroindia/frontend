@@ -46,15 +46,24 @@ export default function ProductGallery({ product }: Props) {
         {displayImages.map((img, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${product.name} image ${idx + 1}`}
             className={`${styles.thumb} ${
               idx === selectedIndex ? styles.thumbActive : "" // Fixed class name to match CSS
             }`}
             onClick={() => setSelectedIndex(idx)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setSelectedIndex(idx);
+              }
+            }}
           >
             {/* 👇 NAYA: Optimized Thumbnails */}
             <Image 
               src={img} 
-              alt={`${product.name} thumbnail ${idx + 1}`} 
+              alt={`${product.name} - Natural Ayurvedic formulation angle ${idx + 1}`} 
               fill
               sizes="80px"
               className={styles.thumbImage}

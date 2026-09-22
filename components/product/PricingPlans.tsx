@@ -47,6 +47,7 @@ export default function PricingPlans({
               className={`${styles.quantityBtn} ${isSelected ? styles.activeBtn : ""}`}
               onClick={() => onPlanSelect(plan)}
               aria-pressed={isSelected}
+              aria-label={`Select quantity option ${displayName}`}
             >
               {displayName}
             </button>

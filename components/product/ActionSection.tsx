@@ -43,26 +43,26 @@ export default function ActionSection({ product }: { product: Product }) {
       {/* FIX: Class name buttonRow kiya aur dono ko ek parent div mein daal diya */}
       <div className={styles.buttonRow}>
         <div className={styles.quantityBox}>
-          <button className={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
-          <input type="text" value={quantity} readOnly className={styles.qtyInput} />
-          <button className={styles.qtyBtn} onClick={() => setQuantity(quantity + 1)}>+</button>
+          <button className={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">-</button>
+          <input type="text" value={quantity} readOnly className={styles.qtyInput} aria-label="Selected quantity" />
+          <button className={styles.qtyBtn} onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button>
         </div>
         
         {/* Ye button ab quantity ke side mein aayega */}
-        <button className={styles.primaryBtn} onClick={handleAddToCart}>
+        <button className={styles.primaryBtn} onClick={handleAddToCart} aria-label="Add to cart">
           Add to Cart
         </button>
 
         <button
           className={styles.wishlistBtn}
           onClick={() => toggleWishlist({ ...product, id: baseProductId, _id: baseProductId })}
-          aria-label="Add to wishlist"
+          aria-label={isInWishlist(baseProductId) ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart fill={isInWishlist(baseProductId) ? "#1a8e5f" : "none"} color="#1a8e5f" />
         </button>
       </div>
 
-      <button className={styles.secondaryBtn} onClick={handleBuyNow}>
+      <button className={styles.secondaryBtn} onClick={handleBuyNow} aria-label="Buy it now immediately">
         Buy It Now
       </button>
 
