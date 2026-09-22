@@ -32,27 +32,6 @@
   display: flex;
   will-change: transform;
   gap: clamp(16px, 3vw, 30px);
-  width: max-content;
-  animation: scrollTestimonials 35s linear infinite;
-}
-
-.track:hover {
-  animation-play-state: paused;
-}
-
-@keyframes scrollTestimonials {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .track {
-    animation: none;
-  }
 }
 
 /* CARD */

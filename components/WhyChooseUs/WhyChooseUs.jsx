@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import axiosInstance from "@/utils/axiosInstance";
 import styles from "./WhyChooseUs.module.css";
 
 const DEFAULT_DATA = {
@@ -26,22 +30,34 @@ const DEFAULT_DATA = {
   isActive: true,
 };
 
-const getCloudinaryUrl = (src, width = 800, quality = "auto") => {
-  if (!src || !src.includes("res.cloudinary.com")) return src;
-  const params = `f_auto,q_${quality},w_${width},c_limit`;
-  return src.replace("/upload/", `/upload/${params}/`);
-};
+export default function WhyChooseUs() {
+  const [data, setData] = useState(DEFAULT_DATA);
 
-export default function WhyChooseUs({ initialData = null }) {
-  const data = initialData || DEFAULT_DATA;
+  useEffect(() => {
+    let isMounted = true;
+    const fetchWhyChooseUs = async () => {
+      try {
+        const res = await axiosInstance.get("/why-choose-us");
+        if (res.data?.success && res.data?.data && isMounted) {
+          setData(res.data.data);
+        }
+      } catch (err) {
+        // Fallback to default values if request fails
+        console.error("Error fetching why-choose-us:", err);
+      }
+    };
+
+    fetchWhyChooseUs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   if (data.isActive === false) {
     return null;
   }
 
-  const rawSrc = data.imageUrl || "/certifiedIcons/whychooseus.png";
-  const isCloudinary = typeof rawSrc === "string" && rawSrc.includes("res.cloudinary.com");
-  const optimizedSrc = isCloudinary ? getCloudinaryUrl(rawSrc, 800) : rawSrc;
+  const imageSrc = data.imageUrl || "/certifiedIcons/whychooseus.png";
 
   return (
     <section className={styles.section} id="why-choose-us">
@@ -87,13 +103,13 @@ export default function WhyChooseUs({ initialData = null }) {
         <div className={styles.imageWrapper}>
           <div className={styles.imageBg}></div>
           <Image
-            src={optimizedSrc}
+            src={imageSrc}
             alt={data.heading || "ACI Product - Crafted by Nature"}
             fill
             className={styles.image}
             sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 500px"
+            unoptimized={typeof imageSrc === "string" && imageSrc.startsWith("http")}
             priority={false}
-            unoptimized={isCloudinary}
           />
         </div>
       </div>

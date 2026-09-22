@@ -14,26 +14,16 @@ export default function RecentlyViewed() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    const loadRecent = () => {
-      setIsMounted(true);
-      const list = localStorage.getItem("recentlyViewed");
-      if (list) {
-        try {
-          const parsed = JSON.parse(list);
-          if (Array.isArray(parsed)) {
-            setRecentlyViewed(parsed);
-          }
-        } catch (e) {
-          setRecentlyViewed([]);
+    setIsMounted(true);
+    const list = localStorage.getItem("recentlyViewed");
+    if (list) {
+      try {
+        const parsed = JSON.parse(list);
+        if (Array.isArray(parsed)) {
+          setRecentlyViewed(parsed);
         }
-      }
-    };
-
-    if (typeof window !== "undefined") {
-      if ("requestIdleCallback" in window) {
-        (window as any).requestIdleCallback(loadRecent);
-      } else {
-        setTimeout(loadRecent, 1200);
+      } catch (e) {
+        setRecentlyViewed([]);
       }
     }
   }, []);

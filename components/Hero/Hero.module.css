@@ -1,7 +1,6 @@
 .heroWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 1920 / 650;
   overflow: hidden;
   background-color: transparent;
   user-select: none;
@@ -22,11 +21,11 @@
   height: 100%;
   opacity: 0;
   visibility: hidden;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   line-height: 0;
 }
 
-.slide:first-child,
 .slide.active {
   position: relative;
   opacity: 1;

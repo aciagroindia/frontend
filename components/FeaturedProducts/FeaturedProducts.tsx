@@ -6,34 +6,27 @@ import Link from "next/link";
 import styles from "./FeaturedProducts.module.css";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
-import { useProducts } from "../../context/ProductContext";
+import { useProducts } from "../../context/ProductContext"; // 1. useProducts import kiya
+import { Heart } from "lucide-react";
 
-const getCloudinaryUrl = (src: string, width = 384, quality = "auto") => {
-  if (!src || !src.includes("res.cloudinary.com")) return src;
-  const params = `f_auto,q_${quality},w_${width},c_limit`;
-  return src.replace("/upload/", `/upload/${params}/`);
-};
-
-export default function FeaturedProducts({ initialBestSellers = [] }: { initialBestSellers?: any[] }) {
+export default function FeaturedProducts() {
   const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
-  const { bestSellers, loading, fetchBestSellers } = useProducts();
-
-  const products = initialBestSellers && initialBestSellers.length > 0 ? initialBestSellers : bestSellers;
+  const { bestSellers, loading, fetchBestSellers } = useProducts(); // 2. Context se bestSellers aur loading li
 
   useEffect(() => {
-    if (products.length === 0) {
+    if (bestSellers.length === 0) {
       fetchBestSellers();
     }
-  }, [products.length, fetchBestSellers]);
+  }, [bestSellers.length, fetchBestSellers]);
 
   // ✅ Wishlist check logic
   const isInWishlist = (id: string) => {
-    return wishlist.some((item) => item.id === id || (item as any)._id === id);
+    return wishlist.some((item) => item.id === id);
   };
 
   // Loading state dikhane ke liye - sleek skeleton cards
-  if (loading && products.length === 0) {
+  if (loading && bestSellers.length === 0) {
     return (
       <section className={styles.section}>
         <div className={styles.container}>
@@ -58,81 +51,66 @@ export default function FeaturedProducts({ initialBestSellers = [] }: { initialB
         <h2 className={styles.heading}>BEST SELLING PRODUCTS</h2>
 
         <div className={styles.grid}>
-          {products.length > 0 ? (
-            products.map((product: any) => {
-              const prodId = product.id || product._id;
-              const rawImage = product.image;
-              const isCloudinary = rawImage && rawImage.includes("res.cloudinary.com");
-              const optimizedSrc = isCloudinary ? getCloudinaryUrl(rawImage, 384) : rawImage;
-
-              return (
-                <div key={prodId} className={styles.card}>
-                  
-                  {/* ❤️ Wishlist Icon */}
-                  <div
-                    className={`${styles.wishlist} ${
-                      isInWishlist(prodId) ? styles.activeWishlist : ""
-                    }`}
-                    onClick={() => toggleWishlist(product)}
-                    aria-label="Wishlist"
-                  >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill={isInWishlist(prodId) ? "#14854e" : "none"}
-                      stroke="#14854e"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                    </svg>
-                  </div>
-
-                  <Link href={`/products/${product.slug}`} prefetch={false}>
-                    <div className={styles.imageWrapper}>
-                      {rawImage ? (
-                        <Image
-                          src={optimizedSrc}
-                          alt={product.name}
-                          fill
-                          className={styles.image}
-                          sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                          unoptimized={Boolean(isCloudinary)}
-                        />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }} />
-                      )}
-                    </div>
-
-                    <h3 className={styles.productName}>{product.name}</h3>
-                  </Link>
-
-                  <div className={styles.rating}>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <span
-                        key={index}
-                        className={
-                          index < (product.rating ?? 0)
-                            ? styles.starFilled
-                            : styles.starEmpty
-                        }
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-
-                  <button
-                    className={styles.button}
-                    onClick={() => addToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
+          {/* 3. Ab bestSellers map ho rahe hain jo MongoDB se aaye hain */}
+          {bestSellers.length > 0 ? (
+            bestSellers.map((product) => (
+              <div key={product.id} className={styles.card}>
+                
+                {/* ❤️ Wishlist Icon */}
+                <div
+                  className={`${styles.wishlist} ${
+                    isInWishlist(product.id) ? styles.activeWishlist : ""
+                  }`}
+                  onClick={() => toggleWishlist(product)}
+                >
+                  <Heart
+                    size={18}
+                    fill={isInWishlist(product.id) ? "#14854e" : "none"}
+                    color="#14854e"
+                  />
                 </div>
-              );
-            })
+
+                <Link href={`/products/${product.slug}`} prefetch={true}>
+                  <div className={styles.imageWrapper}>
+                    {product.image ? (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className={styles.image}
+                        sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }} />
+                    )}
+                  </div>
+
+                  <h3 className={styles.productName}>{product.name}</h3>
+                </Link>
+
+                <div className={styles.rating}>
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={
+                        index < (product.rating ?? 0)
+                          ? styles.starFilled
+                          : styles.starEmpty
+                      }
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+
+                <button
+                  className={styles.button}
+                  onClick={() => addToCart(product)}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            ))
           ) : (
             <p>No best selling products found.</p>
           )}

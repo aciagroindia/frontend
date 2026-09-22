@@ -37,28 +37,18 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
   useEffect(() => {
     let isMounted = true;
 
-    // Track to recently viewed safely in idle time (non-blocking)
+    // Track to recently viewed safely
     if (product) {
-      const updateRecent = () => {
-        try {
-          const stored = localStorage.getItem("recentlyViewed");
-          let list = stored ? JSON.parse(stored) : [];
-          if (Array.isArray(list)) {
-            list = list.filter((p: any) => p && (p._id !== product._id && p.id !== product.id));
-            list.unshift(product);
-            if (list.length > 20) list.pop();
-            localStorage.setItem("recentlyViewed", JSON.stringify(list));
-          }
-        } catch (e) {}
-      };
-
-      if (typeof window !== "undefined") {
-        if ("requestIdleCallback" in window) {
-          (window as any).requestIdleCallback(updateRecent);
-        } else {
-          setTimeout(updateRecent, 1500);
+      try {
+        const stored = localStorage.getItem("recentlyViewed");
+        let list = stored ? JSON.parse(stored) : [];
+        if (Array.isArray(list)) {
+          list = list.filter((p: any) => p && (p._id !== product._id && p.id !== product.id));
+          list.unshift(product);
+          if (list.length > 20) list.pop();
+          localStorage.setItem("recentlyViewed", JSON.stringify(list));
         }
-      }
+      } catch (e) {}
     }
 
     const loadProduct = async () => {

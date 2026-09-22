@@ -22,10 +22,6 @@
   animation-duration: 25s; /* adjust speed here */
 }
 
-.marquee:hover {
-  animation-play-state: paused;
-}
-
 .item {
   display: flex;
   align-items: center;

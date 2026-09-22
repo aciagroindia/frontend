@@ -3,11 +3,10 @@
 import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-const MegaMenu = dynamic(() => import("../../components/MegaMenu/MegaMenu"), { ssr: false });
-const Cart = dynamic(() => import("../../components/Cart/cart"), { ssr: false });
-const SearchMegaMenu = dynamic(() => import("../../components/SearchMenu/SearchMegaMenu"), { ssr: false });
+import MegaMenu from "../../components/MegaMenu/MegaMenu";
+import Cart from "../../components/Cart/cart";
 import { useState, useEffect, useRef, useCallback } from "react";
+import SearchMegaMenu from "../../components/SearchMenu/SearchMegaMenu";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
@@ -91,14 +90,14 @@ export default function Navbar() {
             <div className={styles.bar}></div>
           </button>
 
-          <Link href="/" className={styles.logoLink} prefetch={false}>
+          <Link href="/" className={styles.logoLink}>
             <div className={styles.logo}>
               <Image src="/assets/Aci logo.png" alt="ACI Agro Solutions" width={60} height={60} />
             </div>
           </Link>
 
           <div className={styles.menu}>
-            <Link href="/" className={styles.menuItem} prefetch={false}>Home</Link>
+            <Link href="/" className={styles.menuItem}>Home</Link>
             <div 
               className={styles.shopArea}
               onMouseEnter={() => setIsMegaMenuOpen(true)}
@@ -120,9 +119,9 @@ export default function Navbar() {
               </button>
               {isMegaMenuOpen && <MegaMenu onLinkClick={closeMegaMenu} />}
             </div>
-            <Link href="/orders" className={styles.menuItem} prefetch={false}>Orders</Link>
-            <Link href="/bulk-order" className={styles.menuItem} prefetch={false}>Bulk Order</Link>
-            <Link href="/about" className={styles.menuItem} prefetch={false}>About</Link>
+            <Link href="/orders" className={styles.menuItem}>Orders</Link>
+            <Link href="/bulk-order" className={styles.menuItem}>Bulk Order</Link>
+            <Link href="/about" className={styles.menuItem}>About</Link>
           </div>
 
           <div className={styles.iconGroup}>
@@ -160,13 +159,13 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link href="/login" className={`${styles.iconBtn} ${styles.loginIcon}`} prefetch={false}>
+              <Link href="/login" className={`${styles.iconBtn} ${styles.loginIcon}`}>
                 <Image src="/assets/User.svg" alt="User" width={20} height={20} />
               </Link>
             )}
 
             {/* Wishlist */}
-            <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }} prefetch={false}>
+            <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }}>
               <Image src="/assets/favourite-icon.svg" alt="Wishlist" width={20} height={20} className={styles.brightIcon} />
               {wishlist.length > 0 && (
                 <span style={{
@@ -197,7 +196,7 @@ export default function Navbar() {
       </header>
 
       {/* Cart Component */}
-      {isCartOpen && <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
+      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Mobile Drawer Overlay */}
       <div className={`${styles.drawerOverlay} ${isMobileDrawerOpen ? styles.overlayOpen : ""}`} onClick={closeDrawer} />
@@ -228,10 +227,10 @@ export default function Navbar() {
         <div className={styles.drawerContent}>
           {activeTab === "menu" && (
             <div className={styles.tabPane}>
-              <Link href="/" className={styles.drawerLink} onClick={closeDrawer} prefetch={false}>Home</Link>
-              <Link href="/orders" className={styles.drawerLink} onClick={closeDrawer} prefetch={false}>Orders</Link>
-              <Link href="/bulk-order" className={styles.drawerLink} onClick={closeDrawer} prefetch={false}>Bulk Order</Link>
-              <Link href="/about" className={styles.drawerLink} onClick={closeDrawer} prefetch={false}>About</Link>
+              <Link href="/" className={styles.drawerLink} onClick={closeDrawer}>Home</Link>
+              <Link href="/orders" className={styles.drawerLink} onClick={closeDrawer}>Orders</Link>
+              <Link href="/bulk-order" className={styles.drawerLink} onClick={closeDrawer}>Bulk Order</Link>
+              <Link href="/about" className={styles.drawerLink} onClick={closeDrawer}>About</Link>
               
               {/* Mobile Login/Logout Toggle */}
               {isAuthenticated ? (
@@ -248,7 +247,7 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link href="/login" className={styles.drawerLink} onClick={closeDrawer} prefetch={false}>Login / Register</Link>
+                <Link href="/login" className={styles.drawerLink} onClick={closeDrawer}>Login / Register</Link>
               )}
             </div>
           )}
@@ -264,7 +263,6 @@ export default function Navbar() {
                     href={`/collections/${cat.slug}`}
                     className={styles.drawerLink}
                     onClick={closeDrawer}
-                    prefetch={false}
                   >
                     {cat.name}
                   </Link>
