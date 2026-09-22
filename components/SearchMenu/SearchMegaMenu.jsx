@@ -16,12 +16,18 @@ const trendingSearches = [
 
 // The component now accepts `searchTerm` to filter products and `onResultClick` to handle closing the menu.
 export default function SearchMegaMenu({ searchTerm, onResultClick }) {
-  const { products = [], loading: productsLoading } = useProducts() || {};
+  const { products = [], loading: productsLoading, fetchProducts } = useProducts() || {};
   const { categories = [], loading: categoriesLoading } = useCategories() || {};
 
   // States to hold filtered results
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
+
+  useEffect(() => {
+    if ((searchTerm || !products.length) && products.length === 0 && fetchProducts) {
+      fetchProducts();
+    }
+  }, [searchTerm, products.length, fetchProducts]);
 
   // This effect runs when the search term changes, filtering both products and categories.
   useEffect(() => {

@@ -7,17 +7,17 @@ import { useAuth } from "../../context/AuthContext";
 import styles from "./ProductTabs.module.css";
 
 interface Props {
-    product: any;
-    onReviewSubmit?: () => void;
+  product: any;
+  onReviewSubmit?: () => void;
 }
 
 export default function ProductTabs({ product, onReviewSubmit }: Props) {
   const [activeTab, setActiveTab] = useState("faq");
-  
+
   const { isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
-  
+
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
@@ -67,9 +67,9 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
         setRating(0);
         setHoverRating(0);
         setReviewText("");
-        fetchReviews(); // Refresh the list
+        fetchReviews();
         if (onReviewSubmit) {
-          onReviewSubmit(); // Tell the parent to refresh the product data
+          onReviewSubmit();
         }
       }
     } catch (error: any) {
@@ -81,14 +81,22 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.tabHeaders}>
+      <div className={styles.tabHeaders} role="tablist" aria-label="Product Tabs">
         <button
+          id="tab-faq"
+          role="tab"
+          aria-selected={activeTab === "faq"}
+          aria-controls="panel-faq"
           className={`${styles.tabBtn} ${activeTab === "faq" ? styles.activeTab : ""}`}
           onClick={() => setActiveTab("faq")}
         >
           Frequently Asked Questions
         </button>
         <button
+          id="tab-reviews"
+          role="tab"
+          aria-selected={activeTab === "reviews"}
+          aria-controls="panel-reviews"
           className={`${styles.tabBtn} ${activeTab === "reviews" ? styles.activeTab : ""}`}
           onClick={() => setActiveTab("reviews")}
         >
@@ -97,26 +105,31 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
       </div>
 
       <div className={styles.tabContent}>
+        {/* FAQ Tab Panel */}
         {activeTab === "faq" && (
-          <div>
+          <div id="panel-faq" role="tabpanel" aria-labelledby="tab-faq">
+            <h2 className={styles.tabSectionHeading}>Frequently Asked Questions</h2>
             {product.faqs && product.faqs.length > 0 ? (
-                product.faqs.map((faq: any, index: number) => (
-                    <div key={index} className={styles.faqItem}>
-                        <div className={styles.faqQuestion}>
-                            {index + 1}. {faq.question}
-                        </div>
-                        <div>{faq.answer}</div>
-                    </div>
-                ))
+              product.faqs.map((faq: any, index: number) => (
+                <div key={index} className={styles.faqItem}>
+                  <h3 className={styles.faqQuestion}>
+                    {index + 1}. {faq.question}
+                  </h3>
+                  <div className={styles.faqAnswer}>{faq.answer}</div>
+                </div>
+              ))
             ) : (
-                <p>No FAQs available for this product.</p>
+              <p>No FAQs available for this product.</p>
             )}
           </div>
         )}
 
+        {/* Customer Reviews Tab Panel */}
         {activeTab === "reviews" && (
-          <div>
-            <h3 className={styles.reviewsHeader}>
+          <div id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews">
+            <h2 className={styles.tabSectionHeading}>Customer Reviews</h2>
+
+            <div className={styles.reviewsHeader}>
               <span className={styles.starGreen}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span key={i}>
@@ -125,11 +138,11 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
                 ))}
               </span>{" "}
               {product.rating ? product.rating.toFixed(1) : "0.0"}/5 (Based on {product.numReviews || 0} reviews)
-            </h3>
+            </div>
 
             {/* Review Submission Form */}
             <div className={styles.reviewForm}>
-              <h4>Write a review</h4>
+              <div className={styles.formTitle}>Write a review</div>
               <form onSubmit={handleReviewSubmit}>
                 <div className={styles.formGroup}>
                   <label>Rating</label>

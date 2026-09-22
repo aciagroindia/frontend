@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import styles from "./MegaMenu.module.css";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,7 +14,13 @@ export default function MegaMenu({ onLinkClick }) {
   // Fetch products from the global product context instead of a separate API call.
   // This centralizes data fetching and ensures consistency.
   // FIX: Destructure with default values to prevent crash if context returns null/undefined.
-  const { products = [], loading: productsLoading = true } = useProducts() || {};
+  const { products = [], loading: productsLoading = true, fetchProducts } = useProducts() || {};
+
+  useEffect(() => {
+    if (products.length === 0 && fetchProducts) {
+      fetchProducts();
+    }
+  }, [products.length, fetchProducts]);
 
   // Select the top 3 products to show as "featured" in the mega menu.
   // FIX: Safely slice products to ensure it's always an array, preventing crashes.

@@ -23,7 +23,6 @@ export default function ConditionalLayout({
 
   return (
     <>
-      <TopAnnouncementBar />
       <Navbar />
       {children}
       <WhatsAppButton />

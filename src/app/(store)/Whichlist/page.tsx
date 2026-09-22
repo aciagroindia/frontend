@@ -3,9 +3,18 @@
 import styles from "./whichlist.module.css";
 import WishlistItem from "../../../../components/Whichlist/Wishlist";
 import { useWishlist } from "../../../../context/WishlistContext";
+import { useProducts } from "../../../../context/ProductContext";
+import { useEffect } from "react";
 
 export default function WishlistPage() {
   const { wishlist } = useWishlist();
+  const { products, fetchProducts } = useProducts();
+
+  useEffect(() => {
+    if (products.length === 0 && fetchProducts) {
+      fetchProducts();
+    }
+  }, [products.length, fetchProducts]);
 
   return (
     <div className={styles.container}>

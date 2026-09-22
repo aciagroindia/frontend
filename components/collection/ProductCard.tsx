@@ -99,7 +99,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           className={styles.productTitle}
           prefetch={true}
         >
-          <h3>{product.name}</h3>
+          <span className={styles.productTitleText}>{product.name}</span>
         </Link>
 
         <p className={styles.price}>₹{product.price.toFixed(2)}</p>

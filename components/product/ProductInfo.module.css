@@ -1,9 +1,9 @@
 .info {
-  width: 100%; /* Ensure ye grid ke bahar na jaye */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Thoda extra gap live site jaisa */
-  font-family: sans-serif;
+  gap: 20px;
+  font-family: inherit;
   box-sizing: border-box;
 }
 
@@ -33,6 +33,61 @@
   color: #444;
   line-height: 1.6;
   margin: 0;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.descriptionCollapsed {
+  max-height: 82px;
+}
+
+.descriptionCollapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.95));
+  pointer-events: none;
+}
+
+.descriptionExpanded {
+  max-height: 2000px;
+}
+
+.descriptionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.descriptionParagraph {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.6;
+  margin: 0 0 6px 0;
+  white-space: pre-line;
+}
+
+.descriptionParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionHeading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+  margin: 8px 0 4px 0;
+  line-height: 1.4;
 }
 
 .priceContainer {
@@ -42,7 +97,7 @@
 }
 
 .salePrice {
-  font-size: 28px; /* Thoda bada kiya */
+  font-size: 28px;
   font-weight: 700;
   color: #000;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCategories } from "../../context/CategoryContext";
@@ -9,7 +9,13 @@ import styles from "./FilterSidebar.module.css";
 
 export default function FilterSidebar() {
   const { categories } = useCategories();
-  const { bestSellers } = useProducts();
+  const { bestSellers, fetchBestSellers } = useProducts();
+
+  useEffect(() => {
+    if (bestSellers.length === 0 && fetchBestSellers) {
+      fetchBestSellers();
+    }
+  }, [bestSellers.length, fetchBestSellers]);
 
   const [openSections, setOpenSections] = useState({
     category: true,

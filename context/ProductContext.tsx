@@ -10,6 +10,7 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
+  descriptionSections?: { title: string; content: string }[];
   price: number;
   category: { _id: string; name: string; };
   image: string;
@@ -65,6 +66,7 @@ export const normalizeProduct = (product: any): Product => {
     price: Number(product.price) || 0,
     faqs: Array.isArray(product.faqs) ? product.faqs : [],
     packages: Array.isArray(product.packages) ? product.packages : [],
+    descriptionSections: Array.isArray(product.descriptionSections) ? product.descriptionSections : [],
     stock: Number(product.stock) || 0,
   };
 };
@@ -73,7 +75,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [lastUpdatedProduct, setLastUpdatedProduct] = useState<Product | null>(null);
 
   const syncProductsCache = (data: Product[]) => {
@@ -97,7 +99,22 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   };
 
   const fetchProducts = useCallback(async (status?: string) => {
+    // 1. Instant load from cache if state is empty
+    if (!status && typeof window !== 'undefined' && products.length === 0) {
+      try {
+        const cached = localStorage.getItem('products_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setProducts(parsed);
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 2. Fetch fresh products from API
     try {
+      setLoading(true);
       const url = status ? `/products?status=${status}` : '/products';
       const response = await axiosInstance.get(url);
       const freshProducts = response.data?.map(normalizeProduct) || [];
@@ -106,10 +123,26 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       if (!status) syncProductsCache(freshProducts);
     } catch (error) {
       console.error("Failed to fetch products:", error);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [products.length]);
 
   const fetchBestSellers = useCallback(async () => {
+    // 1. Instant load from cache if state is empty
+    if (typeof window !== 'undefined' && bestSellers.length === 0) {
+      try {
+        const cached = localStorage.getItem('bestsellers_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setBestSellers(parsed);
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 2. Fetch fresh bestsellers from API
     try {
       const response = await axiosInstance.get('/products/best-sellers');
       if (response.data.success) {
@@ -120,48 +153,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Failed to fetch best sellers:", error);
     }
-  }, []);
-
-  useEffect(() => {
-    let hasCache = false;
-    if (typeof window !== 'undefined') {
-      const cachedProducts = localStorage.getItem('products_cache');
-      const cachedBestSellers = localStorage.getItem('bestsellers_cache');
-      
-      if (cachedProducts) {
-        try { 
-          const parsed = JSON.parse(cachedProducts);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setProducts(parsed); 
-            hasCache = true; 
-          }
-        } catch (e) {}
-      }
-      if (cachedBestSellers) {
-        try { 
-          const parsed = JSON.parse(cachedBestSellers);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setBestSellers(parsed); 
-            hasCache = true; 
-          }
-        } catch (e) {}
-      }
-      
-      if (hasCache) setLoading(false);
-    }
-
-    const fetchInitialData = async () => {
-      try {
-        await Promise.all([fetchBestSellers(), fetchProducts()]);
-      } catch (e) {
-        console.error("Error fetching initial product data:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchInitialData();
-  }, [fetchBestSellers, fetchProducts]);
+  }, [bestSellers.length]);
 
   const fetchProductBySlug = useCallback(async (slug: string): Promise<Product | null> => {
     try {

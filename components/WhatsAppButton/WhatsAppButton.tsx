@@ -20,10 +20,11 @@ export default function WhatsAppButton() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const fetchConfig = async () => {
       try {
         const res = await axiosInstance.get("/config/whatsapp");
-        if (res.data.success && res.data.data) {
+        if (res.data.success && res.data.data && isMounted) {
           setConfig(res.data.data);
         }
       } catch (err) {
@@ -31,7 +32,19 @@ export default function WhatsAppButton() {
       }
     };
 
-    fetchConfig();
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(() => {
+        if (isMounted) fetchConfig();
+      }, { timeout: 3000 });
+    } else {
+      setTimeout(() => {
+        if (isMounted) fetchConfig();
+      }, 1500);
+    }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (config.isEnabled === false) {

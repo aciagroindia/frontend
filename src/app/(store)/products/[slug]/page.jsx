@@ -28,6 +28,21 @@ function stripHtml(html) {
     .trim();
 }
 
+function getProductDescriptionText(product) {
+  if (!product) return "";
+  if (product.description) {
+    return stripHtml(product.description);
+  }
+  if (Array.isArray(product.descriptionSections) && product.descriptionSections.length > 0) {
+    return product.descriptionSections
+      .filter((s) => s && (s.title || s.content))
+      .map((s) => `${s.title ? s.title + ": " : ""}${s.content || ""}`)
+      .join(" ")
+      .trim();
+  }
+  return "";
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const product = await getProduct(slug);
@@ -37,7 +52,7 @@ export async function generateMetadata({ params }) {
   }
 
   const title = `${product.name} | ACI Agro Solutions`;
-  const plainDescription = stripHtml(product.description);
+  const plainDescription = getProductDescriptionText(product);
   const description = plainDescription
     ? plainDescription.slice(0, 160)
     : "Buy authentic Ayurvedic and herbal wellness products online at ACI Agro Solutions.";
@@ -92,7 +107,7 @@ export default async function ProductPage({ params }) {
     return notFound();
   }
 
-  const cleanDescription = stripHtml(product.description);
+  const cleanDescription = getProductDescriptionText(product);
   const productImage =
     (Array.isArray(product.images) && product.images.length > 0
       ? product.images[0]

@@ -14,6 +14,15 @@ interface Props {
   product: Product;
 }
 
+// Cloudinary direct loader for LCP optimization
+const cloudinaryLoader = ({ src, width, quality }: { src: string; width: number; quality?: number }) => {
+  if (!src || !src.includes("res.cloudinary.com")) {
+    return src;
+  }
+  const params = `f_auto,q_${quality || "auto"},w_${width},c_limit`;
+  return src.replace("/upload/", `/upload/${params}/`);
+};
+
 export default function ProductGallery({ product }: Props) {
   const displayImages = [product.image, ...(product.images || [])].filter(Boolean);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -21,8 +30,9 @@ export default function ProductGallery({ product }: Props) {
   return (
     <div className={styles.galleryWrapper}>
       <div className={styles.mainImageContainer}>
-        {/* 👇 NAYA: Optimized Main Image with priority loading */}
+        {/* 👇 NAYA: Optimized Main Image with direct Cloudinary delivery and priority loading */}
         <Image
+          loader={displayImages[selectedIndex]?.includes("res.cloudinary.com") ? cloudinaryLoader : undefined}
           src={displayImages[selectedIndex]}
           alt={product.name}
           fill

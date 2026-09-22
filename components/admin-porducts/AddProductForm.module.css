@@ -13,6 +13,117 @@
   margin-bottom: 20px;
 }
 
+.descriptionSection {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.descriptionSection h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #0f5132;
+  font-size: 1.1rem;
+}
+
+.descriptionItem {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fdfdfd;
+  position: relative;
+}
+
+.descriptionItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sectionBadge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f5132;
+  background: #e6f4ea;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectionTitleInput {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.sectionTitleInput:focus {
+  border-color: #0f5132;
+  box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+}
+
+.sectionContentInput {
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334155;
+  transition: border-color 0.2s;
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.sectionContentInput:focus {
+  border-color: #0f5132;
+  box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+}
+
+.addSectionBtn {
+  background: #e6f4ea;
+  color: #0f5132;
+  padding: 10px 20px;
+  border: 1px dashed #b6d3c3;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.addSectionBtn:hover {
+  background: #d1e7dd;
+}
+
+.removeSectionBtn {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.removeSectionBtn:hover {
+  background: #ef4444;
+  color: white;
+}
+
 .descriptionInput{
   flex: 1;
   padding: 12px;

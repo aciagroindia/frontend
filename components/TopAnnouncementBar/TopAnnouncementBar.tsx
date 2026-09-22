@@ -14,12 +14,17 @@ export default function TopAnnouncementBar() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // Har 3 second me loop chalega
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % announcements.length);
-    }, 3000); 
+    let interval: NodeJS.Timeout;
+    const initialDelay = setTimeout(() => {
+      interval = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % announcements.length);
+      }, 4000);
+    }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialDelay);
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
   return (

@@ -10,7 +10,7 @@ import { ProductProvider } from "../../context/ProductContext";
 import { CategoryProvider } from "../../context/CategoryContext";
 import ConditionalLayout from "../../components/ConditionalLayout";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata = {
   metadataBase: new URL("https://aciagro.com"),
@@ -26,18 +26,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-XENSPV6GWS"
-          strategy="afterInteractive"
-        />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+            function loadGA() {
+              if (window.gaLoaded) return;
+              window.gaLoaded = true;
+              var s = document.createElement('script');
+              s.src = "https://www.googletagmanager.com/gtag/js?id=G-XENSPV6GWS";
+              s.async = true;
+              document.head.appendChild(s);
 
-            gtag('config', 'G-XENSPV6GWS');
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-XENSPV6GWS');
+            }
+            ['scroll', 'touchstart', 'mousemove', 'click', 'keydown'].forEach(function(e) {
+              window.addEventListener(e, loadGA, { once: true, passive: true });
+            });
           `}
         </Script>
       </head>

@@ -44,8 +44,9 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchCategories = useCallback(async () => {
+  const fetchCategories = useCallback(async (force = false) => {
     // 1. INSTANT LOAD FROM CACHE IF AVAILABLE
+    let hasCache = false;
     if (typeof window !== 'undefined') {
       const cachedData = localStorage.getItem('categories_cache');
       if (cachedData) {
@@ -54,11 +55,16 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setCategories(parsed);
             setLoading(false);
+            hasCache = true;
           }
         } catch (e) {
           console.error("Cache parse error", e);
         }
       }
+    }
+
+    if (hasCache && !force) {
+      return;
     }
 
     // 2. FETCH FROM API
@@ -78,9 +84,29 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let isMounted = true;
-    fetchCategories();
+
+    // Defer initial load until main thread is idle to prioritize LCP and interactive readiness
+    const scheduleLoad = () => {
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        return (window as any).requestIdleCallback(() => {
+          if (isMounted) fetchCategories();
+        }, { timeout: 4000 });
+      } else {
+        return setTimeout(() => {
+          if (isMounted) fetchCategories();
+        }, 1500);
+      }
+    };
+
+    const handle = scheduleLoad();
+
     return () => {
       isMounted = false;
+      if (typeof window !== 'undefined' && 'cancelIdleCallback' in window && typeof handle === 'number') {
+        try { (window as any).cancelIdleCallback(handle); } catch (_) {}
+      } else {
+        clearTimeout(handle);
+      }
     };
   }, [fetchCategories]);
 

@@ -8,10 +8,12 @@ import styles from "./AddProductForm.module.css";
 // Proper Interfaces
 interface FaqItem { id: number; question: string; answer: string; }
 interface PackageItem { id: number; name: string; details?: string; price: string; }
+interface DescriptionSectionItem { id: number; title: string; content: string; }
 
 interface ProductFormData {
   name: string;
   description: string;
+  descriptionSections: DescriptionSectionItem[];
   price: string;
   stock: string;
   status: "Active" | "Inactive";
@@ -30,12 +32,64 @@ interface Props {
   isSubmitting: boolean;
 }
 
+function parseLegacyDescriptionToSections(raw: string): DescriptionSectionItem[] {
+  if (!raw || !raw.trim()) {
+    return [{ id: Date.now(), title: "Product Overview", content: "" }];
+  }
+
+  const cleanText = raw
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/?strong>/gi, "")
+    .replace(/<\/?b>/gi, "")
+    .replace(/<[^>]*>/g, "")
+    .trim();
+
+  const headerRegex = /(?:^|\n)\s*(Ingredients|Key Ingredients|Active Ingredients|Key Benefits & Features|Key Benefits|Benefits|Product Benefits|Directions of Use|Directions for Use|Suggested Use|How to Use|Usage|Product Overview|Product Description|About the Product|Storage Instructions|Safety Information)\s*(?::|-)?\s*/gi;
+
+  const sections: { title: string; content: string }[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let currentHeading: string | undefined = undefined;
+
+  while ((match = headerRegex.exec(cleanText)) !== null) {
+    const textBefore = cleanText.substring(lastIndex, match.index).trim();
+    if (textBefore || currentHeading) {
+      sections.push({
+        title: currentHeading || "Product Overview",
+        content: textBefore,
+      });
+    }
+    currentHeading = match[1].trim();
+    lastIndex = headerRegex.lastIndex;
+  }
+
+  const remainingText = cleanText.substring(lastIndex).trim();
+  if (remainingText || currentHeading) {
+    sections.push({
+      title: currentHeading || "Product Overview",
+      content: remainingText,
+    });
+  }
+
+  const valid = sections.filter(s => s.title || s.content);
+  if (valid.length === 0) {
+    return [{ id: Date.now(), title: "Product Overview", content: cleanText }];
+  }
+
+  return valid.map((s, idx) => ({
+    id: Date.now() + idx + Math.random(),
+    title: s.title || "Product Overview",
+    content: s.content || "",
+  }));
+}
+
 export default function ProductForm({ initialData, onSubmit, buttonText = "Submit", isSubmitting }: Props) {
   const { categories, loading: categoriesLoading } = useCategories();
   
   const [formData, setFormData] = useState<ProductFormData>({
-    name: "", description: "", price: "", stock: "", status: "Active",
-    category: "", unit: "", faqs: [], packages: [], image: null, images: [],
+    name: "", description: "", descriptionSections: [{ id: Date.now(), title: "Product Overview", content: "" }],
+    price: "", stock: "", status: "Active", category: "", unit: "", faqs: [], packages: [], image: null, images: [],
   });
 
   // State for visual previews and tracking
@@ -46,9 +100,23 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
 
   useEffect(() => {
     if (initialData) {
+      let initialSections: DescriptionSectionItem[] = [];
+      if (initialData.descriptionSections && initialData.descriptionSections.length > 0) {
+        initialSections = initialData.descriptionSections.map((sec, index) => ({
+          id: Date.now() + index + Math.random(),
+          title: sec.title || "",
+          content: sec.content || "",
+        }));
+      } else if (initialData.description) {
+        initialSections = parseLegacyDescriptionToSections(initialData.description);
+      } else {
+        initialSections = [{ id: Date.now(), title: "Product Overview", content: "" }];
+      }
+
       setFormData({
         name: initialData.name || "",
         description: initialData.description || "",
+        descriptionSections: initialSections,
         price: String(initialData.price || ""),
         stock: String(initialData.stock || ""),
         status: initialData.status || "Active",
@@ -79,7 +147,20 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       setImagesToDelete([]);
     } else {
       // Reset logic for Add mode...
-      setFormData({ name: "", description: "", price: "", stock: "", status: "Active", category: "", unit: "", faqs: [], packages: [], image: null, images: [] });
+      setFormData({
+        name: "",
+        description: "",
+        descriptionSections: [{ id: Date.now(), title: "Product Overview", content: "" }],
+        price: "",
+        stock: "",
+        status: "Active",
+        category: "",
+        unit: "",
+        faqs: [],
+        packages: [],
+        image: null,
+        images: []
+      });
       setMainImagePreview(null);
       setExistingGallery([]);
       setNewGalleryPreview([]);
@@ -162,6 +243,27 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     setNewGalleryPreview(updatedFiles.map(f => URL.createObjectURL(f)));
   };
 
+  // Description Section Handlers
+  const handleDescriptionSectionChange = (index: number, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const updated = formData.descriptionSections.map((sec, i) => i === index ? { ...sec, [name]: value } : sec);
+    setFormData(prev => ({ ...prev, descriptionSections: updated }));
+  };
+
+  const addDescriptionSection = () => {
+    setFormData(prev => ({
+      ...prev,
+      descriptionSections: [...prev.descriptionSections, { id: Date.now() + Math.random(), title: "", content: "" }]
+    }));
+  };
+
+  const removeDescriptionSection = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      descriptionSections: formData.descriptionSections.filter((_, i) => i !== index)
+    }));
+  };
+
   // FAQ and Package handlers...
   const handleFaqChange = (index: number, e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -183,11 +285,27 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // Validate Description Sections
+    const validSections = formData.descriptionSections
+      .filter(s => s.title.trim() && s.content.trim())
+      .map(({ title, content }) => ({ title: title.trim(), content: content.trim() }));
+
+    if (validSections.length === 0) {
+      alert("Please add at least one product description section with both a title and content.");
+      return;
+    }
+
+    const plainDescription = validSections.map(s => `${s.title}\n${s.content}`).join('\n\n');
+
     const formPayload = new FormData();
     // Append standard fields
-    ['name', 'description', 'price', 'stock', 'status', 'category', 'unit'].forEach(key => {
+    ['name', 'price', 'stock', 'status', 'category', 'unit'].forEach(key => {
       formPayload.append(key, (formData as any)[key]);
     });
+
+    formPayload.append('description', plainDescription);
+    formPayload.append('descriptionSections', JSON.stringify(validSections));
 
     if (initialData?._id) {
       formPayload.append("id", initialData._id);
@@ -259,11 +377,47 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         </div>
       </div>
       
-      <div className={styles.inputGroup}>
-        <textarea className={styles.descriptionInput} name="description" placeholder="Description" value={formData.description} onChange={handleChange} required />
+      {/* Product Description Sections */}
+      <div className={styles.descriptionSection}>
+        <h4>Product Description Sections</h4>
+        {formData.descriptionSections.map((sec: DescriptionSectionItem, index: number) => (
+          <div key={sec.id} className={styles.descriptionItem}>
+            <div className={styles.descriptionItemHeader}>
+              <span className={styles.sectionBadge}>Section {index + 1}</span>
+              {formData.descriptionSections.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeDescriptionSection(index)}
+                  className={styles.removeSectionBtn}
+                  title="Remove Section"
+                >
+                  &times; Remove Section
+                </button>
+              )}
+            </div>
+            <input
+              name="title"
+              placeholder={`Section Title (e.g. Product Overview, Ingredients, Key Benefits, Directions of Use)`}
+              value={sec.title}
+              onChange={(e) => handleDescriptionSectionChange(index, e)}
+              className={styles.sectionTitleInput}
+              required
+            />
+            <textarea
+              name="content"
+              placeholder={`Section Content for "${sec.title || `Section #${index + 1}`}"`}
+              value={sec.content}
+              onChange={(e) => handleDescriptionSectionChange(index, e)}
+              className={styles.sectionContentInput}
+              required
+            />
+          </div>
+        ))}
+        <button type="button" onClick={addDescriptionSection} className={styles.addSectionBtn}>
+          + Add Section
+        </button>
       </div>
       
-      {/* FAQ & Packages logic remains same as per your UI */}
       {/* FAQ Section */}
       <div className={styles.faqSection}>
         <h4>Frequently Asked Questions</h4>
