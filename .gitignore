@@ -74,9 +74,15 @@ web_modules/
 .cache
 .parcel-cache
 
-# Next.js build output
+# Next.js build output and dev cache
+.next/
 .next
+.next/**
+out/
 out
+.turbo/
+.swc/
+*.tsbuildinfo
 
 # Nuxt.js build / generate output
 .nuxt
