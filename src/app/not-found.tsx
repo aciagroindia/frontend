@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NotFoundContactButton from "./NotFoundContactButton";
 
 export default function NotFound() {
   return (
@@ -81,22 +82,7 @@ export default function NotFound() {
           >
             Back to Homepage
           </Link>
-          <Link
-            href="/about"
-            style={{
-              display: "inline-block",
-              padding: "12px 24px",
-              backgroundColor: "#f3f4f6",
-              color: "#374151",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "0.95rem",
-              textDecoration: "none",
-              border: "1px solid #d1d5db",
-            }}
-          >
-            Contact Support
-          </Link>
+          <NotFoundContactButton />
         </div>
       </div>
     </main>

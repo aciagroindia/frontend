@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import styles from "./Policy.module.css";
 import axiosInstance from "@/utils/axiosInstance";
+import PolicyContactButton from "./PolicyContactButton";
 
 const SITE_URL = "https://aciagro.com";
 
@@ -148,9 +149,7 @@ export default async function PolicyDetailPage({
               If you have any questions regarding this policy or our products, our
               support team is happy to assist.
             </p>
-            <Link href="/about" className={styles.contactBtn}>
-              Contact Support
-            </Link>
+            <PolicyContactButton />
           </div>
         </div>
       </div>

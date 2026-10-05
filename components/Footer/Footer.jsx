@@ -4,8 +4,10 @@ import styles from "./Footer.module.css";
 import Image from "next/image";
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import Link from "next/link";
+import { useWhatsApp } from "@/lib/useWhatsApp";
 
 export default function Footer() {
+  const { whatsappUrl } = useWhatsApp();
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
@@ -57,7 +59,13 @@ export default function Footer() {
               <Link href="/blogs/articles">Articles</Link>
             </li>
             <li>
-              <Link href="/about">Contact Us</Link>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contact Us
+              </a>
             </li>
             <li>
               <Link href="/about">Our Company</Link>
