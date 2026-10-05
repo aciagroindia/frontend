@@ -113,12 +113,24 @@ export default function UserOrderDetailPage() {
               <h3>Payment Summary</h3>
               <div className={styles.priceRow}>
                 <span>Subtotal</span>
-                <span>₹{(order.totalAmount || 0).toLocaleString()}</span>
+                <span>₹{(order.subtotal || (order.totalAmount - (order.shippingFee || 0)) || 0).toLocaleString()}</span>
               </div>
+              {(order.discountAmount > 0 || (order.coupon?.discountAmount > 0)) && (
+                <div className={styles.priceRow} style={{ color: '#16a34a' }}>
+                  <span>Discount</span>
+                  <span>- ₹{((order.discountAmount || 0) + (order.coupon?.discountAmount || 0)).toLocaleString()}</span>
+                </div>
+              )}
               <div className={styles.priceRow}>
-                <span>Shipping</span>
-                <span className={styles.free}>FREE</span>
+                <span>Shipping Fee</span>
+                <span>{order.shippingFee ? `₹${order.shippingFee.toLocaleString()}` : <span className={styles.free}>FREE</span>}</span>
               </div>
+              {(order.codFee > 0 || (order.paymentMethod === 'COD' && order.codFee !== 0)) && (
+                <div className={styles.priceRow}>
+                  <span>COD Handling Fee</span>
+                  <span>₹{(order.codFee || 30).toLocaleString()}</span>
+                </div>
+              )}
               <div className={styles.priceRow}>
                 <span>GST (Incl.)</span>
                 <span>₹0.00</span>

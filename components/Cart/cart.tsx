@@ -130,26 +130,23 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                   {cartItems.map((item) => {
                     // Find the full product from the global context to get the correct, normalized image.
                     const fullProduct = allProducts.find(p => p._id === item.productId);
-                    // Use the image from the full product if found, otherwise fallback to the item's image.
-                    const image = fullProduct?.image || item.image;
-                    // Use the image from the full product if found, otherwise fallback to the item's image, then a placeholder.
-                    const imageSrc = fullProduct?.image || item.image || "/placeholder.png";
+                    const imageSrc =
+                      (fullProduct?.images && fullProduct.images.length > 0 ? fullProduct.images[0] : null) ||
+                      fullProduct?.image ||
+                      item.image ||
+                      "/placeholder.png";
 
                     return (
                       <div key={item.id} className={styles.cartItem}>
-                      <div className={styles.itemImageWrapper}>
-                        {image ? (
+                        <div className={styles.itemImageWrapper}>
                           <Image
-                            src={image}
-                            alt={item.name}
+                            src={imageSrc}
+                            alt={item.name || "Product"}
                             fill
+                            sizes="80px"
                             className={styles.itemImage}
                           />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }} />
-                        )}
-                          <Image src={imageSrc} alt={item.name} fill className={styles.itemImage} />
-                      </div>
+                        </div>
                       <div
                         className={styles.itemDetails}
                         style={{

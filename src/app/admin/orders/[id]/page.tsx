@@ -206,8 +206,30 @@ export default function OrderDetailPage() {
                   ))}
                 </tbody>
               </table>
+              <div style={{ marginTop: '1rem', borderTop: '1px dashed #e5e7eb', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#4b5563' }}>
+                  <span>Items Subtotal:</span>
+                  <span>₹{(order.subtotal || (order.totalAmount - (order.shippingFee || 0)) || 0).toLocaleString()}</span>
+                </div>
+                {(order.discountAmount > 0 || (order.coupon?.discountAmount > 0)) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#16a34a', fontWeight: 500 }}>
+                    <span>Discount:</span>
+                    <span>- ₹{((order.discountAmount || 0) + (order.coupon?.discountAmount || 0)).toLocaleString()}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#4b5563' }}>
+                  <span>Delivery Charges:</span>
+                  <span>{order.shippingFee ? `₹${order.shippingFee.toLocaleString()}` : 'FREE / ₹0'}</span>
+                </div>
+                {(order.codFee > 0 || (order.paymentMethod === 'COD' && order.codFee !== 0)) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#b45309', fontWeight: 500 }}>
+                    <span>COD Handling Fee:</span>
+                    <span>₹{(order.codFee || 30).toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
               <div className={styles.totalRow}>
-                <span>Total Amount:</span>
+                <span>Final Total:</span>
                 <span className={styles.price}>₹{order.totalAmount.toLocaleString()}</span>
               </div>
             </div>

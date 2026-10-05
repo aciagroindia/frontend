@@ -203,23 +203,105 @@ function CheckoutContent() {
     state: "",
     country: "India",
     pinCode: "",
-    postalCode: "",
+  });
+
+  const [shippingFee, setShippingFee] = useState<number>(0);
+  const [isCheckingShipping, setIsCheckingShipping] = useState<boolean>(false);
+  const [shippingStatus, setShippingStatus] = useState<{
+    serviceable: boolean | null;
+    message?: string;
+    city?: string;
+    district?: string;
+    state?: string;
+    codAvailable?: boolean;
+    prepaidAvailable?: boolean;
+  }>({
+    serviceable: null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Debounced Pincode Serviceability & Shipping Rate Calculation
+  useEffect(() => {
+    const cleanPin = (shippingAddress.pinCode || "").replace(/\D/g, "").trim();
+
+    if (cleanPin.length !== 6) {
+      setShippingStatus({ serviceable: null });
+      setShippingFee(0);
+      return;
+    }
+
+    if (checkoutItems.length === 0) return;
+
+    let isMounted = true;
+    const timer = setTimeout(async () => {
+      try {
+        setIsCheckingShipping(true);
+        const formattedItems = checkoutItems.map((item) => ({
+          productId: item.productId || item._id || item.id?.split("-")[0],
+          price: item.price,
+          quantity: item.quantity,
+        }));
+
+        const res = await axiosInstance.post("/orders/check-shipping", {
+          pincode: cleanPin,
+          items: formattedItems,
+          paymentMethod: paymentMethod,
+        });
+
+        if (!isMounted) return;
+
+        if (res.data.success && res.data.serviceable) {
+          setShippingFee(res.data.shippingCharge || 0);
+          setShippingStatus({
+            serviceable: true,
+            city: res.data.city,
+            district: res.data.district,
+            state: res.data.state,
+            codAvailable: res.data.codAvailable,
+            prepaidAvailable: res.data.prepaidAvailable,
+          });
+
+          // Auto-populate city & state if currently empty
+          setShippingAddress((prev) => ({
+            ...prev,
+            city: prev.city ? prev.city : res.data.city || res.data.district || "",
+            state: prev.state ? prev.state : res.data.state || "",
+          }));
+
+          // If COD selected but unavailable, alert and switch to Cashfree
+          if (paymentMethod === "COD" && !res.data.codAvailable) {
+            toast.error(`Cash on Delivery (COD) is not available for PIN code ${cleanPin}. Switched to Online Payment.`);
+            setPaymentMethod("Cashfree");
+          }
+        } else {
+          setShippingFee(0);
+          setShippingStatus({
+            serviceable: false,
+            message: res.data.message || `Delivery is currently not available to PIN code ${cleanPin}.`,
+          });
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        setShippingFee(0);
+        setShippingStatus({
+          serviceable: false,
+          message: err.response?.data?.message || "Failed to check delivery serviceability.",
+        });
+      } finally {
+        if (isMounted) setIsCheckingShipping(false);
+      }
+    }, 500);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [shippingAddress.pinCode, checkoutItems, paymentMethod]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setShippingAddress((prev) => {
-      const next = { ...prev, [name]: value };
-      // Sync pinCode and postalCode if either is updated
-      if (name === "pinCode" && !prev.postalCode) {
-        next.postalCode = value;
-      } else if (name === "postalCode" && !prev.pinCode) {
-        next.pinCode = value;
-      }
-      return next;
-    });
+    setShippingAddress((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -235,6 +317,22 @@ function CheckoutContent() {
 
       if (checkoutItems.length === 0) {
         toast.error("Your cart is empty. Nothing to checkout.");
+        return;
+      }
+
+      const cleanPin = (shippingAddress.pinCode || "").replace(/\D/g, "").trim();
+      if (!cleanPin || cleanPin.length !== 6) {
+        toast.error("Please enter a valid 6-digit delivery PIN code.");
+        return;
+      }
+
+      if (shippingStatus.serviceable === false) {
+        toast.error(shippingStatus.message || `Delivery is not available to PIN code ${cleanPin}. Please enter a serviceable address.`);
+        return;
+      }
+
+      if (paymentMethod === "COD" && shippingStatus.codAvailable === false) {
+        toast.error(`Cash on Delivery (COD) is not available for PIN code ${cleanPin}. Please choose Online Payment.`);
         return;
       }
 
@@ -259,15 +357,15 @@ function CheckoutContent() {
         orderItems: items,
         shippingAddress: {
           ...shippingAddress,
-          postalCode: shippingAddress.postalCode || shippingAddress.pinCode,
-          pinCode: shippingAddress.pinCode || shippingAddress.postalCode,
+          postalCode: cleanPin,
+          pinCode: cleanPin,
         },
         shippingInfo: {
           address: shippingAddress.address,
           city: shippingAddress.city,
           state: shippingAddress.state,
           country: shippingAddress.country,
-          pinCode: shippingAddress.pinCode || shippingAddress.postalCode,
+          pinCode: cleanPin,
           phoneNo: shippingAddress.phone,
         },
         paymentMethod: paymentMethod,
@@ -407,7 +505,9 @@ function CheckoutContent() {
   const effectiveSubtotal = discountInfo ? discountInfo.subtotal : checkoutTotal;
   const effectiveAutoDiscount = discountInfo ? discountInfo.discountAmount : 0;
   const effectiveCouponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const effectiveTotal = Math.max(0, effectiveSubtotal - effectiveAutoDiscount - effectiveCouponDiscount);
+  const effectiveShippingFee = shippingStatus.serviceable ? shippingFee : 0;
+  const effectiveCodFee = paymentMethod === "COD" ? 30 : 0;
+  const effectiveTotal = Math.max(0, effectiveSubtotal - effectiveAutoDiscount - effectiveCouponDiscount + effectiveShippingFee + effectiveCodFee);
 
   return (
     <div className="min-h-screen bg-gray-50/60 pb-16 pt-4 sm:pt-8">
@@ -532,7 +632,7 @@ function CheckoutContent() {
                     />
                   </div>
 
-                  {/* City & Pin Code */}
+                  {/* City & State */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
@@ -543,38 +643,6 @@ function CheckoutContent() {
                         name="city"
                         placeholder="e.g. Pune"
                         value={shippingAddress.city}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
-                        PIN Code <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="pinCode"
-                        placeholder="6-digit PIN code"
-                        value={shippingAddress.pinCode}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Postal Code & State */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
-                        Postal Code <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="postalCode"
-                        placeholder="Postal Code"
-                        value={shippingAddress.postalCode || shippingAddress.pinCode}
                         onChange={handleInputChange}
                         required
                         className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
@@ -596,20 +664,73 @@ function CheckoutContent() {
                     </div>
                   </div>
 
-                  {/* Country */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
-                      Country <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="country"
-                      placeholder="Country"
-                      value={shippingAddress.country}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-                    />
+                  {/* PIN Code & Country */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 flex items-center justify-between">
+                        <span>PIN Code <span className="text-red-500">*</span></span>
+                        {isCheckingShipping && (
+                          <span className="text-[11px] text-emerald-600 font-normal flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" /> Checking area...
+                          </span>
+                        )}
+                      </label>
+                      <input
+                        type="text"
+                        name="pinCode"
+                        maxLength={6}
+                        placeholder="6-digit PIN code"
+                        value={shippingAddress.pinCode}
+                        onChange={handleInputChange}
+                        required
+                        className={`w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border rounded-xl focus:ring-2 outline-none transition ${
+                          shippingStatus.serviceable === false
+                            ? 'border-red-400 focus:ring-red-400 focus:border-red-400'
+                            : shippingStatus.serviceable === true
+                            ? 'border-emerald-500 focus:ring-emerald-500 focus:border-emerald-500'
+                            : 'border-gray-300 focus:ring-emerald-500 focus:border-emerald-500'
+                        }`}
+                      />
+
+                      {/* Serviceability Badges */}
+                      {!isCheckingShipping && shippingStatus.serviceable === true && (
+                        <div className="mt-1.5 space-y-1">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                            <span>
+                              Delivery Available to {shippingStatus.city || shippingStatus.district || shippingStatus.state || shippingAddress.pinCode} • Shipping: ₹{shippingFee}
+                            </span>
+                          </div>
+                          {shippingStatus.codAvailable === false && (
+                            <p className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
+                              ⚠️ COD not available for this PIN code (Prepaid only).
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {!isCheckingShipping && shippingStatus.serviceable === false && (
+                        <div className="mt-1.5 flex items-start gap-1.5 text-xs font-semibold text-red-700 bg-red-50 px-2.5 py-1.5 rounded-lg border border-red-200">
+                          <X className="w-3.5 h-3.5 text-red-600 flex-shrink-0 mt-0.5" />
+                          <span>{shippingStatus.message || `Delivery is not available to PIN code ${shippingAddress.pinCode}.`}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                        Country <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="country"
+                        placeholder="Country"
+                        value={shippingAddress.country}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3.5 py-2.5 sm:py-3 text-sm sm:text-base text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -681,9 +802,12 @@ function CheckoutContent() {
                         <span className="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-1.5">
                           <span>Cash on Delivery (COD)</span>
                         </span>
+                        <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+                          +₹30 COD Fee
+                        </span>
                       </div>
                       <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                        Pay in cash upon receiving your order at your delivery address.
+                        Pay in cash upon receiving your order. A ₹30 COD handling charge is applied.
                       </p>
                     </div>
                   </label>
@@ -694,7 +818,13 @@ function CheckoutContent() {
               <div className="space-y-3 pt-2">
                 <button
                   type="submit"
-                  disabled={isSubmitting || checkoutItems.length === 0}
+                  disabled={
+                    isSubmitting ||
+                    checkoutItems.length === 0 ||
+                    isCheckingShipping ||
+                    shippingStatus.serviceable === false ||
+                    (shippingAddress.pinCode || "").replace(/\D/g, "").length !== 6
+                  }
                   className="w-full py-3.5 sm:py-4 px-6 bg-[#1a8e5f] hover:bg-[#15774e] active:scale-[0.99] text-white font-bold text-base sm:text-lg rounded-xl shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
@@ -702,6 +832,15 @@ function CheckoutContent() {
                       <Loader2 className="w-5 h-5 animate-spin" />
                       <span>Processing Order...</span>
                     </>
+                  ) : isCheckingShipping ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Checking Delivery Availability...</span>
+                    </>
+                  ) : shippingStatus.serviceable === false ? (
+                    <span>PIN Code Not Serviceable</span>
+                  ) : (shippingAddress.pinCode || "").replace(/\D/g, "").length !== 6 ? (
+                    <span>Enter PIN Code to Proceed • ₹{effectiveTotal.toFixed(2)}</span>
                   ) : paymentMethod === "COD" ? (
                     <span>Place Order (COD) • ₹{effectiveTotal.toFixed(2)}</span>
                   ) : (
@@ -957,8 +1096,27 @@ function CheckoutContent() {
 
                     <div className="flex justify-between text-gray-600">
                       <span>Delivery Charges</span>
-                      <span className="font-semibold text-emerald-700">FREE</span>
+                      {isCheckingShipping ? (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" /> Calculating...
+                        </span>
+                      ) : shippingStatus.serviceable === true ? (
+                        <span className="font-semibold text-gray-900">₹{effectiveShippingFee.toFixed(2)}</span>
+                      ) : shippingStatus.serviceable === false ? (
+                        <span className="font-semibold text-red-600 text-xs">Not Serviceable</span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Enter PIN Code</span>
+                      )}
                     </div>
+
+                    {paymentMethod === "COD" && (
+                      <div className="flex justify-between text-amber-800 font-medium">
+                        <span className="flex items-center gap-1">
+                          <span>COD Handling Fee</span>
+                        </span>
+                        <span>+ ₹30.00</span>
+                      </div>
+                    )}
 
                     {/* Total Row */}
                     <div className="border-t border-dashed border-gray-200 pt-3 mt-3 flex justify-between items-baseline">

@@ -51,20 +51,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // ---------------- NORMALIZE ----------------
   const normalizeCartItems = (items: any[]): CartItem[] => {
     if (!Array.isArray(items)) return [];
-    return items.map((item: any) => ({
-      id: item._id,
-      productId: item.product?._id,
-      name: item.product?.name || "Product",
-      price: Number(item.price) || 0,
-      quantity: Number(item.quantity) || 0,
-      image:
-        item.product?.image ||
-        (item.product?.images && item.product.images[0]) ||
-        "",
-      stock: Number(item.product?.stock) || 0,
-      slug: item.product?.slug || "",
-      variant: item.variant || "",
-    }));
+    return items.map((item: any) => {
+      const prod = item.product || {};
+      const img =
+        (Array.isArray(prod.images) && prod.images.length > 0 ? prod.images[0] : null) ||
+        prod.image ||
+        item.image ||
+        (Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null) ||
+        "";
+
+      return {
+        id: item._id,
+        productId: prod._id || item.product || item.productId,
+        name: prod.name || item.name || "Product",
+        price: Number(item.price) || Number(prod.price) || 0,
+        quantity: Number(item.quantity) || 0,
+        image: img,
+        stock: Number(prod.stock) || 0,
+        slug: prod.slug || item.slug || "",
+        variant: item.variant || "",
+      };
+    });
   };
 
   // ---------------- FETCH CART ----------------
