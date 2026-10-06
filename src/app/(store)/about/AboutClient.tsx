@@ -186,43 +186,66 @@ const DEFAULT_CONFIG: AboutPageConfig = {
   customSections: [],
 };
 
-export default function AboutClient() {
-  const [media, setMedia] = useState<AboutMedia[]>([]);
-  const [config, setConfig] = useState<AboutPageConfig>(DEFAULT_CONFIG);
+interface AboutClientProps {
+  initialConfig?: AboutPageConfig | null;
+  initialMedia?: AboutMedia[];
+}
+
+export default function AboutClient({ initialConfig, initialMedia }: AboutClientProps) {
+  const [media, setMedia] = useState<AboutMedia[]>(initialMedia || []);
+  const [config, setConfig] = useState<AboutPageConfig>(() => {
+    if (!initialConfig) return DEFAULT_CONFIG;
+    return {
+      ...DEFAULT_CONFIG,
+      ...initialConfig,
+      hero: { ...DEFAULT_CONFIG.hero, ...initialConfig.hero },
+      story: { ...DEFAULT_CONFIG.story, ...initialConfig.story },
+      philosophy: { ...DEFAULT_CONFIG.philosophy, ...initialConfig.philosophy },
+      ingredients: { ...DEFAULT_CONFIG.ingredients, ...initialConfig.ingredients },
+      quality: { ...DEFAULT_CONFIG.quality, ...initialConfig.quality },
+      metrics: { ...DEFAULT_CONFIG.metrics, ...initialConfig.metrics },
+      closing: { ...DEFAULT_CONFIG.closing, ...initialConfig.closing },
+      customSections: initialConfig.customSections || [],
+    };
+  });
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchData = async () => {
-      // 1. Fetch About Media Gallery
-      try {
-        const mediaRes = await axiosInstance.get("/about-media");
-        if (mediaRes.data?.success && isMounted) {
-          setMedia(mediaRes.data.data);
+      // 1. Fetch About Media Gallery if not provided
+      if (!initialMedia || initialMedia.length === 0) {
+        try {
+          const mediaRes = await axiosInstance.get("/about-media");
+          if (mediaRes.data?.success && isMounted) {
+            setMedia(mediaRes.data.data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch about media:", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch about media:", error);
       }
 
-      // 2. Fetch About Page Config
-      try {
-        const pageRes = await axiosInstance.get("/about-page");
-        if (pageRes.data?.success && pageRes.data?.data && isMounted) {
-          setConfig((prev) => ({
-            ...prev,
-            ...pageRes.data.data,
-            hero: { ...prev.hero, ...pageRes.data.data.hero },
-            story: { ...prev.story, ...pageRes.data.data.story },
-            philosophy: { ...prev.philosophy, ...pageRes.data.data.philosophy },
-            ingredients: { ...prev.ingredients, ...pageRes.data.data.ingredients },
-            quality: { ...prev.quality, ...pageRes.data.data.quality },
-            metrics: { ...prev.metrics, ...pageRes.data.data.metrics },
-            closing: { ...prev.closing, ...pageRes.data.data.closing },
-            customSections: pageRes.data.data.customSections || [],
-          }));
+      // 2. Fetch About Page Config if not provided
+      if (!initialConfig) {
+        try {
+          const pageRes = await axiosInstance.get("/about-page");
+          if (pageRes.data?.success && pageRes.data?.data && isMounted) {
+            setConfig((prev) => ({
+              ...prev,
+              ...pageRes.data.data,
+              hero: { ...prev.hero, ...pageRes.data.data.hero },
+              story: { ...prev.story, ...pageRes.data.data.story },
+              philosophy: { ...prev.philosophy, ...pageRes.data.data.philosophy },
+              ingredients: { ...prev.ingredients, ...pageRes.data.data.ingredients },
+              quality: { ...prev.quality, ...pageRes.data.data.quality },
+              metrics: { ...prev.metrics, ...pageRes.data.data.metrics },
+              closing: { ...prev.closing, ...pageRes.data.data.closing },
+              customSections: pageRes.data.data.customSections || [],
+            }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch about page config:", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch about page config:", error);
       }
     };
 
@@ -230,7 +253,7 @@ export default function AboutClient() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialConfig, initialMedia]);
 
   const getSectionBgStyle = (sec?: {
     bgType?: "color" | "image";
