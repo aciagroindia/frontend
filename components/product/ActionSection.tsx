@@ -10,6 +10,9 @@ import { Heart } from "lucide-react";
 interface Product {
   id: string;
   _id?: string;
+  productId?: string;
+  packageId?: string;
+  variant?: string;
   name: string;
   price: number;
   image: string;

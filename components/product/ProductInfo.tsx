@@ -10,101 +10,65 @@ interface Props {
 }
 
 export default function ProductInfo({ product }: Props) {
-  // Generate net quantity options including the main base product variant + any extra packages
+  // Generate variant plans strictly from product.packages
   const quantityOptions: Plan[] = useMemo(() => {
+    const hasPackages = Array.isArray(product.packages) && product.packages.length > 0;
     const baseUnit = product.unit?.trim() || "";
     const basePrice = Number(product.price) || 0;
-    const hasPackages = Array.isArray(product.packages) && product.packages.length > 0;
 
-    const options: Plan[] = [];
-
-    // 1. Base / Main Variant (Always included first)
-    if (baseUnit || !hasPackages) {
-      options.push({
-        id: "base",
-        name: baseUnit || "1000ml",
-        month: baseUnit || "1000ml",
-        details: "Main Pack",
-        price: basePrice,
-        regularPrice: basePrice,
-        discount: 0,
-        badge: "",
-      });
-    }
-
-    // 2. Extra / Additional Variants from packages
     if (hasPackages) {
-      product.packages.forEach((pkg: any, index: number) => {
-        const pkgName = pkg.name?.trim();
-        if (!pkgName) return;
-
-        // Check if package duplicates base unit name
-        const isDuplicateOfBase = baseUnit && pkgName.toLowerCase() === baseUnit.toLowerCase();
-        if (isDuplicateOfBase) {
-          const baseIndex = options.findIndex((opt) => opt.id === "base");
-          if (baseIndex !== -1) {
-            options[baseIndex] = {
-              id: pkg._id || pkg.id || `pkg-${index}`,
-              name: pkgName,
-              month: pkgName,
-              details: pkg.details || "",
-              price: Number(pkg.price) || basePrice,
-              regularPrice: Number(pkg.price) || basePrice,
-              discount: 0,
-              badge: "",
-            };
-            return;
-          }
-        }
-
-        options.push({
+      return product.packages
+        .filter((pkg: any) => pkg && pkg.name && pkg.name.trim())
+        .map((pkg: any, index: number) => ({
           id: pkg._id || pkg.id || `pkg-${index}`,
-          name: pkgName,
-          month: pkgName,
+          name: pkg.name.trim(),
+          month: pkg.name.trim(),
           details: pkg.details || "",
-          price: Number(pkg.price) || basePrice,
-          regularPrice: Number(pkg.price) || basePrice,
-          discount: 0,
-          badge: "",
-        });
-      });
+          price: Number(pkg.price) || 0,
+          regularPrice: Number(pkg.regularPrice) || Number(pkg.price) || 0,
+          discount: Number(pkg.discount) || 0,
+          badge: pkg.badge || "",
+        }));
     }
 
-    // Fallback if empty
-    if (options.length === 0) {
-      options.push({
+    // Fallback if no packages exist in DB
+    return [
+      {
         id: "default",
-        name: "1000ml",
-        month: "1000ml",
+        name: baseUnit || "1 Unit",
+        month: baseUnit || "1 Unit",
         details: "",
         price: basePrice,
         regularPrice: basePrice,
         discount: 0,
         badge: "",
-      });
-    }
+      },
+    ];
+  }, [product.packages, product.price, product.unit]);
 
-    return options;
-  }, [product.price, product.packages, product.unit]);
-
-  // Auto-selected by default (e.g. 1000ml if single size, or first size option)
+  // Auto-selected by default (e.g. first package variant)
   const [selectedPlan, setSelectedPlan] = useState<Plan>(quantityOptions[0]);
 
   // Handle case where product data updates or changes
   useEffect(() => {
     if (quantityOptions && quantityOptions.length > 0) {
-      setSelectedPlan(quantityOptions[0]);
+      setSelectedPlan((prev) => {
+        const found = quantityOptions.find((p) => p.id === prev?.id);
+        return found || quantityOptions[0];
+      });
     }
-  }, [product._id, product.id]);
+  }, [product._id, product.id, quantityOptions]);
 
   const isOutOfStock = product.status === "Inactive" || Number(product.stock) <= 0;
 
   const productVariant = {
     ...product,
-    price: selectedPlan.price,
+    price: Number(selectedPlan.price),
+    variant: selectedPlan.name || selectedPlan.month || "",
+    packageId: selectedPlan.id,
     id: `${product._id || product.id}-${selectedPlan.id}`,
+    productId: product._id || product.id,
     name: product.name,
-    variant: selectedPlan.name || selectedPlan.month || product.unit || "1000ml",
     isOutOfStock,
     stock: product.stock,
     status: product.status,

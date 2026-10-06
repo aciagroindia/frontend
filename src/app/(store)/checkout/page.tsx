@@ -141,8 +141,12 @@ function CheckoutContent() {
           const baseProductId = item.productId || item._id || item.id?.split('-')[0];
           return {
             productId: baseProductId,
-            price: item.price,
+            product: baseProductId,
+            price: Number(item.price),
+            variant: item.variant || "",
+            packageId: item.packageId,
             quantity: item.quantity,
+            qty: item.quantity,
           };
         });
 
@@ -174,8 +178,12 @@ function CheckoutContent() {
       setIsApplyingCoupon(true);
       const formattedItems = checkoutItems.map(item => ({
         productId: item.productId || item._id || item.id?.split('-')[0],
-        price: item.price,
+        product: item.productId || item._id || item.id?.split('-')[0],
+        price: Number(item.price),
+        variant: item.variant || "",
+        packageId: item.packageId,
         quantity: item.quantity,
+        qty: item.quantity,
       }));
       const res = await axiosInstance.post("/coupons/apply", {
         code: codeToApply.trim().toUpperCase(),
@@ -351,7 +359,9 @@ function CheckoutContent() {
           qty: item.quantity,
           quantity: item.quantity,
           image: image,
-          price: item.price,
+          price: Number(item.price),
+          variant: item.variant || "",
+          packageId: item.packageId,
           product: baseProductId,
           productId: baseProductId,
         };
@@ -920,10 +930,15 @@ function CheckoutContent() {
                             <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
                               {item.name}
                             </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              Qty: <span className="font-medium text-gray-700">{item.quantity}</span>
-                              {item.unit && <span className="ml-1 text-gray-400">({item.unit})</span>}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-xs text-gray-500">
+                              <span>Qty: <strong className="text-gray-700">{item.quantity}</strong></span>
+                              {item.variant && (
+                                <span className="bg-emerald-50 text-[#1a8e5f] font-semibold px-1.5 py-0.2 rounded text-[11px] border border-emerald-200">
+                                  {item.variant}
+                                </span>
+                              )}
+                              {item.unit && !item.variant && <span className="text-gray-400">({item.unit})</span>}
+                            </div>
                           </div>
                           <div className="text-right flex-shrink-0">
                             <span className="text-xs sm:text-sm font-bold text-gray-900">

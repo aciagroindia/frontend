@@ -128,13 +128,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const productId = product._id || product.id;
+    const rawId = product._id || product.productId || product.id;
+    const baseProductId = typeof rawId === "string" && rawId.includes("-") ? rawId.split("-")[0] : rawId;
+    const variant = (product.variant || product.unit || "").trim();
+    const price = Number(product.price) || 0;
+    const packageId = product.packageId || (typeof rawId === "string" && rawId.includes("-") ? rawId.split("-")[1] : undefined);
+
     let prevItems: CartItem[] = [];
     let prevTotal = 0;
 
     setCartItems((currItems) => {
       prevItems = [...currItems];
-      const existingItemIndex = currItems.findIndex((i) => i.productId === productId);
+      const existingItemIndex = currItems.findIndex(
+        (i) => i.productId === baseProductId && (i.variant || "").trim() === variant
+      );
       let updatedItems = [...currItems];
 
       if (existingItemIndex > -1) {
@@ -145,14 +152,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } else {
         updatedItems.push({
           id: "temp-" + Date.now(),
-          productId: productId,
+          productId: baseProductId,
           name: product.name,
-          price: product.price,
+          price: price,
           quantity: quantity,
           image: product.image || (product.images && product.images[0]) || "",
           stock: product.stock || 10,
           slug: product.slug,
-          variant: product.variant || "",
+          variant: variant,
         });
       }
       return updatedItems;
@@ -160,7 +167,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     setCartTotal((currTotal) => {
       prevTotal = currTotal;
-      return currTotal + (Number(product.price) || 0) * quantity;
+      return currTotal + price * quantity;
     });
 
     if (!silent) {
@@ -170,8 +177,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await axiosInstance.post("/cart/add", {
-        productId,
+        productId: baseProductId,
         quantity,
+        variant,
+        price,
+        packageId,
       });
 
       if (response.data.success) {
