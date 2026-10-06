@@ -134,15 +134,71 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
       </div>
 
       {/* Hero Section - Loads instantly now */}
-      <div className={styles.topSection}>
-        <ProductGallery product={product} />
-        <ProductInfo product={product} />
-      </div>
+      <ProductDetailHero product={product} />
 
       {/* Niche ke sections - Loads slightly after the hero section */}
       <ProductTabs product={product} />
       <RelatedProducts />
       <RecentlyViewed />
+    </div>
+  );
+}
+
+function ProductDetailHero({ product }: { product: Product }) {
+  const [selectedPlan, setSelectedPlan] = useState<any>(() => {
+    if (Array.isArray(product.packages) && product.packages.length > 0) {
+      const first = product.packages[0] as any;
+      return {
+        id: first._id || first.id || "pkg-0",
+        name: first.name,
+        month: first.name,
+        price: first.price,
+        image: first.image || "",
+      };
+    }
+    return null;
+  });
+
+  // Keep in sync if product changes
+  useEffect(() => {
+    if (Array.isArray(product.packages) && product.packages.length > 0) {
+      setSelectedPlan((prev: any) => {
+        if (prev) {
+          const matched = product.packages.find(
+            (p: any) => (p._id || p.id) === (prev._id || prev.id)
+          );
+          if (matched) {
+            return {
+              id: (matched as any)._id || (matched as any).id,
+              name: matched.name,
+              month: matched.name,
+              price: matched.price,
+              image: (matched as any).image || "",
+            };
+          }
+        }
+        const first = product.packages[0] as any;
+        return {
+          id: first._id || first.id || "pkg-0",
+          name: first.name,
+          month: first.name,
+          price: first.price,
+          image: first.image || "",
+        };
+      });
+    }
+  }, [product]);
+
+  const variantImage = selectedPlan?.image || null;
+
+  return (
+    <div className={styles.topSection}>
+      <ProductGallery product={product} variantImage={variantImage} />
+      <ProductInfo
+        product={product}
+        selectedPlan={selectedPlan}
+        onSelectPlan={setSelectedPlan}
+      />
     </div>
   );
 }

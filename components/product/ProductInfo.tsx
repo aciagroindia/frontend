@@ -7,9 +7,12 @@ import ActionSection from "./ActionSection";
 
 interface Props {
   product: any;
+  selectedPlan?: Plan | null;
+  onSelectPlan?: (plan: Plan) => void;
+  onVariantChange?: (plan: Plan) => void;
 }
 
-export default function ProductInfo({ product }: Props) {
+export default function ProductInfo({ product, selectedPlan, onSelectPlan, onVariantChange }: Props) {
   // Generate variant plans strictly from product.packages
   const quantityOptions: Plan[] = useMemo(() => {
     const hasPackages = Array.isArray(product.packages) && product.packages.length > 0;
@@ -28,6 +31,7 @@ export default function ProductInfo({ product }: Props) {
           regularPrice: Number(pkg.regularPrice) || Number(pkg.price) || 0,
           discount: Number(pkg.discount) || 0,
           badge: pkg.badge || "",
+          image: pkg.image || "",
         }));
     }
 
@@ -42,31 +46,41 @@ export default function ProductInfo({ product }: Props) {
         regularPrice: basePrice,
         discount: 0,
         badge: "",
+        image: product.image || "",
       },
     ];
-  }, [product.packages, product.price, product.unit]);
+  }, [product.packages, product.price, product.unit, product.image]);
 
-  // Auto-selected by default (e.g. first package variant)
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(quantityOptions[0]);
+  const [internalPlan, setInternalPlan] = useState<Plan>(quantityOptions[0]);
 
-  // Handle case where product data updates or changes
-  useEffect(() => {
-    if (quantityOptions && quantityOptions.length > 0) {
-      setSelectedPlan((prev) => {
-        const found = quantityOptions.find((p) => p.id === prev?.id);
-        return found || quantityOptions[0];
-      });
+  // Synchronously keep internal plan matched with options if product changes
+  const [prevOptions, setPrevOptions] = useState(quantityOptions);
+  if (quantityOptions !== prevOptions) {
+    setPrevOptions(quantityOptions);
+    const found = quantityOptions.find((p) => p.id === internalPlan?.id);
+    setInternalPlan(found || quantityOptions[0]);
+  }
+
+  const currentPlan = selectedPlan || internalPlan || quantityOptions[0] || { id: "default", name: "1 Unit", price: Number(product.price) || 0 };
+
+  const handlePlanSelect = (plan: Plan) => {
+    setInternalPlan(plan);
+    if (onSelectPlan) {
+      onSelectPlan(plan);
     }
-  }, [product._id, product.id, quantityOptions]);
+    if (onVariantChange) {
+      onVariantChange(plan);
+    }
+  };
 
   const isOutOfStock = product.status === "Inactive" || Number(product.stock) <= 0;
-  const currentPlan = selectedPlan || quantityOptions[0] || { id: "default", name: "1 Unit", price: Number(product.price) || 0 };
 
   const productVariant = {
     ...product,
     price: Number(currentPlan.price || 0),
     variant: currentPlan.name || currentPlan.month || "",
     packageId: currentPlan.id,
+    image: currentPlan.image || product.image,
     id: `${product._id || product.id}-${currentPlan.id}`,
     productId: product._id || product.id,
     name: product.name,
@@ -129,8 +143,8 @@ export default function ProductInfo({ product }: Props) {
 
       <PricingPlans
         plans={quantityOptions}
-        selectedPlan={selectedPlan}
-        onPlanSelect={setSelectedPlan}
+        selectedPlan={currentPlan}
+        onPlanSelect={handlePlanSelect}
       />
       
       <ActionSection product={productVariant} />

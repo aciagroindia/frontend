@@ -11,6 +11,7 @@ export interface Plan {
   regularPrice?: number;
   badge?: string;
   discount?: number;
+  image?: string;
 }
 
 interface PricingPlansProps {

@@ -7,7 +7,15 @@ import styles from "./AddProductForm.module.css";
 
 // Proper Interfaces
 interface FaqItem { id: number; question: string; answer: string; }
-interface PackageItem { id: number; name: string; details?: string; price: string; }
+interface PackageItem {
+  id: number;
+  name: string;
+  details?: string;
+  price: string;
+  image?: string;
+  imageFile?: File | null;
+  previewUrl?: string | null;
+}
 interface DescriptionSectionItem { id: number; title: string; content: string; }
 
 interface ProductFormData {
@@ -113,12 +121,15 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         initialSections = [{ id: Date.now(), title: "Product Overview", content: "" }];
       }
 
-      const loadedPackages = initialData.packages && initialData.packages.length > 0
+      const loadedPackages: PackageItem[] = initialData.packages && initialData.packages.length > 0
         ? initialData.packages.map(p => ({
             id: Math.random(),
             name: p.name || "",
             details: p.details || "",
             price: String(p.price || ""),
+            image: (p as any).image || "",
+            previewUrl: (p as any).image || null,
+            imageFile: null,
           }))
         : [
             {
@@ -126,8 +137,15 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
               name: initialData.unit || "500ml",
               details: "Standard Pack",
               price: String(initialData.price || ""),
+              image: "",
+              previewUrl: null,
+              imageFile: null,
             },
           ];
+
+      const resolvedCategoryId = typeof initialData.category === 'object' && initialData.category !== null
+        ? (initialData.category._id || (initialData.category as any).id || "")
+        : (typeof initialData.category === 'string' ? initialData.category : "");
 
       setFormData({
         name: initialData.name || "",
@@ -136,7 +154,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         price: String(initialData.price || loadedPackages[0]?.price || ""),
         stock: String(initialData.stock || ""),
         status: initialData.status || "Active",
-        category: initialData.category?._id || "",
+        category: resolvedCategoryId,
         unit: initialData.unit || "",
         faqs: initialData.faqs?.map((faq, index) => ({
           ...faq,
@@ -169,7 +187,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         unit: "500ml",
         faqs: [],
         packages: [
-          { id: Date.now(), name: "500ml", details: "Standard Pack", price: "" }
+          { id: Date.now(), name: "500ml", details: "Standard Pack", price: "", image: "", previewUrl: null, imageFile: null }
         ],
         image: null,
         images: []
@@ -293,8 +311,29 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     setFormData(prev => ({ ...prev, packages: updated }));
   };
 
-  const addPackage = () => setFormData(prev => ({ ...prev, packages: [...prev.packages, { id: Date.now(), name: "", details: "", price: "" }] }));
+  const addPackage = () => setFormData(prev => ({
+    ...prev,
+    packages: [...prev.packages, { id: Date.now(), name: "", details: "", price: "", image: "", previewUrl: null, imageFile: null }]
+  }));
   const removePackage = (index: number) => setFormData(prev => ({ ...prev, packages: formData.packages.filter((_, i) => i !== index) }));
+
+  const handlePackageImageChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const preview = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        packages: prev.packages.map((pkg, i) => i === index ? { ...pkg, imageFile: file, previewUrl: preview } : pkg)
+      }));
+    }
+  };
+
+  const handleRemovePackageImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      packages: prev.packages.map((pkg, i) => i === index ? { ...pkg, imageFile: null, image: "", previewUrl: null } : pkg)
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -316,6 +355,8 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         name: rest.name.trim(),
         details: rest.details || "",
         price: Number(rest.price),
+        image: rest.image || "",
+        imageFile: rest.imageFile,
       }));
 
     if (validPackages.length === 0) {
@@ -341,7 +382,21 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     }
 
     formPayload.append('faqs', JSON.stringify(formData.faqs.map(({ question, answer }) => ({ question, answer }))));
-    formPayload.append('packages', JSON.stringify(validPackages));
+    
+    // Append packages JSON (preserving existing image URL if no new file)
+    formPayload.append('packages', JSON.stringify(validPackages.map(({ imageFile, ...rest }) => ({
+      name: rest.name,
+      details: rest.details || "",
+      price: Number(rest.price),
+      image: rest.image || "",
+    }))));
+
+    // Append variant image files with indexed fieldnames
+    validPackages.forEach((pkg, index) => {
+      if (pkg.imageFile) {
+        formPayload.append(`package_image_${index}`, pkg.imageFile);
+      }
+    });
 
     if (formData.image) formPayload.append('image', formData.image);
     if (formData.images) formData.images.forEach(file => formPayload.append('images', file));
@@ -359,8 +414,17 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         <input name="unit" placeholder="Default Size / Unit (e.g. 500ml, 1 Litre, 250g)" value={formData.unit} onChange={handleChange} />
         
         <select name="category" value={formData.category} onChange={handleChange} required disabled={categoriesLoading}>
-          <option value="" disabled>Category</option>
-          {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
+          <option value="" disabled>Select Category</option>
+          {categories.map(cat => (
+            <option key={cat._id || (cat as any).id} value={cat._id || (cat as any).id}>
+              {cat.name}
+            </option>
+          ))}
+          {!categories.some(cat => (cat._id || (cat as any).id) === formData.category) && formData.category && (
+            <option value={formData.category}>
+              {typeof (initialData?.category as any)?.name === "string" ? (initialData?.category as any).name : "Selected Category"}
+            </option>
+          )}
         </select>
         
         <select name="status" value={formData.status} onChange={handleChange} required>
@@ -480,6 +544,41 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
                 required
               />
             </div>
+
+            {/* Optional Variant Image Box */}
+            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              {pkg.previewUrl ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <img
+                    src={pkg.previewUrl}
+                    alt={`${pkg.name} variant`}
+                    style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                  />
+                  <span style={{ fontSize: '0.8rem', color: '#166534', fontWeight: 600 }}>Variant Image Added</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePackageImage(index)}
+                    style={{ background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#0f766e', background: '#f0fdfa', border: '1px dashed #99f6e4', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <span>📷 Add Variant Image (Optional)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={(e) => handlePackageImageChange(index, e)}
+                  />
+                </label>
+              )}
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                {pkg.previewUrl ? "" : "(Optional: Agar add nahi karenge toh main product image hi dikhegi)"}
+              </span>
+            </div>
+
             {formData.packages.length > 1 && (
               <button type="button" onClick={() => removePackage(index)} className={styles.removePackageBtn}>&times;</button>
             )}

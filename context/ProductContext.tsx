@@ -23,6 +23,7 @@ export interface Product {
     regularPrice?: number; 
     discount?: number; 
     badge?: string; 
+    image?: string;
   }[];
   unit?: string;
   stock: number;
