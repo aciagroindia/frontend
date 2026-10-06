@@ -92,6 +92,28 @@
   background-color: #0f6a3d;
 }
 
+.cartBtnDisabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border: 1px solid #d1d5db !important;
+  cursor: not-allowed !important;
+}
+
+.outOfStockBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #dc2626;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  z-index: 2;
+}
+
 .removeBtn {
   background-color: transparent;
   border: 1px solid #7a5c3e;

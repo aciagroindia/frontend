@@ -22,11 +22,11 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
   
   // 👇 NAYA: Synchronous cache check. If we have the product in memory or from server, load it instantly!
   const [product, setProduct] = useState<Product | null>(() => {
-    if (initialProduct && initialProduct.slug === slug) {
+    if (initialProduct) {
       return normalizeProduct ? normalizeProduct(initialProduct) : initialProduct;
     }
     if (lastUpdatedProduct?.slug === slug) return lastUpdatedProduct;
-    const cached = products.find((p) => p.slug === slug);
+    const cached = products.find((p) => p.slug === slug || p.slug?.toLowerCase() === slug?.toLowerCase());
     return cached || null;
   });
 

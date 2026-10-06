@@ -75,11 +75,61 @@
   background: #0a3826;
 }
 
+.primaryBtn:disabled,
+.disabledBtn {
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #d1d5db !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.secondaryBtn:disabled,
+.disabledSecondaryBtn {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  pointer-events: none;
+}
+
+.quantityBoxDisabled {
+  background: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  opacity: 0.6;
+}
+
+.quantityBoxDisabled .qtyBtn {
+  cursor: not-allowed !important;
+  color: #9ca3af !important;
+}
+
+.quantityBoxDisabled .qtyInput {
+  background: #f9fafb !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
 .delivery {
   text-align: center;
   font-size: 13px;
   color: #555;
   margin-top: 5px;
+}
+
+.outOfStockNotice {
+  text-align: center;
+  font-size: 13px;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 5px;
+  background: #fef2f2;
+  border: 1px dashed #fecaca;
+  padding: 8px 12px;
+  border-radius: 6px;
 }
 
 /* MOBILE / TABLET ADJUSTMENTS */

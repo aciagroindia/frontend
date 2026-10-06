@@ -67,6 +67,74 @@
   border: 1px solid #fecaca;
 }
 
+.stockStatusContainer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.outOfStockBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inStockBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.statusDotRed {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #dc2626;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.statusDotGreen {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #059669;
+  display: inline-block;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+}
+
+.stockSubText {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.lowStockWarning {
+  font-size: 13px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
 .stock {
   font-size: 14px;
   color: #b91c1c;

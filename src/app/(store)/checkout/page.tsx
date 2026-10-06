@@ -90,6 +90,11 @@ function CheckoutContent() {
       if (storedItem) {
         try {
           const item = JSON.parse(storedItem);
+          if (item && (item.isOutOfStock || item.status === 'Inactive' || (item.stock !== undefined && Number(item.stock) <= 0))) {
+            toast.error("This product is currently out of stock.");
+            router.push(item.slug ? `/products/${item.slug}` : "/collections");
+            return;
+          }
           setCheckoutItems([item]);
           setCheckoutTotal(item.price * item.quantity);
         } catch (error) {

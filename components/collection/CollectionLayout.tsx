@@ -17,6 +17,8 @@ interface Product {
   price: number;
   image: string;
   slug: string;
+  stock?: number;
+  status?: string;
 }
 
 interface Props {

@@ -8,16 +8,20 @@ export const revalidate = 60;
 const SITE_URL = "https://aciagro.com";
 
 const getProduct = cache(async (slug) => {
+  if (!slug) return null;
   try {
-    const res = await axiosInstance.get(`/products/${slug}`);
+    const res = await axiosInstance.get(`/products/${encodeURIComponent(slug)}`);
     const product = res.data;
-    if (!product || product.status !== "Active") {
-      return null;
-    }
-    return product;
+    if (product) return product;
   } catch (err) {
-    return null;
+    try {
+      const fallbackRes = await axiosInstance.get(`/products/${slug}`);
+      if (fallbackRes.data) return fallbackRes.data;
+    } catch (e) {
+      console.error(`Error fetching product slug ${slug}:`, e.message);
+    }
   }
+  return null;
 });
 
 function stripHtml(html) {
@@ -44,7 +48,10 @@ function getProductDescriptionText(product) {
 }
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const slug = resolvedParams?.slug;
+  if (!slug) return {};
+
   const product = await getProduct(slug);
 
   const productName = product?.name || (typeof slug === "string" ? slug.replace(/-/g, " ") : "Ayurvedic Product");
@@ -115,7 +122,13 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ProductPage({ params }) {
-  const { slug } = await params;
+  const resolvedParams = params instanceof Promise ? await params : params;
+  const slug = resolvedParams?.slug;
+
+  if (!slug) {
+    return notFound();
+  }
+
   const product = await getProduct(slug);
 
   if (!product) {
@@ -128,7 +141,7 @@ export default async function ProductPage({ params }) {
     : [product.image]
   ).filter(Boolean);
   const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
-  const isAvailable = Number(product.stock) > 0;
+  const isAvailable = product.status === "Active" && Number(product.stock) > 0;
   const ratingValue =
     product.rating && Number(product.rating) > 0
       ? Number(product.rating).toFixed(1)

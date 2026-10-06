@@ -67,7 +67,8 @@ export const normalizeProduct = (product: any): Product => {
     faqs: Array.isArray(product.faqs) ? product.faqs : [],
     packages: Array.isArray(product.packages) ? product.packages : [],
     descriptionSections: Array.isArray(product.descriptionSections) ? product.descriptionSections : [],
-    stock: Number(product.stock) || 0,
+    stock: product.stock !== undefined && product.stock !== null && !isNaN(Number(product.stock)) ? Number(product.stock) : 0,
+    status: product.status || "Active",
   };
 };
 

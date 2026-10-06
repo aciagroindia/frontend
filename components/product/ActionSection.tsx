@@ -14,13 +14,22 @@ interface Product {
   price: number;
   image: string;
   slug: string;
+  stock?: number;
+  status?: string;
+  isOutOfStock?: boolean;
 }
 
 export default function ActionSection({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
-  const { addToCart, setIsCartOpen } = useCart();
+  const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
   const router = useRouter();
+
+  const isOutOfStock = Boolean(
+    product.isOutOfStock ||
+    product.status === "Inactive" ||
+    (product.stock !== undefined && Number(product.stock) <= 0)
+  );
 
   const baseProductId = product._id || product.id.split('-')[0];
 
@@ -29,28 +38,53 @@ export default function ActionSection({ product }: { product: Product }) {
   };
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, quantity);
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     sessionStorage.setItem("buyNowItem", JSON.stringify({ ...product, quantity }));
     router.push("/checkout?mode=buyNow");
   };
 
   return (
     <div className={styles.wrapper}>
-      
-      {/* FIX: Class name buttonRow kiya aur dono ko ek parent div mein daal diya */}
       <div className={styles.buttonRow}>
-        <div className={styles.quantityBox}>
-          <button className={styles.qtyBtn} onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="Decrease quantity">-</button>
-          <input type="text" value={quantity} readOnly className={styles.qtyInput} aria-label="Selected quantity" />
-          <button className={styles.qtyBtn} onClick={() => setQuantity(quantity + 1)} aria-label="Increase quantity">+</button>
+        <div className={`${styles.quantityBox} ${isOutOfStock ? styles.quantityBoxDisabled : ""}`}>
+          <button
+            className={styles.qtyBtn}
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={isOutOfStock}
+            aria-label="Decrease quantity"
+          >
+            -
+          </button>
+          <input
+            type="text"
+            value={quantity}
+            readOnly
+            disabled={isOutOfStock}
+            className={styles.qtyInput}
+            aria-label="Selected quantity"
+          />
+          <button
+            className={styles.qtyBtn}
+            onClick={() => setQuantity(quantity + 1)}
+            disabled={isOutOfStock}
+            aria-label="Increase quantity"
+          >
+            +
+          </button>
         </div>
-        
-        {/* Ye button ab quantity ke side mein aayega */}
-        <button className={styles.primaryBtn} onClick={handleAddToCart} aria-label="Add to cart">
-          Add to Cart
+
+        <button
+          className={`${styles.primaryBtn} ${isOutOfStock ? styles.disabledBtn : ""}`}
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          aria-label={isOutOfStock ? "Out of stock" : "Add to cart"}
+        >
+          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
         </button>
 
         <button
@@ -62,13 +96,24 @@ export default function ActionSection({ product }: { product: Product }) {
         </button>
       </div>
 
-      <button className={styles.secondaryBtn} onClick={handleBuyNow} aria-label="Buy it now immediately">
-        Buy It Now
+      <button
+        className={`${styles.secondaryBtn} ${isOutOfStock ? styles.disabledSecondaryBtn : ""}`}
+        onClick={handleBuyNow}
+        disabled={isOutOfStock}
+        aria-label={isOutOfStock ? "Product is out of stock" : "Buy it now immediately"}
+      >
+        {isOutOfStock ? "Out of Stock" : "Buy It Now"}
       </button>
 
-      <p className={styles.delivery}>
-        🚚 Extra 5% OFF on all prepaid orders
-      </p>
+      {isOutOfStock ? (
+        <p className={styles.outOfStockNotice}>
+          ⚠️ This product is currently out of stock. Add to your wishlist to buy when available.
+        </p>
+      ) : (
+        <p className={styles.delivery}>
+          🚚 Extra 5% OFF on all prepaid orders
+        </p>
+      )}
     </div>
   );
 }

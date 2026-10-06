@@ -119,6 +119,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
+    const isOutOfStock = Boolean(
+      product.status === "Inactive" ||
+      (product.stock !== undefined && Number(product.stock) <= 0)
+    );
+    if (isOutOfStock) {
+      if (!silent) toast.error("This product is currently out of stock.");
+      return;
+    }
+
     const productId = product._id || product.id;
     let prevItems: CartItem[] = [];
     let prevTotal = 0;

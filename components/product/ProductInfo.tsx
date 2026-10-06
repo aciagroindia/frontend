@@ -97,12 +97,17 @@ export default function ProductInfo({ product }: Props) {
     }
   }, [product._id, product.id]);
 
+  const isOutOfStock = product.status === "Inactive" || Number(product.stock) <= 0;
+
   const productVariant = {
     ...product,
     price: selectedPlan.price,
     id: `${product._id || product.id}-${selectedPlan.id}`,
     name: product.name,
     variant: selectedPlan.name || selectedPlan.month || product.unit || "1000ml",
+    isOutOfStock,
+    stock: product.stock,
+    status: product.status,
   };
 
   return (
@@ -137,11 +142,25 @@ export default function ProductInfo({ product }: Props) {
         ) : null}
       </div>
 
-      <p className={styles.stock}>
-        {product.stock > 0
-          ? `🔥 Hurry up! Only ${product.stock} item(s) left in stock`
-          : "❌ Out of stock"}
-      </p>
+      {isOutOfStock ? (
+        <div className={styles.stockStatusContainer}>
+          <span className={styles.outOfStockBadge}>
+            <span className={styles.statusDotRed}></span>
+            Out of Stock
+          </span>
+          <span className={styles.stockSubText}>Currently unavailable</span>
+        </div>
+      ) : (
+        <div className={styles.stockStatusContainer}>
+          <span className={styles.inStockBadge}>
+            <span className={styles.statusDotGreen}></span>
+            {product.stock} {Number(product.stock) === 1 ? "Item" : "Items"} Remaining
+          </span>
+          {Number(product.stock) <= 15 && (
+            <span className={styles.lowStockWarning}>🔥 Hurry up! Only {product.stock} left in stock</span>
+          )}
+        </div>
+      )}
 
       <PricingPlans
         plans={quantityOptions}

@@ -23,7 +23,13 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
   // Find the full product from the global context to ensure all data (like the correct image URL) is available.
   const product = allProducts.find(p => p.id === wishlistProduct.id) || wishlistProduct;
 
+  const isOutOfStock = Boolean(
+    (product as any).status === "Inactive" ||
+    ((product as any).stock !== undefined && Number((product as any).stock) <= 0)
+  );
+
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     // The 'product' object here is now the full product object from ProductContext.
     addToCart(product);
     toggleWishlist(product);
@@ -37,6 +43,9 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
   return (
     <div className={styles.card}>
       <Link href={`/products/${product.slug}`} className={styles.imageWrapper}>
+        {isOutOfStock && (
+          <span className={styles.outOfStockBadge}>Out of Stock</span>
+        )}
         {product.image ? (
           <Image
             src={product.image}
@@ -57,8 +66,12 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
         <p className={styles.price}>₹{product.price}</p>
 
         <div className={styles.actions}>
-          <button onClick={handleAddToCart} className={styles.cartBtn}>
-            Add to Cart
+          <button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock}
+            className={`${styles.cartBtn} ${isOutOfStock ? styles.cartBtnDisabled : ""}`}
+          >
+            {isOutOfStock ? "Out of Stock" : "Add to Cart"}
           </button>
           <button onClick={handleRemove} className={styles.removeBtn}>
             Remove

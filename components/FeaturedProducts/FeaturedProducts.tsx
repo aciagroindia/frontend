@@ -53,64 +53,78 @@ export default function FeaturedProducts() {
         <div className={styles.grid}>
           {/* 3. Ab bestSellers map ho rahe hain jo MongoDB se aaye hain */}
           {bestSellers.length > 0 ? (
-            bestSellers.map((product) => (
-              <div key={product.id} className={styles.card}>
-                
-                {/* ❤️ Wishlist Icon */}
-                <div
-                  className={`${styles.wishlist} ${
-                    isInWishlist(product.id) ? styles.activeWishlist : ""
-                  }`}
-                  onClick={() => toggleWishlist(product)}
-                >
-                  <Heart
-                    size={18}
-                    fill={isInWishlist(product.id) ? "#14854e" : "none"}
-                    color="#14854e"
-                  />
-                </div>
+            bestSellers.map((product) => {
+              const isOutOfStock = Boolean(
+                product.status === "Inactive" ||
+                (product.stock !== undefined && Number(product.stock) <= 0)
+              );
 
-                <Link href={`/products/${product.slug}`} prefetch={true}>
-                  <div className={styles.imageWrapper}>
-                    {product.image ? (
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className={styles.image}
-                        sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }} />
-                    )}
+              return (
+                <div key={product.id} className={styles.card}>
+                  {/* Out of Stock Badge */}
+                  {isOutOfStock && (
+                    <span className={styles.outOfStockBadge}>Out of Stock</span>
+                  )}
+                  
+                  {/* ❤️ Wishlist Icon */}
+                  <div
+                    className={`${styles.wishlist} ${
+                      isInWishlist(product.id) ? styles.activeWishlist : ""
+                    }`}
+                    onClick={() => toggleWishlist(product)}
+                  >
+                    <Heart
+                      size={18}
+                      fill={isInWishlist(product.id) ? "#14854e" : "none"}
+                      color="#14854e"
+                    />
                   </div>
 
-                  <h3 className={styles.productName}>{product.name}</h3>
-                </Link>
+                  <Link href={`/products/${product.slug}`} prefetch={true}>
+                    <div className={styles.imageWrapper}>
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className={styles.image}
+                          sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                        />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }} />
+                      )}
+                    </div>
 
-                <div className={styles.rating}>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <span
-                      key={index}
-                      className={
-                        index < (product.rating ?? 0)
-                          ? styles.starFilled
-                          : styles.starEmpty
-                      }
-                    >
-                      ★
-                    </span>
-                  ))}
+                    <h3 className={styles.productName}>{product.name}</h3>
+                  </Link>
+
+                  <div className={styles.rating}>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <span
+                        key={index}
+                        className={
+                          index < (product.rating ?? 0)
+                            ? styles.starFilled
+                            : styles.starEmpty
+                        }
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+
+                  <button
+                    className={isOutOfStock ? styles.disabledButton : styles.button}
+                    onClick={() => {
+                      if (!isOutOfStock) addToCart(product);
+                    }}
+                    disabled={isOutOfStock}
+                  >
+                    {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                  </button>
                 </div>
-
-                <button
-                  className={styles.button}
-                  onClick={() => addToCart(product)}
-                >
-                  Add to Cart
-                </button>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p>No best selling products found.</p>
           )}

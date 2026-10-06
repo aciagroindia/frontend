@@ -20,6 +20,8 @@ interface ProductCardProps {
     image: string;
     slug: string;
     images?: string[];
+    stock?: number;
+    status?: string;
   };
 }
 
@@ -36,7 +38,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Context se normalized image hi use karein
   const mainImage = product.image;
 
+  const isOutOfStock = Boolean(
+    product.status === "Inactive" ||
+    (product.stock !== undefined && product.stock !== null && Number(product.stock) <= 0)
+  );
+
   const handleAddToCart = async () => {
+    if (isOutOfStock) return;
+
     // Check agar user login nahi hai
     if (!isAuthenticated) {
       toast.error("Please login to add items to cart");
@@ -61,7 +70,11 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className={styles.card}>
-      
+      {/* Out of stock badge on card */}
+      {isOutOfStock && (
+        <span className={styles.outOfStockBadge}>Out of Stock</span>
+      )}
+
       {/* Wishlist Icon */}
       <div
         role="button"
@@ -115,8 +128,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className={styles.price}>₹{product.price.toFixed(2)}</p>
         <div className={styles.stars} aria-label="5 out of 5 stars">★★★★★</div>
 
-        <button className={styles.button} onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
-          Add to Cart
+        <button
+          className={isOutOfStock ? styles.disabledButton : styles.button}
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
+        >
+          {isOutOfStock ? "Out of Stock" : "Add to Cart"}
         </button>
       </div>
     </div>

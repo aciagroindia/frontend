@@ -19,6 +19,8 @@ interface Product {
   price: number;
   image: string;
   slug: string;
+  stock?: number;
+  status?: string;
 }
 
 export async function generateMetadata({
@@ -88,13 +90,14 @@ export default async function CollectionPage({
     }
 
     // 2. Fetch products by category ID
-    const productsRes = await axiosInstance.get(`/products?category=${category._id}`);
+    const productsRes = await axiosInstance.get(`/products?category=${category._id}&status=all`);
     const rawProducts = Array.isArray(productsRes.data) ? productsRes.data : [];
     const products: Product[] = rawProducts
-      .filter((p: any) => p && p.status === "Active")
       .map((p: any) => ({
         ...p,
         id: p._id,
+        stock: p.stock !== undefined && p.stock !== null ? Number(p.stock) : 0,
+        status: p.status || "Active",
       }));
 
     return (
