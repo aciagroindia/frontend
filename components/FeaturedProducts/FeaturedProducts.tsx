@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./FeaturedProducts.module.css";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
@@ -10,6 +11,7 @@ import { useProducts } from "../../context/ProductContext"; // 1. useProducts im
 import { Heart } from "lucide-react";
 
 export default function FeaturedProducts() {
+  const router = useRouter();
   const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
   const { bestSellers, loading, fetchBestSellers } = useProducts(); // 2. Context se bestSellers aur loading li
@@ -116,9 +118,10 @@ export default function FeaturedProducts() {
                   <button
                     className={isOutOfStock ? styles.disabledButton : styles.button}
                     onClick={() => {
-                      if (!isOutOfStock) addToCart(product);
+                      if (!isOutOfStock) router.push(`/products/${product.slug || product.id}`);
                     }}
                     disabled={isOutOfStock}
+                    aria-label={isOutOfStock ? "Out of Stock" : `View ${product.name}`}
                   >
                     {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                   </button>

@@ -113,11 +113,27 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         initialSections = [{ id: Date.now(), title: "Product Overview", content: "" }];
       }
 
+      const loadedPackages = initialData.packages && initialData.packages.length > 0
+        ? initialData.packages.map(p => ({
+            id: Math.random(),
+            name: p.name || "",
+            details: p.details || "",
+            price: String(p.price || ""),
+          }))
+        : [
+            {
+              id: Math.random(),
+              name: initialData.unit || "500ml",
+              details: "Standard Pack",
+              price: String(initialData.price || ""),
+            },
+          ];
+
       setFormData({
         name: initialData.name || "",
         description: initialData.description || "",
         descriptionSections: initialSections,
-        price: String(initialData.price || ""),
+        price: String(initialData.price || loadedPackages[0]?.price || ""),
         stock: String(initialData.stock || ""),
         status: initialData.status || "Active",
         category: initialData.category?._id || "",
@@ -126,12 +142,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
           ...faq,
           id: Math.random() + index, // Add a unique ID for the form state
         })) || [],
-        packages: initialData.packages?.map(p => ({
-          id: Math.random(),
-          name: p.name || "",
-          details: p.details || "",
-          price: String(p.price || ""),
-        })) || [],
+        packages: loadedPackages,
         image: null,
         images: [],
       });
@@ -146,7 +157,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       setNewGalleryPreview([]);
       setImagesToDelete([]);
     } else {
-      // Reset logic for Add mode...
+      // Reset logic for Add mode with 1 default variant size
       setFormData({
         name: "",
         description: "",
@@ -155,9 +166,11 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         stock: "",
         status: "Active",
         category: "",
-        unit: "",
+        unit: "500ml",
         faqs: [],
-        packages: [],
+        packages: [
+          { id: Date.now(), name: "500ml", details: "Standard Pack", price: "" }
+        ],
         image: null,
         images: []
       });
@@ -296,13 +309,29 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       return;
     }
 
+    // Validate Packages / Variants
+    const validPackages = formData.packages
+      .filter(p => p.name.trim() && p.price !== "")
+      .map(({ id, ...rest }) => ({
+        name: rest.name.trim(),
+        details: rest.details || "",
+        price: Number(rest.price),
+      }));
+
+    if (validPackages.length === 0) {
+      alert("Please add at least one Variant Size with a Price in the Variants section.");
+      return;
+    }
+
+    const calculatedPrice = validPackages[0]?.price || 0;
     const plainDescription = validSections.map(s => `${s.title}\n${s.content}`).join('\n\n');
 
     const formPayload = new FormData();
     // Append standard fields
-    ['name', 'price', 'stock', 'status', 'category', 'unit'].forEach(key => {
+    ['name', 'stock', 'status', 'category', 'unit'].forEach(key => {
       formPayload.append(key, (formData as any)[key]);
     });
+    formPayload.append('price', String(calculatedPrice));
 
     formPayload.append('description', plainDescription);
     formPayload.append('descriptionSections', JSON.stringify(validSections));
@@ -312,11 +341,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     }
 
     formPayload.append('faqs', JSON.stringify(formData.faqs.map(({ question, answer }) => ({ question, answer }))));
-    formPayload.append('packages', JSON.stringify(formData.packages.map(({ id, ...rest }) => ({
-      name: rest.name,
-      details: rest.details || "",
-      price: Number(rest.price),
-    }))));
+    formPayload.append('packages', JSON.stringify(validPackages));
 
     if (formData.image) formPayload.append('image', formData.image);
     if (formData.images) formData.images.forEach(file => formPayload.append('images', file));
@@ -330,9 +355,8 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       <div className={styles.inputGroup}>
         {/* Text Inputs */}
         <input name="name" placeholder="Product Name" value={formData.name} onChange={handleChange} required />
-        <input name="price" type="number" placeholder="Base Price (₹)" value={formData.price} onChange={handleChange} required />
-        <input name="stock" type="number" placeholder="Stock" value={formData.stock} onChange={handleChange} required />
-        <input name="unit" placeholder="Default Net Quantity (e.g. 500ml, 1 Litre, 1000ml, 250g)" value={formData.unit} onChange={handleChange} />
+        <input name="stock" type="number" placeholder="Total Stock (e.g. 50)" value={formData.stock} onChange={handleChange} required />
+        <input name="unit" placeholder="Default Size / Unit (e.g. 500ml, 1 Litre, 250g)" value={formData.unit} onChange={handleChange} />
         
         <select name="category" value={formData.category} onChange={handleChange} required disabled={categoriesLoading}>
           <option value="" disabled>Category</option>
@@ -431,15 +455,18 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         <button type="button" onClick={addFaq} className={styles.addFaqBtn}>+ Add FAQ</button>
       </div>
 
-      {/* Packages / Net Quantity Section */}
+      {/* Packages / Net Quantity & Variant Prices Section */}
       <div className={styles.packageSection}>
-        <h4>Product Net Quantity / Sizes (e.g. 250ml, 500ml, 1 Litre, 1000ml)</h4>
+        <h4>Product Sizes & Variant Prices (e.g. 250ml, 500ml, 1 Litre, 1000ml)</h4>
+        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '14px' }}>
+          Har variant size ka naam aur uska exact price enter karein. Customer jo size choose karega, website, cart aur checkout par wahi price apply hogi.
+        </p>
         {formData.packages.map((pkg: PackageItem, index: number) => (
           <div key={pkg.id} className={styles.packageItem}>
             <div className={styles.packageItemRow}>
               <input
                 name="name"
-                placeholder="Quantity & Unit (e.g. 500ml, 1 Litre, 1000ml, 250g, 5L)"
+                placeholder="Variant Size & Unit (e.g. 500ml, 1 Litre, 1000ml, 250g)"
                 value={pkg.name}
                 onChange={(e) => handlePackageChange(index, e)}
                 required
@@ -447,16 +474,18 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
               <input
                 name="price"
                 type="number"
-                placeholder="Price ₹ (e.g. 499)"
+                placeholder="Variant Price ₹ (e.g. 170)"
                 value={pkg.price}
                 onChange={(e) => handlePackageChange(index, e)}
                 required
               />
             </div>
-            <button type="button" onClick={() => removePackage(index)} className={styles.removePackageBtn}>&times;</button>
+            {formData.packages.length > 1 && (
+              <button type="button" onClick={() => removePackage(index)} className={styles.removePackageBtn}>&times;</button>
+            )}
           </div>
         ))}
-        <button type="button" onClick={addPackage} className={styles.addPackageBtn}><span>+ Add Quantity / Size</span></button>
+        <button type="button" onClick={addPackage} className={styles.addPackageBtn}><span>+ Add Another Variant / Size & Price</span></button>
       </div>
 
       <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>{isSubmitting ? "Saving..." : buttonText}</button>

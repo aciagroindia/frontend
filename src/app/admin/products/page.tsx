@@ -84,8 +84,34 @@ export default function ProductsPage() {
     },
     { 
       key: "price", 
-      label: "Price",
-      render: (val: number) => <span className={styles.priceText}>₹{val?.toFixed(2)}</span>
+      label: "Price / Variants",
+      render: (_: any, row: Product) => {
+        if (row.packages && row.packages.length > 0) {
+          const prices = row.packages
+            .map((p: any) => Number(p.price))
+            .filter((p: number) => !isNaN(p) && p > 0);
+          if (prices.length > 1) {
+            const min = Math.min(...prices);
+            const max = Math.max(...prices);
+            return (
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span className={styles.priceText}>₹{min} - ₹{max}</span>
+                <span style={{ fontSize: "11px", color: "#6b7280" }}>{row.packages.length} variants</span>
+              </div>
+            );
+          } else if (prices.length === 1) {
+            return (
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span className={styles.priceText}>₹{prices[0]}</span>
+                {row.packages[0].name && (
+                  <span style={{ fontSize: "11px", color: "#6b7280" }}>{row.packages[0].name}</span>
+                )}
+              </div>
+            );
+          }
+        }
+        return <span className={styles.priceText}>₹{(Number(row.price) || 0).toFixed(2)}</span>;
+      }
     },
     { key: "stock", label: "Stock" },
     { 

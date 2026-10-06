@@ -60,13 +60,14 @@ export default function ProductInfo({ product }: Props) {
   }, [product._id, product.id, quantityOptions]);
 
   const isOutOfStock = product.status === "Inactive" || Number(product.stock) <= 0;
+  const currentPlan = selectedPlan || quantityOptions[0] || { id: "default", name: "1 Unit", price: Number(product.price) || 0 };
 
   const productVariant = {
     ...product,
-    price: Number(selectedPlan.price),
-    variant: selectedPlan.name || selectedPlan.month || "",
-    packageId: selectedPlan.id,
-    id: `${product._id || product.id}-${selectedPlan.id}`,
+    price: Number(currentPlan.price || 0),
+    variant: currentPlan.name || currentPlan.month || "",
+    packageId: currentPlan.id,
+    id: `${product._id || product.id}-${currentPlan.id}`,
     productId: product._id || product.id,
     name: product.name,
     isOutOfStock,
@@ -95,12 +96,12 @@ export default function ProductInfo({ product }: Props) {
       </div>
 
       <div className={styles.priceContainer}>
-        <span className={styles.salePrice}>₹{selectedPlan.price}</span>
-        {selectedPlan.regularPrice && selectedPlan.regularPrice > selectedPlan.price ? (
+        <span className={styles.salePrice}>₹{currentPlan.price}</span>
+        {currentPlan.regularPrice && currentPlan.regularPrice > currentPlan.price ? (
           <>
-            <span className={styles.regularPrice}>₹{selectedPlan.regularPrice.toFixed(2)}</span>
-            {selectedPlan.discount && selectedPlan.discount > 0 ? (
-              <span className={styles.discountBadge}>-{selectedPlan.discount}%</span>
+            <span className={styles.regularPrice}>₹{currentPlan.regularPrice.toFixed(2)}</span>
+            {currentPlan.discount && currentPlan.discount > 0 ? (
+              <span className={styles.discountBadge}>-{currentPlan.discount}%</span>
             ) : null}
           </>
         ) : null}

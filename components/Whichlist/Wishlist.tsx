@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import styles from "./Whichlist.module.css";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
@@ -16,6 +17,7 @@ interface Product {
 }
 
 export default function WishlistItem({ product: wishlistProduct }: { product: Product }) {
+  const router = useRouter();
   const { addToCart } = useCart();
   const { toggleWishlist } = useWishlist();
   const { products: allProducts } = useProducts();
@@ -30,9 +32,7 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    // The 'product' object here is now the full product object from ProductContext.
-    addToCart(product);
-    toggleWishlist(product);
+    router.push(`/products/${product.slug || product.id}`);
   };
 
   const handleRemove = () => {

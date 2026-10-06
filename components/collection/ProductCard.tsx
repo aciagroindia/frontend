@@ -43,17 +43,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     (product.stock !== undefined && product.stock !== null && Number(product.stock) <= 0)
   );
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (isOutOfStock) return;
-
-    // Check agar user login nahi hai
-    if (!isAuthenticated) {
-      toast.error("Please login to add items to cart");
-      router.push("/login");
-      return;
-    }
-    // Agar login hai toh Context wala function API call karega
-    await addToCart(product, 1);
+    router.push(`/products/${product.slug || productId}`);
   };
 
   const handleWishlist = async () => {
