@@ -535,3 +535,85 @@
 {"timestamp":"27:14:38.045","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
 {"timestamp":"27:14:38.045","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/search-icon.svg\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
 {"timestamp":"27:14:38.046","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"31:31:13.265","source":"Server","level":"LOG","message":"✓ Compiled in 1245ms"}
+{"timestamp":"31:31:38.941","source":"Server","level":"LOG","message":"✓ Compiled in 56ms"}
+{"timestamp":"31:32:57.614","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"31:32:57.936","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/search-icon.svg\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"31:32:57.937","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"31:32:57.938","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"31:33:02.550","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"/assets/Aci logo.png\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"31:33:02.550","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"/assets/Aci logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"31:33:02.550","source":"Browser","level":"WARN","message":"Image with src \"/assets/Aci logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"31:36:26.938","source":"Server","level":"LOG","message":"✓ Compiled in 836ms"}
+{"timestamp":"31:36:48.693","source":"Server","level":"LOG","message":"✓ Compiled in 127ms"}
+{"timestamp":"31:42:27.132","source":"Server","level":"LOG","message":"✓ Compiled in 98ms"}
+{"timestamp":"31:42:52.123","source":"Server","level":"LOG","message":"✓ Compiled in 46ms"}
+{"timestamp":"31:45:37.842","source":"Server","level":"LOG","message":"✓ Compiled in 41ms"}
+{"timestamp":"31:45:50.606","source":"Server","level":"LOG","message":"✓ Compiled in 30ms"}
+{"timestamp":"31:49:18.727","source":"Server","level":"LOG","message":"✓ Compiled in 40ms"}
+{"timestamp":"31:49:35.056","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"31:50:24.582","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"31:50:24.583","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/search-icon.svg\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"31:50:24.603","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"31:52:03.967","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"31:52:24.434","source":"Server","level":"LOG","message":"✓ Compiled in 34ms"}
+{"timestamp":"31:54:17.827","source":"Server","level":"LOG","message":"✓ Compiled in 41ms"}
+{"timestamp":"31:54:37.023","source":"Server","level":"LOG","message":"✓ Compiled in 38ms"}
+{"timestamp":"31:57:09.375","source":"Server","level":"LOG","message":"✓ Compiled in 42ms"}
+{"timestamp":"31:57:17.683","source":"Server","level":"LOG","message":"✓ Compiled in 45ms"}
+{"timestamp":"31:57:27.321","source":"Server","level":"LOG","message":"✓ Compiled in 33ms"}
+{"timestamp":"31:57:34.054","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"32:05:37.853","source":"Server","level":"LOG","message":"✓ Compiled in 295ms"}
+{"timestamp":"32:05:50.902","source":"Server","level":"LOG","message":"✓ Compiled in 738ms"}
+{"timestamp":"32:07:01.724","source":"Server","level":"LOG","message":"✓ Compiled in 37ms"}
+{"timestamp":"32:07:41.789","source":"Server","level":"LOG","message":"✓ Compiled in 46ms"}
+{"timestamp":"32:07:52.539","source":"Server","level":"LOG","message":"✓ Compiled in 308ms"}
+{"timestamp":"32:08:43.724","source":"Server","level":"LOG","message":"✓ Compiled in 39ms"}
+{"timestamp":"32:08:54.883","source":"Server","level":"LOG","message":"✓ Compiled in 40ms"}
+{"timestamp":"32:09:08.533","source":"Server","level":"LOG","message":"✓ Compiled in 32ms"}
+{"timestamp":"32:14:11.696","source":"Server","level":"LOG","message":"✓ Compiled in 42ms"}
+{"timestamp":"32:14:22.636","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"32:17:02.245","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"32:17:16.035","source":"Server","level":"LOG","message":"✓ Compiled in 32ms"}
+{"timestamp":"32:17:33.063","source":"Server","level":"LOG","message":"✓ Compiled in 36ms"}
+{"timestamp":"32:17:47.030","source":"Server","level":"LOG","message":"✓ Compiled in 31ms"}
+{"timestamp":"32:20:00.141","source":"Server","level":"LOG","message":"✓ Compiled in 41ms"}
+{"timestamp":"32:20:09.622","source":"Server","level":"LOG","message":"✓ Compiled in 35ms"}
+{"timestamp":"32:20:24.875","source":"Server","level":"LOG","message":"✓ Compiled in 102ms"}
+{"timestamp":"32:20:46.077","source":"Server","level":"LOG","message":"✓ Compiled in 60ms"}
+{"timestamp":"32:22:55.341","source":"Server","level":"LOG","message":"✓ Compiled in 79ms"}
+{"timestamp":"32:23:09.828","source":"Server","level":"LOG","message":"✓ Compiled in 39ms"}
+{"timestamp":"32:23:25.963","source":"Server","level":"LOG","message":"✓ Compiled in 47ms"}
+{"timestamp":"32:23:34.922","source":"Server","level":"LOG","message":"✓ Compiled in 34ms"}
+{"timestamp":"32:26:27.842","source":"Server","level":"LOG","message":"✓ Compiled in 43ms"}
+{"timestamp":"32:26:49.821","source":"Server","level":"LOG","message":"✓ Compiled in 34ms"}
+{"timestamp":"32:27:02.717","source":"Server","level":"LOG","message":"✓ Compiled in 31ms"}
+{"timestamp":"32:27:17.500","source":"Server","level":"LOG","message":"✓ Compiled in 43ms"}
+{"timestamp":"32:31:15.558","source":"Server","level":"LOG","message":"✓ Compiled in 156ms"}
+{"timestamp":"32:34:01.558","source":"Server","level":"LOG","message":"✓ Compiled in 48ms"}
+{"timestamp":"32:34:20.060","source":"Server","level":"LOG","message":"✓ Compiled in 39ms"}
+{"timestamp":"32:34:29.313","source":"Server","level":"LOG","message":"✓ Compiled in 33ms"}
+{"timestamp":"32:34:43.003","source":"Server","level":"LOG","message":"✓ Compiled in 63ms"}
+{"timestamp":"32:35:21.583","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"32:35:22.955","source":"Browser","level":"WARN","message":"Image with src \"/assets/Aci logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"32:35:22.961","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"/assets/Aci logo.png\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"32:35:22.962","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"/assets/Aci logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"32:35:32.407","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/search-icon.svg\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"32:35:32.407","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}
+{"timestamp":"32:35:32.410","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"32:38:11.020","source":"Server","level":"LOG","message":"✓ Compiled in 143ms"}
+{"timestamp":"32:38:13.404","source":"Server","level":"ERROR","message":"⨯ ReferenceError: ChevronDown is not defined"}
+{"timestamp":"32:38:13.934","source":"Server","level":"ERROR","message":"⨯ ReferenceError: ChevronDown is not defined"}
+{"timestamp":"32:38:15.191","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"32:38:15.222","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"32:38:16.490","source":"Browser","level":"ERROR","message":"uncaughtError: ReferenceError: ChevronDown is not defined"}
+{"timestamp":"32:38:17.480","source":"Browser","level":"ERROR","message":"uncaughtError: ReferenceError: ChevronDown is not defined"}
+{"timestamp":"32:38:19.761","source":"Server","level":"LOG","message":"✓ Compiled in 63ms"}
+{"timestamp":"32:38:19.791","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload due to a runtime error."}
+{"timestamp":"32:38:20.982","source":"Server","level":"WARN","message":"⚠ Fast Refresh had to perform a full reload due to a runtime error."}
+{"timestamp":"32:38:23.087","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"32:38:23.635","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"32:38:24.590","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"32:38:26.507","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"32:38:53.722","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/search-icon.svg\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"32:38:53.723","source":"Browser","level":"WARN","message":"\u001b[33mImage with src \"http://localhost:3000/assets/search-icon.svg\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio.\u001b[39m"}

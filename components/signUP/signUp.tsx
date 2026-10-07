@@ -16,6 +16,7 @@ import {
   Leaf,
   ShieldCheck,
   Sprout,
+  Heart,
 } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import styles from "./signUp.module.css";
@@ -108,60 +109,64 @@ export default function SignupPage() {
           <div className={styles.heroOverlay} />
 
           <div className={styles.heroContent}>
-            {/* Logo */}
-            <div className={styles.heroLogoWrap}>
-              <Image
-                src="/assets/Aci logo.png"
-                alt="Aci Agro Solutions"
-                width={170}
-                height={115}
-                priority
-                className={styles.heroLogo}
-              />
-            </div>
-
-            {/* Tagline */}
-            <div className={styles.heroTagline}>
-              <span>HEALTHY</span>
-              <span className={styles.taglineDot}>|</span>
-              <span>ETHICAL</span>
-              <span className={styles.taglineDot}>|</span>
-              <span>DELICIOUS</span>
+            {/* Header row: Logo on left & Nature's Care on right */}
+            <div className={styles.heroTopBar}>
+              <div className={styles.heroLogoWrap}>
+                <Image
+                  src="/assets/Aci logo.png"
+                  alt="Aci Agro Solutions"
+                  width={155}
+                  height={100}
+                  priority
+                  className={styles.heroLogo}
+                />
+              </div>
+              <div className={styles.heroScriptBadge}>
+                <span>Nature&apos;s Care</span>
+                <span className={styles.scriptSub}>in Every Drop 🍃</span>
+              </div>
             </div>
 
             {/* Main Heading */}
             <h1 className={styles.heroTitle}>
               Pure Goodness<br />
-              for a <span className={styles.highlightWord}>Healthier</span><br />
-              <span className={styles.underlinedWord}>Tomorrow</span>
+              for a <span className={styles.highlightWord}>Healthier<span className={styles.titleLeaf}>🍃</span></span><br />
+              Tomorrow
             </h1>
 
-            {/* Description */}
-            <p className={styles.heroDescription}>
-              Natural herbal juices crafted with care for your everyday wellness.
+            {/* Sub-tagline */}
+            <p className={styles.heroTagline}>
+              Natural • Safe • Effective
             </p>
 
-            {/* Feature Pills */}
+            {/* 4 Feature Pills in a row */}
             <div className={styles.featuresRow}>
               <div className={styles.featureItem}>
                 <div className={styles.featureIconCircle}>
-                  <Leaf size={20} strokeWidth={2.2} />
+                  <Leaf size={18} strokeWidth={2.2} />
                 </div>
-                <span className={styles.featureText}>Natural<br />Ingredients</span>
+                <span className={styles.featureText}>100%<br />Natural</span>
               </div>
 
               <div className={styles.featureItem}>
                 <div className={styles.featureIconCircle}>
-                  <ShieldCheck size={20} strokeWidth={2.2} />
+                  <ShieldCheck size={18} strokeWidth={2.2} />
                 </div>
-                <span className={styles.featureText}>Premium<br />Quality</span>
+                <span className={styles.featureText}>Trusted<br />Quality</span>
               </div>
 
               <div className={styles.featureItem}>
                 <div className={styles.featureIconCircle}>
-                  <Sprout size={20} strokeWidth={2.2} />
+                  <Sprout size={18} strokeWidth={2.2} />
                 </div>
-                <span className={styles.featureText}>Healthy<br />Lifestyle</span>
+                <span className={styles.featureText}>Better<br />Immunity</span>
+              </div>
+
+              <div className={styles.featureItem}>
+                <div className={styles.featureIconCircle}>
+                  <Heart size={18} strokeWidth={2.2} />
+                </div>
+                <span className={styles.featureText}>Healthy<br />Living</span>
               </div>
             </div>
           </div>
@@ -172,6 +177,20 @@ export default function SignupPage() {
           {/* Subtle botanical corner watermarks */}
           <div className={styles.leafWatermarkTop} />
           <div className={styles.leafWatermarkBottom} />
+
+          {/* Corner leaf illustrations */}
+          <div className={styles.cornerLeafBottomLeft}>
+            <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 90C25 80 40 60 45 35C25 45 15 65 10 90Z" fill="#a7f3d0" fillOpacity="0.45" />
+              <path d="M10 90C35 75 60 65 85 60C65 50 40 55 10 90Z" fill="#6ee7b7" fillOpacity="0.35" />
+            </svg>
+          </div>
+          <div className={styles.cornerLeafBottomRight}>
+            <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M90 90C75 80 60 60 55 35C75 45 85 65 90 90Z" fill="#a7f3d0" fillOpacity="0.45" />
+              <path d="M90 90C65 75 40 65 15 60C35 50 60 55 90 90Z" fill="#6ee7b7" fillOpacity="0.35" />
+            </svg>
+          </div>
 
           <div className={styles.formInner}>
             {/* Header Brand Logo */}
