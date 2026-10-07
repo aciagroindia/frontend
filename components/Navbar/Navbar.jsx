@@ -43,17 +43,18 @@ export default function Navbar() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("categories");
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
   const searchContainerRef = useRef(null); 
 
   useEffect(() => {
-    if (isMobileDrawerOpen || isMobileSearchOpen || isCartOpen) {
+    if (isMobileDrawerOpen || isMobileSearchOpen || isCartOpen || isLogoutModalOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
     return () => { document.body.style.overflow = ""; };
-  }, [isMobileDrawerOpen, isMobileSearchOpen, isCartOpen]);
+  }, [isMobileDrawerOpen, isMobileSearchOpen, isCartOpen, isLogoutModalOpen]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -155,8 +156,13 @@ export default function Navbar() {
                 <span className={styles.userName} style={{ fontSize: '14px', fontWeight: '500' }}>
                   Hi, {user?.name?.split(' ')[0]}
                 </span>
-                <button onClick={logout} className={styles.iconBtn} title="Logout" aria-label="Logout">
-                  <Image src="/assets/User.svg" alt="Logout" width={20} height={20} style={{ filter: 'invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }} />
+                <button 
+                  onClick={() => setIsLogoutModalOpen(true)} 
+                  className={styles.iconBtn} 
+                  title="Profile / Logout" 
+                  aria-label="Logout"
+                >
+                  <Image src="/assets/User.svg" alt="User" width={20} height={20} style={{ filter: 'invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }} />
                 </button>
               </div>
             ) : (
@@ -241,8 +247,8 @@ export default function Navbar() {
                   </div>
                   <button 
                     className={styles.drawerLink} 
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', color: 'red' }}
-                    onClick={() => { logout(); closeDrawer(); }}
+                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', color: 'red', cursor: 'pointer' }}
+                    onClick={() => { closeDrawer(); setIsLogoutModalOpen(true); }}
                   >
                     Logout
                   </button>
@@ -295,6 +301,51 @@ export default function Navbar() {
           {isMobileSearchOpen && <SearchMegaMenu searchTerm={debouncedSearchTerm} onResultClick={closeSearch} />}
         </div>
       </div>
+
+      {/* ================= LOGOUT CONFIRMATION MODAL ================= */}
+      {isLogoutModalOpen && (
+        <div 
+          className={styles.modalOverlay} 
+          onClick={() => setIsLogoutModalOpen(false)}
+        >
+          <div 
+            className={styles.modalCard} 
+            onClick={(e) => e.stopPropagation()} 
+            role="dialog" 
+            aria-modal="true"
+          >
+            <div className={styles.modalIconWrap}>
+              <Image src="/assets/User.svg" alt="Logout" width={26} height={26} style={{ filter: 'invert(27%) sepia(85%) saturate(2300%) hue-rotate(345deg) brightness(98%) contrast(95%)' }} />
+            </div>
+
+            <h3 className={styles.modalTitle}>Confirm Logout</h3>
+            
+            <p className={styles.modalSubtitle}>
+              Are you sure you want to log out, <strong>{user?.name?.split(' ')[0] || "User"}</strong>? You will need to sign in again to view your orders and cart.
+            </p>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={() => setIsLogoutModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.confirmLogoutBtn}
+                onClick={() => {
+                  logout();
+                  setIsLogoutModalOpen(false);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
