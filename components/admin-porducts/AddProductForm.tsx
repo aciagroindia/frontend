@@ -27,6 +27,7 @@ interface ProductFormData {
   status: "Active" | "Inactive";
   category: string;
   unit: string;
+  isBestSeller: boolean;
   faqs: FaqItem[];
   packages: PackageItem[];
   image?: File | null; // Nayi Main Image file
@@ -97,7 +98,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
   
   const [formData, setFormData] = useState<ProductFormData>({
     name: "", description: "", descriptionSections: [{ id: Date.now(), title: "Product Overview", content: "" }],
-    price: "", stock: "", status: "Active", category: "", unit: "", faqs: [], packages: [], image: null, images: [],
+    price: "", stock: "", status: "Active", category: "", unit: "", isBestSeller: false, faqs: [], packages: [], image: null, images: [],
   });
 
   // State for visual previews and tracking
@@ -156,6 +157,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         status: initialData.status || "Active",
         category: resolvedCategoryId,
         unit: initialData.unit || "",
+        isBestSeller: Boolean(initialData.isBestSeller),
         faqs: initialData.faqs?.map((faq, index) => ({
           ...faq,
           id: Math.random() + index, // Add a unique ID for the form state
@@ -185,6 +187,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         status: "Active",
         category: "",
         unit: "500ml",
+        isBestSeller: false,
         faqs: [],
         packages: [
           { id: Date.now(), name: "500ml", details: "Standard Pack", price: "", image: "", previewUrl: null, imageFile: null }
@@ -373,6 +376,7 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       formPayload.append(key, (formData as any)[key]);
     });
     formPayload.append('price', String(calculatedPrice));
+    formPayload.append('isBestSeller', String(formData.isBestSeller));
 
     formPayload.append('description', plainDescription);
     formPayload.append('descriptionSections', JSON.stringify(validSections));
@@ -431,6 +435,36 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
         </select>
+
+        {/* BEST SELLER TOGGLE */}
+        <div style={{
+          gridColumn: '1 / -1',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '12px 16px',
+          backgroundColor: formData.isBestSeller ? '#fefce8' : '#f8fafc',
+          border: formData.isBestSeller ? '1.5px solid #facc15' : '1px solid #e2e8f0',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+        onClick={() => setFormData(prev => ({ ...prev, isBestSeller: !prev.isBestSeller }))}
+        >
+          <input
+            type="checkbox"
+            id="isBestSellerCheckbox"
+            name="isBestSeller"
+            checked={formData.isBestSeller}
+            onChange={(e) => setFormData(prev => ({ ...prev, isBestSeller: e.target.checked }))}
+            style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#eab308' }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <label htmlFor="isBestSellerCheckbox" style={{ cursor: 'pointer', fontWeight: 600, color: formData.isBestSeller ? '#854d0e' : '#334155', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', userSelect: 'none' }}>
+            <span>⭐ Best Seller Product</span>
+            <span style={{ fontSize: '12px', fontWeight: 400, color: '#64748b' }}>(Show this product in Homepage Best Selling section)</span>
+          </label>
+        </div>
         
         {/* IMAGE SECTION */}
         <div className={styles.inputGroup} style={{ gridColumn: '1 / -1', borderTop: '1px solid #eee', paddingTop: '1rem' }}>

@@ -31,6 +31,7 @@ export interface Product {
   rating: number;
   numReviews: number;
   salesCount: number;
+  isBestSeller?: boolean;
 }
 
 interface ProductContextType {
@@ -46,6 +47,7 @@ interface ProductContextType {
   addProduct: (data: FormData) => Promise<boolean>;
   updateProduct: (id: string, data: FormData) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
+  toggleBestSeller: (id: string) => Promise<boolean>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -70,6 +72,7 @@ export const normalizeProduct = (product: any): Product => {
     descriptionSections: Array.isArray(product.descriptionSections) ? product.descriptionSections : [],
     stock: product.stock !== undefined && product.stock !== null && !isNaN(Number(product.stock)) ? Number(product.stock) : 0,
     status: product.status || "Active",
+    isBestSeller: Boolean(product.isBestSeller),
   };
 };
 
@@ -260,6 +263,31 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const toggleBestSeller = useCallback(async (id: string): Promise<boolean> => {
+    try {
+      const response = await axiosInstance.patch(`/products/${id}/toggle-bestseller`);
+      if (response.data && response.data.success) {
+        toast.success(response.data.message || 'Best Seller status updated!');
+        const updatedIsBestSeller = Boolean(response.data.isBestSeller);
+
+        setProducts((prev) => {
+          const updated = prev.map((p) => (p._id === id ? { ...p, isBestSeller: updatedIsBestSeller } : p));
+          syncProductsCache(updated);
+          return updated;
+        });
+
+        // Trigger Best Sellers refresh to keep homepage in sync
+        fetchBestSellers();
+        return true;
+      }
+      toast.error(response.data?.message || 'Failed to update Best Seller status.');
+      return false;
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update Best Seller status.');
+      return false;
+    }
+  }, [fetchBestSellers]);
+
   const value = useMemo(
     () => ({
       products,
@@ -274,6 +302,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       addProduct,
       updateProduct,
       deleteProduct,
+      toggleBestSeller,
     }),
     [
       products,
@@ -288,6 +317,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       addProduct,
       updateProduct,
       deleteProduct,
+      toggleBestSeller,
     ]
   );
 

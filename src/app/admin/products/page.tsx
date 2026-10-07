@@ -10,11 +10,12 @@ import { Plus } from "lucide-react";
 import styles from "./ProductsPage.module.css";
 
 export default function ProductsPage() {
-  const { products, loading, fetchProducts, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, loading, fetchProducts, addProduct, updateProduct, deleteProduct, toggleBestSeller } = useProducts();
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isMutating, setIsMutating] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // Admin panel needs to see ALL products (Active + Inactive)
   useEffect(() => {
@@ -22,6 +23,12 @@ export default function ProductsPage() {
   }, [fetchProducts]);
 
   // Handlers
+  const handleToggleBestSeller = async (id: string) => {
+    setTogglingId(id);
+    await toggleBestSeller(id);
+    setTogglingId(null);
+  };
+
   const handleAdd = async (formData: FormData) => {
     setIsMutating(true);
     const success = await addProduct(formData);
@@ -69,6 +76,9 @@ export default function ProductsPage() {
     }
     return { text: 'In Stock', className: 'instock' };
   };
+
+  // Best seller count
+  const bestSellerCount = products.filter(p => p.isBestSeller).length;
 
   // FIX: Table ke liye data ko pehle se taiyaar karein taaki nested properties (jaise category.name) me confusion na ho.
   const tableData = products.map(product => ({
@@ -126,14 +136,66 @@ export default function ProductsPage() {
         );
       }
     },
+    {
+      key: "isBestSeller",
+      label: "Best Seller (Homepage)",
+      render: (_: any, row: Product) => {
+        const isToggling = togglingId === row._id;
+        const isBS = Boolean(row.isBestSeller);
+        return (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleBestSeller(row._id);
+            }}
+            disabled={isToggling}
+            title={isBS ? "Click to remove from Homepage Best Sellers" : "Click to mark as Homepage Best Seller"}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "5px 12px",
+              borderRadius: "20px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: isToggling ? "wait" : "pointer",
+              border: isBS ? "1px solid #f59e0b" : "1px solid #d1d5db",
+              backgroundColor: isBS ? "#fef3c7" : "#f9fafb",
+              color: isBS ? "#92400e" : "#6b7280",
+              transition: "all 0.2s ease",
+              boxShadow: isBS ? "0 1px 2px rgba(245, 158, 11, 0.2)" : "none",
+            }}
+          >
+            <span>{isToggling ? "⏳ Updating..." : isBS ? "⭐ Best Seller" : "☆ Standard"}</span>
+          </button>
+        );
+      }
+    },
   ];
 
   return (
     <DashboardLayout>
       <div className={styles.header}>
         <div className={styles.titleArea}>
-          <h1 className={styles.title}>Inventory</h1>
-          <p className={styles.subtitle}>Manage your products and stock levels</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+            <h1 className={styles.title}>Inventory</h1>
+            <span style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "#eff6ff",
+              color: "#1d4ed8",
+              border: "1px solid #bfdbfe",
+              padding: "4px 10px",
+              borderRadius: "16px",
+              fontSize: "12px",
+              fontWeight: 600,
+            }}>
+              ⭐ Featured in Best Sellers: <strong>{bestSellerCount} / 12</strong>
+            </span>
+          </div>
+          <p className={styles.subtitle}>Manage your products, stock levels, and Best Selling showcase (12 slots on Homepage)</p>
         </div>
         <button 
           className={styles.addBtn} 
