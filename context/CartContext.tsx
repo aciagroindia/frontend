@@ -46,7 +46,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, openLoginModal } = useAuth();
 
   // ---------------- NORMALIZE ----------------
   const normalizeCartItems = (items: any[]): CartItem[] => {
@@ -115,7 +115,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     silent = false
   ) => {
     if (!isAuthenticated) {
-      if (!silent) toast.error("Please log in first.");
+      openLoginModal(async () => {
+        try {
+          const rawId = product._id || product.productId || product.id;
+          const baseProductId = typeof rawId === "string" && rawId.includes("-") ? rawId.split("-")[0] : rawId;
+          const variant = (product.variant || product.unit || "").trim();
+          const price = Number(product.price) || 0;
+          const packageId = product.packageId || (typeof rawId === "string" && rawId.includes("-") ? rawId.split("-")[1] : undefined);
+
+          await axiosInstance.post("/cart", {
+            productId: baseProductId,
+            packageId: packageId || undefined,
+            variant: variant || undefined,
+            quantity,
+            price: price > 0 ? price : undefined,
+          });
+
+          await fetchCart();
+          setIsCartOpen(true);
+          toast.success("Added to cart!");
+        } catch (e) {
+          console.error("Post-login addToCart error:", e);
+        }
+      });
       return;
     }
 

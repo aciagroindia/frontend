@@ -29,7 +29,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const { isAuthenticated } = useAuth(); // 3. Login status check karne ke liye
+  const { isAuthenticated, openLoginModal } = useAuth(); // 3. Login status check karne ke liye
   const [isHovered, setIsHovered] = useState(false);
 
   // ID normalize karne ke liye helper
@@ -49,10 +49,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleWishlist = async () => {
-    // Check agar user login nahi hai
     if (!isAuthenticated) {
-      toast.error("Please login to manage your wishlist");
-      router.push("/login");
+      openLoginModal(async () => {
+        await toggleWishlist(product);
+      });
       return;
     }
     await toggleWishlist(product);

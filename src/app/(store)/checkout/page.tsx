@@ -56,7 +56,7 @@ const loadCashfreeSDK = (): Promise<any> => {
 function CheckoutContent() {
   const { cartItems, cartTotal, fetchCart } = useCart();
   const { products: allProducts } = useProducts();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, openLoginModal } = useAuth();
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -323,8 +323,7 @@ function CheckoutContent() {
       setIsSubmitting(true);
 
       if (!isAuthenticated) {
-        toast.error("Please log in to proceed to payment.");
-        router.push("/login");
+        openLoginModal();
         return;
       }
 
@@ -507,7 +506,7 @@ function CheckoutContent() {
             Please log in or create an account to securely complete your checkout.
           </p>
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => openLoginModal()}
             className="w-full py-3 px-4 bg-[#1a8e5f] hover:bg-[#15774e] text-white font-semibold rounded-xl shadow transition-colors"
           >
             Login to Continue

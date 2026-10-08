@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 
 interface Product {
   id: string; // Map _id to id for frontend
@@ -25,6 +26,7 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const { openLoginModal } = useAuth();
 
   const getToken = () => typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -61,7 +63,9 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   const toggleWishlist = useCallback(async (product: any) => {
     const token = getToken();
     if (!token) {
-        toast.error("Please login to manage your wishlist.");
+        openLoginModal(async () => {
+          await toggleWishlist(product);
+        });
         return;
     }
 

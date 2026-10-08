@@ -34,7 +34,7 @@ export default function Navbar() {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const { wishlist } = useWishlist();
   const { categories, loading: categoriesLoading } = useCategories();
-  const { user, isAuthenticated, logout } = useAuth(); 
+  const { user, isAuthenticated, logout, openLoginModal } = useAuth(); 
   
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false);
@@ -167,9 +167,15 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link href="/login" className={styles.iconBtn} title="Login / Register" aria-label="Login or Register">
+              <button 
+                type="button" 
+                onClick={() => openLoginModal()} 
+                className={styles.iconBtn} 
+                title="Login / Register" 
+                aria-label="Login or Register"
+              >
                 <Image src="/assets/User.svg" alt="Login" width={20} height={20} className={styles.darkIcon} />
-              </Link>
+              </button>
             )}
 
             {/* Wishlist */}
@@ -255,7 +261,14 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link href="/login" className={styles.drawerLink} onClick={closeDrawer}>Login / Register</Link>
+                <button 
+                  type="button" 
+                  className={styles.drawerLink} 
+                  style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: '12px 16px' }}
+                  onClick={() => { closeDrawer(); openLoginModal(); }}
+                >
+                  Login / Register
+                </button>
               )}
             </div>
           )}

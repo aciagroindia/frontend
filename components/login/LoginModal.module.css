@@ -1,0 +1,524 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,800;0,900;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ================= MODAL BACKDROP ================= */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(4, 28, 14, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: backdropFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ================= MODAL CARD ================= */
+.modalCard {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 900px;
+  min-height: 540px;
+  background: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  box-shadow: 
+    0 30px 80px -15px rgba(5, 36, 18, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+    0 15px 35px rgba(0, 0, 0, 0.15);
+  animation: modalPopIn 0.36s cubic-bezier(0.34, 1.42, 0.64, 1) forwards;
+  margin: auto;
+  transform-origin: center center;
+}
+
+/* Close Button */
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5563;
+  cursor: pointer;
+  z-index: 25;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.closeBtn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #dc2626;
+  transform: rotate(90deg) scale(1.08);
+}
+
+/* ================= LEFT HERO BRAND PANEL ================= */
+.heroPanel {
+  position: relative;
+  background-image: url('/assets/login-hero-bg.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  padding: 30px 28px;
+  color: #052412;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  border-radius: 26px 0 0 26px;
+}
+
+.heroOverlay {
+  display: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.heroTopBar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.heroLogoWrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.heroLogo {
+  height: 70px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+}
+
+.heroScriptBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: 'Caveat', cursive, sans-serif;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  transform: rotate(-5deg);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.scriptSub {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.heroTitle {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #052412;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.4px;
+  text-shadow: 
+    0 1px 10px rgba(255, 255, 255, 0.8),
+    0 0 2px rgba(255, 255, 255, 0.95);
+}
+
+.highlightWord {
+  color: #059669;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.titleLeaf {
+  font-size: 0.72em;
+  display: inline-block;
+  transform: rotate(10deg) translateY(-2px);
+}
+
+.heroTagline {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0a3a1d;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.9);
+}
+
+.featuresRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.featureItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.featureIconCircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.6px solid #16a34a;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #15803d;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.featureText {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #052412;
+  line-height: 1.15;
+  text-shadow: 
+    0 1px 4px rgba(255, 255, 255, 0.95),
+    0 0 8px rgba(255, 255, 255, 0.85);
+}
+
+/* ================= RIGHT FORM PANEL ================= */
+.formPanel {
+  position: relative;
+  background: #ffffff;
+  padding: 34px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0 26px 26px 0;
+  overflow: hidden;
+}
+
+.formInner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.formHeading {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.formTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.greenText {
+  color: #15803d;
+}
+
+.formSubtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Form inputs */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fieldIcon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.inputField {
+  width: 100%;
+  height: 44px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0 14px 0 38px;
+  font-size: 13.5px;
+  color: #111827;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.inputField:focus {
+  border-color: #15803d;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+}
+
+.passwordInput {
+  padding-right: 38px;
+}
+
+.eyeToggleBtn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.forgotPasswordRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.forgotPasswordLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: #15803d;
+  text-decoration: none;
+}
+
+.forgotPasswordLink:hover {
+  text-decoration: underline;
+}
+
+.submitButton {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+  transition: all 0.2s ease;
+  margin-top: 2px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #166534;
+  transform: translateY(-1px);
+}
+
+.verifiedPhoneBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.verifiedPhoneInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+}
+
+.verifiedCheckIcon {
+  color: #16a34a;
+}
+
+.changePhoneBtn {
+  background: none;
+  border: none;
+  color: #0b7c3e;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.backStepBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0 0;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0 12px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dividerText {
+  padding: 0 12px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.createAccountPrompt {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.createAccountLink {
+  color: #15803d;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.createAccountLink:hover {
+  text-decoration: underline;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 850px) {
+  .modalCard {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    border-radius: 24px;
+    margin: auto 0;
+  }
+
+  .heroPanel {
+    padding: 18px 16px 20px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .heroLogo {
+    height: 52px;
+  }
+
+  .heroTitle {
+    font-size: 21px;
+  }
+
+  .formPanel {
+    padding: 20px 18px 18px;
+    border-radius: 22px 22px 22px 22px;
+    margin-top: -16px;
+  }
+
+  .closeBtn {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+@keyframes backdropFadeIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes modalPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(24px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.02) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes formFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

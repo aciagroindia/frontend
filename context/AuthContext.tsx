@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'react-hot-toast';
+import LoginModal from '../components/login/LoginModal';
 
 interface User {
   id: string;
@@ -20,6 +21,9 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
+  isLoginModalOpen: boolean;
+  openLoginModal: (onSuccessCallback?: () => void) => void;
+  closeLoginModal: () => void;
   login: (token: string, userData: User) => void;
   logout: () => void;
   refreshUserStatus: () => Promise<void>; 
@@ -32,7 +36,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const pendingCallbackRef = useRef<(() => void) | null>(null);
   const router = useRouter();
+
+  const openLoginModal = useCallback((callback?: () => void) => {
+    if (callback) {
+      pendingCallbackRef.current = callback;
+    } else {
+      pendingCallbackRef.current = null;
+    }
+    setIsLoginModalOpen(true);
+  }, []);
+
+  const closeLoginModal = useCallback(() => {
+    setIsLoginModalOpen(false);
+    pendingCallbackRef.current = null;
+  }, []);
 
   const login = useCallback((newToken: string, userData: User) => {
     setUser(userData);
@@ -45,6 +65,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (_) {}
+
+    // Execute pending callback (e.g. Add to Cart) after login
+    if (pendingCallbackRef.current) {
+      const cb = pendingCallbackRef.current;
+      pendingCallbackRef.current = null;
+      setTimeout(() => {
+        try {
+          cb();
+        } catch (err) {
+          console.error("Error executing post-login callback:", err);
+        }
+      }, 150);
+    }
   }, []);
 
   const updateUser = useCallback((newUserData: Partial<User>) => {
@@ -113,17 +146,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token,
       isAuthenticated: !!token,
       loading,
+      isLoginModalOpen,
+      openLoginModal,
+      closeLoginModal,
       login,
       logout,
       refreshUserStatus,
       updateUser,
     }),
-    [user, token, loading, login, logout, refreshUserStatus, updateUser]
+    [user, token, loading, isLoginModalOpen, openLoginModal, closeLoginModal, login, logout, refreshUserStatus, updateUser]
   );
 
   return (
     <AuthContext.Provider value={value}>
       {children}
+      <LoginModal />
     </AuthContext.Provider>
   );
 }

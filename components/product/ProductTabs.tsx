@@ -174,7 +174,7 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   // Review states
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, openLoginModal } = useAuth();
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [rating, setRating] = useState(0);
@@ -205,7 +205,7 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      toast.error("Please login to submit a review.");
+      openLoginModal();
       return;
     }
     if (rating === 0) {

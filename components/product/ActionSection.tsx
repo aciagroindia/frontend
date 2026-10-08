@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import styles from "./ActionSection.module.css";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
+import { useAuth } from "../../context/AuthContext";
 import { Heart } from "lucide-react";
 
 interface Product {
@@ -26,6 +27,7 @@ export default function ActionSection({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
+  const { isAuthenticated, openLoginModal } = useAuth();
   const router = useRouter();
 
   const isOutOfStock = Boolean(
@@ -47,8 +49,25 @@ export default function ActionSection({ product }: { product: Product }) {
 
   const handleBuyNow = () => {
     if (isOutOfStock) return;
+    if (!isAuthenticated) {
+      openLoginModal(() => {
+        sessionStorage.setItem("buyNowItem", JSON.stringify({ ...product, quantity }));
+        router.push("/checkout?mode=buyNow");
+      });
+      return;
+    }
     sessionStorage.setItem("buyNowItem", JSON.stringify({ ...product, quantity }));
     router.push("/checkout?mode=buyNow");
+  };
+
+  const handleWishlist = () => {
+    if (!isAuthenticated) {
+      openLoginModal(() => {
+        toggleWishlist({ ...product, id: baseProductId, _id: baseProductId });
+      });
+      return;
+    }
+    toggleWishlist({ ...product, id: baseProductId, _id: baseProductId });
   };
 
   return (
