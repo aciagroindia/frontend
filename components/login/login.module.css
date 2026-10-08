@@ -479,12 +479,75 @@
   font-weight: 600;
   color: #15803d;
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
   transition: color 0.15s ease;
 }
 
 .forgotPasswordLink:hover {
   text-decoration: underline;
   color: #166534;
+}
+
+.verifiedPhoneBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.verifiedPhoneInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #166534;
+}
+
+.verifiedCheckIcon {
+  color: #16a34a;
+}
+
+.changePhoneBtn {
+  background: none;
+  border: none;
+  color: #0b7c3e;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.changePhoneBtn:hover {
+  text-decoration: underline;
+}
+
+.backStepBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0 0;
+  transition: color 0.15s ease;
+}
+
+.backStepBtn:hover {
+  color: #1f2937;
 }
 
 /* Submit button */

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   User,
@@ -23,13 +23,22 @@ import styles from "./signUp.module.css";
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialPhone = searchParams.get("phone") || "";
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: initialPhone,
     password: "",
   });
+
+  useEffect(() => {
+    const p = searchParams.get("phone");
+    if (p) {
+      setFormData((prev) => ({ ...prev, phone: p }));
+    }
+  }, [searchParams]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
