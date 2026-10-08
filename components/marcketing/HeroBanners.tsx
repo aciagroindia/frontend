@@ -161,6 +161,9 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData, isMutating = fals
               {imageFile && <span className={styles.fileName}>{imageFile.name}</span>}
               {!imageFile && initialData?.imageUrl && <span className={styles.fileName}>Current image is set</span>}
             </div>
+            <small style={{ color: "#777", fontSize: "12px", marginTop: "4px", display: "block" }}>
+              Recommended size: 1920 x 650 px
+            </small>
             {imagePreview && (
               <div className={styles.imagePreviewWrapper}>
                 <Image src={imagePreview} alt="Banner preview" width={150} height={50} className={styles.bannerImage} />

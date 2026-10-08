@@ -1,6 +1,7 @@
 .heroWrapper {
   position: relative;
   width: 100%;
+  aspect-ratio: 1920 / 650;
   overflow: hidden;
   background-color: transparent;
   user-select: none;
@@ -27,7 +28,7 @@
 }
 
 .slide.active {
-  position: relative;
+  position: absolute;
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -37,18 +38,18 @@
 .bannerLink {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   line-height: 0;
   text-decoration: none;
 }
 
-/* Banner image: natural 100% responsive width & height without any crops or gaps */
+/* Banner image: exact 1920/650 responsive width & height without expanding vertically */
 .bannerImg {
   display: block;
   width: 100% !important;
-  height: auto !important;
+  height: 100% !important;
   max-width: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 /* Dots Indicators */
