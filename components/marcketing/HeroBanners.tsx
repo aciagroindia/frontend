@@ -16,6 +16,7 @@ export interface Banner {
   id: string;
   title: string;
   imageUrl: string;
+  link?: string;
   order: number;
   status: "Active" | "Inactive";
 }
@@ -23,13 +24,14 @@ export interface Banner {
 // Helper to map backend's `_id` to frontend's `id`.
 const normalizeBanner = (banner: any): Banner => ({
   ...banner,
-  id: banner._id,
+  id: banner._id || banner.id,
 });
 
 type BannerFormPayload = {
   id?: string;
   title: string;
   imageUrl: File | string | null | undefined;
+  link?: string;
   order: string | number;
   status: "Active" | "Inactive";
 };
@@ -39,10 +41,13 @@ interface BannerModalProps {
   onClose: () => void;
   onSubmit: (bannerData: BannerFormPayload) => void;
   initialData?: Banner | null;
+  isMutating?: boolean;
+  maxOrder: number;
 }
 
-const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProps) => {
+const BannerModal = ({ isOpen, onClose, onSubmit, initialData, isMutating = false, maxOrder }: BannerModalProps) => {
   const [title, setTitle] = useState("");
+  const [link, setLink] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [order, setOrder] = useState("");
@@ -51,12 +56,13 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProp
   useEffect(() => {
     if (isOpen) {
       setTitle(initialData?.title || "");
+      setLink(initialData?.link || "");
       setImagePreview(initialData?.imageUrl || null);
-      setOrder(initialData?.order?.toString() || "");
+      setOrder(initialData?.order !== undefined ? initialData.order.toString() : String(maxOrder || 1));
       setStatus(initialData?.status || "Active");
       setImageFile(null); // Reset file on open
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, maxOrder]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,8 +73,29 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProp
     }
   };
 
+  const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    if (raw === "") {
+      setOrder("");
+      return;
+    }
+    let num = parseInt(raw, 10);
+    if (num < 1) num = 1;
+    if (num > maxOrder) num = maxOrder;
+    setOrder(String(num));
+  };
+
+  const handleOrderBlur = () => {
+    if (!order || Number(order) < 1) {
+      setOrder("1");
+    } else if (Number(order) > maxOrder) {
+      setOrder(String(maxOrder));
+    }
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (isMutating) return;
     if (!title.trim()) {
       toast.error("Title is required.");
       return;
@@ -77,12 +104,18 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProp
       toast.error("An image is required for a new banner.");
       return;
     }
-    if (!order || Number(order) <= 0) {
-      toast.error("A valid order number is required.");
-      return;
+    let orderNum = Number(order);
+    if (!order || isNaN(orderNum) || orderNum < 1 || orderNum > maxOrder) {
+      orderNum = Math.min(Math.max(orderNum || 1, 1), maxOrder);
     }
     // Pass the new file if it exists, otherwise pass the original image URL
-    const bannerData: BannerFormPayload = { title, imageUrl: imageFile || initialData?.imageUrl, order, status };
+    const bannerData: BannerFormPayload = { 
+      title: title.trim(), 
+      imageUrl: imageFile || initialData?.imageUrl, 
+      link: link.trim(),
+      order: orderNum, 
+      status 
+    };
     if (initialData?.id) {
       onSubmit({ id: initialData.id, ...bannerData });
     } else {
@@ -97,18 +130,34 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProp
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
           <h2>{initialData?.id ? "Edit Banner" : "Create New Banner"}</h2>
-          <button onClick={onClose} className={styles.modalCloseButton}><X size={20} /></button>
+          <button onClick={onClose} disabled={isMutating} className={styles.modalCloseButton}><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className={styles.modalForm}>
-          <div className={styles.formGroup}><label htmlFor="title">Title</label><input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} /></div>
+          <div className={styles.formGroup}>
+            <label htmlFor="title">Title</label>
+            <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={isMutating} />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="link">Link / URL (Optional)</label>
+            <input 
+              type="text" 
+              id="link" 
+              placeholder="e.g. /products, /collections/category or https://... (Leave blank for no action)" 
+              value={link} 
+              onChange={(e) => setLink(e.target.value)} 
+              disabled={isMutating} 
+            />
+          </div>
+
           <div className={styles.formGroup}>
             <label>Image</label>
             <div className={styles.fileInputContainer}>
-              <label htmlFor="image" className={styles.fileInputLabel}>
+              <label htmlFor="image" className={`${styles.fileInputLabel} ${isMutating ? styles.disabled : ''}`}>
                 <Upload size={16} />
                 <span>Choose File</span>
               </label>
-              <input type="file" id="image" accept="image/*" onChange={handleImageChange} className={styles.fileInput} />
+              <input type="file" id="image" accept="image/*" onChange={handleImageChange} disabled={isMutating} className={styles.fileInput} />
               {imageFile && <span className={styles.fileName}>{imageFile.name}</span>}
               {!imageFile && initialData?.imageUrl && <span className={styles.fileName}>Current image is set</span>}
             </div>
@@ -118,11 +167,40 @@ const BannerModal = ({ isOpen, onClose, onSubmit, initialData }: BannerModalProp
               </div>
             )}
           </div>
-          <div className={styles.formGroup}><label htmlFor="order">Order</label><input type="number" id="order" value={order} onChange={(e) => setOrder(e.target.value)} /></div>
-          <div className={styles.formGroup}><label htmlFor="status">Status</label><select id="status" value={status} onChange={(e) => setStatus(e.target.value as "Active" | "Inactive")}><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+          <div className={styles.formGroup}>
+            <label htmlFor="order">Display Order (Max: {maxOrder})</label>
+            <input 
+              type="number" 
+              id="order" 
+              min={1} 
+              max={maxOrder} 
+              placeholder={`1 to ${maxOrder}`}
+              value={order} 
+              onChange={handleOrderChange}
+              onBlur={handleOrderBlur}
+              onKeyDown={(e) => {
+                if (["e", "E", "+", "-", "."].includes(e.key)) {
+                  e.preventDefault();
+                }
+              }}
+              disabled={isMutating} 
+            />
+            <small style={{ color: "#777", fontSize: "12px", marginTop: "4px", display: "block" }}>
+              Total banners ke hisab se order 1 se {maxOrder} tak hi rakha ja sakta hai.
+            </small>
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="status">Status</label>
+            <select id="status" value={status} onChange={(e) => setStatus(e.target.value as "Active" | "Inactive")} disabled={isMutating}>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
           <div className={styles.modalFooter}>
-            <button type="button" onClick={onClose} className={styles.secondaryButton}>Cancel</button>
-            <button type="submit" className={styles.primaryButton}>{initialData?.id ? "Save Changes" : "Create Banner"}</button>
+            <button type="button" onClick={onClose} disabled={isMutating} className={styles.secondaryButton}>Cancel</button>
+            <button type="submit" disabled={isMutating} className={styles.primaryButton}>
+              {isMutating ? "Saving..." : initialData?.id ? "Save Changes" : "Create Banner"}
+            </button>
           </div>
         </form>
       </div>
@@ -199,13 +277,15 @@ export default function HeroBanners() {
   };
 
   const handleModalSubmit = async (bannerData: BannerFormPayload) => {
+    if (isMutating) return;
     setIsMutating(true);
     setError(null);
 
     const formData = new FormData();
-    formData.append('title', bannerData.title);
+    formData.append('title', (bannerData.title || '').trim());
     formData.append('order', String(bannerData.order));
     formData.append('status', bannerData.status);
+    formData.append('link', (bannerData.link || '').trim());
 
     // Agar nayi image hai to hi append karein
     if (bannerData.imageUrl && typeof bannerData.imageUrl !== 'string') {
@@ -220,6 +300,7 @@ export default function HeroBanners() {
         });
         const updatedBanner = normalizeBanner(response.data);
         setBanners(prev => prev.map(b => (b.id === updatedBanner.id ? updatedBanner : b)).sort((a, b) => a.order - b.order));
+        try { localStorage.removeItem('hero_banners'); } catch (_) {}
         toast.success("Banner updated successfully!");
       } else {
         // Create banner
@@ -229,6 +310,7 @@ export default function HeroBanners() {
         });
         const newBanner = normalizeBanner(response.data);
         setBanners(prev => [...prev, newBanner].sort((a, b) => a.order - b.order));
+        try { localStorage.removeItem('hero_banners'); } catch (_) {}
         toast.success("Banner created successfully!");
       }
       setIsModalOpen(false);
@@ -247,7 +329,7 @@ export default function HeroBanners() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!bannerToDelete) return;
+    if (!bannerToDelete || isMutating) return;
 
     setIsConfirmModalOpen(false);
     setIsMutating(true);
@@ -255,6 +337,7 @@ export default function HeroBanners() {
     try {
       await axiosInstance.delete(`/banners/${bannerToDelete}`);
       setBanners(prev => prev.filter(b => b.id !== bannerToDelete));
+      try { localStorage.removeItem('hero_banners'); } catch (_) {}
       toast.success("Banner deleted successfully!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to delete banner.");
@@ -282,6 +365,8 @@ export default function HeroBanners() {
   if (error) {
     return <div className={styles.container}><div className={styles.error}>Error: {error}</div></div>;
   }
+
+  const maxOrder = currentBanner ? Math.max(banners.length, 1) : banners.length + 1;
 
   return (
     <div className={`${styles.container} ${isMutating ? styles.disabled : ''}`}>
@@ -364,6 +449,8 @@ export default function HeroBanners() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
         initialData={currentBanner}
+        isMutating={isMutating}
+        maxOrder={maxOrder}
       />
       <ConfirmationModal
         isOpen={isConfirmModalOpen}

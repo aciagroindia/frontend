@@ -87,24 +87,51 @@ const Hero = () => {
 
   return (
     <div className={styles.heroWrapper}>
-      {banners.map((banner, index) => (
-        <div
-          key={banner.id}
-          className={`${styles.slide} ${index === currentIndex ? styles.active : ''}`}
-        >
-          <Link href={banner.link || '#'} className={styles.bannerLink}>
-            <Image
-              src={banner.imageUrl}
-              alt={banner.title || 'ACI Agro Solutions banner'}
-              width={1920}
-              height={650}
-              priority={index === 0}
-              className={styles.bannerImg}
-              sizes="100vw"
-            />
-          </Link>
-        </div>
-      ))}
+      {banners.map((banner, index) => {
+        const rawLink = (banner.link || '').trim();
+        const hasValidLink = Boolean(rawLink && rawLink !== '#' && rawLink !== '/');
+        const isExternal = /^https?:\/\//i.test(rawLink);
+
+        const bannerImage = (
+          <Image
+            src={banner.imageUrl}
+            alt={banner.title || 'ACI Agro Solutions banner'}
+            width={1920}
+            height={650}
+            priority={index === 0}
+            className={styles.bannerImg}
+            sizes="100vw"
+          />
+        );
+
+        return (
+          <div
+            key={banner.id || index}
+            className={`${styles.slide} ${index === currentIndex ? styles.active : ''}`}
+          >
+            {hasValidLink ? (
+              isExternal ? (
+                <a
+                  href={rawLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.bannerLink}
+                >
+                  {bannerImage}
+                </a>
+              ) : (
+                <Link href={rawLink} className={styles.bannerLink}>
+                  {bannerImage}
+                </Link>
+              )
+            ) : (
+              <div className={styles.bannerLink} style={{ cursor: 'default' }}>
+                {bannerImage}
+              </div>
+            )}
+          </div>
+        );
+      })}
 
       {banners.length > 1 && (
         <div className={styles.indicators}>
