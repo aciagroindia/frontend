@@ -11,7 +11,6 @@ import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { useCategories } from "../../context/CategoryContext";
-import { LogOut } from "lucide-react";
 
 // 👇 YAHAN IMPORT ADD KIYA HAI (Aap apne path ke hisaab se adjust kar lena)
 import TopAnnouncementBar from "../../components/TopAnnouncementBar/TopAnnouncementBar"; 
@@ -151,32 +150,16 @@ export default function Navbar() {
               <Image src="/assets/search-icon.svg" alt="Search" width={20} height={20} className={styles.darkIcon} />
             </button>
 
-            {/* Login/User Logic - DESKTOP & MOBILE */}
-            {isAuthenticated ? (
-              <div className={styles.userContainer}>
-                <span className={styles.userName}>
-                  Hi, {user?.name?.split(' ')[0]}
-                </span>
-                <button 
-                  onClick={() => setIsLogoutModalOpen(true)} 
-                  className={styles.exitBtn} 
-                  title="Exit / Logout" 
-                  aria-label="Exit or Logout"
-                >
-                  <LogOut size={15} strokeWidth={2.2} />
-                </button>
-              </div>
-            ) : (
-              <button 
-                type="button" 
-                onClick={() => openLoginModal()} 
-                className={styles.iconBtn} 
-                title="Login / Register" 
-                aria-label="Login or Register"
-              >
-                <Image src="/assets/User.svg" alt="Login" width={20} height={20} className={styles.darkIcon} />
-              </button>
-            )}
+            {/* Login/User Profile Icon - Always shows profile icon */}
+            <button 
+              type="button" 
+              onClick={() => (isAuthenticated ? setIsLogoutModalOpen(true) : openLoginModal())} 
+              className={styles.iconBtn} 
+              title={isAuthenticated ? `Hi, ${user?.name || 'User'} (Click to Logout)` : "Login / Register"} 
+              aria-label={isAuthenticated ? "User Account / Logout" : "Login or Register"}
+            >
+              <Image src="/assets/User.svg" alt="User Profile" width={20} height={20} className={styles.darkIcon} />
+            </button>
 
             {/* Wishlist */}
             <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }} aria-label="View Wishlist">
