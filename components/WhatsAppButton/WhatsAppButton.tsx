@@ -1,57 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import styles from "./WhatsAppButton.module.css";
-import axiosInstance from "@/utils/axiosInstance";
-
-interface WhatsAppConfigData {
-  phoneNumber?: string;
-  message?: string;
-  customUrl?: string;
-  isEnabled?: boolean;
-}
+import { useWhatsApp } from "@/lib/useWhatsApp";
 
 export default function WhatsAppButton() {
-  const [config, setConfig] = useState<WhatsAppConfigData>({
-    phoneNumber: "919876543210",
-    message: "Hello ACI Agro Solutions, I would like to inquire about your ayurvedic products.",
-    customUrl: "",
-    isEnabled: true,
-  });
+  const { whatsappUrl, isEnabled } = useWhatsApp();
 
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const res = await axiosInstance.get("/config/whatsapp");
-        if (res.data.success && res.data.data) {
-          setConfig(res.data.data);
-        }
-      } catch (err) {
-        // Use default fallback gracefully
-      }
-    };
-
-    fetchConfig();
-  }, []);
-
-  if (config.isEnabled === false) {
+  if (!isEnabled) {
     return null;
-  }
-
-  // Construct target URL
-  let targetUrl = config.customUrl?.trim();
-  if (!targetUrl) {
-    const cleanPhone = (config.phoneNumber || "919876543210").replace(/[^0-9]/g, "");
-    const encodedMsg = encodeURIComponent(
-      config.message || "Hello ACI Agro Solutions, I would like to inquire about your products."
-    );
-    targetUrl = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
   }
 
   return (
     <div className={styles.floatingContainer}>
       <a
-        href={targetUrl}
+        href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         className={styles.whatsappBtn}

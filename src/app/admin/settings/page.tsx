@@ -56,7 +56,7 @@ export default function SettingsPage() {
 
   // WhatsApp Config state
   const [whatsAppForm, setWhatsAppForm] = useState({
-    phoneNumber: "919876543210",
+    phoneNumber: "917597920642",
     message: "Hello ACI Agro Solutions, I would like to inquire about your ayurvedic products.",
     customUrl: "",
     isEnabled: true,
@@ -100,7 +100,7 @@ export default function SettingsPage() {
         const waRes = await axiosInstance.get("/config/whatsapp");
         if (waRes.data.success && waRes.data.data) {
           setWhatsAppForm({
-            phoneNumber: waRes.data.data.phoneNumber || "919876543210",
+            phoneNumber: waRes.data.data.phoneNumber || "917597920642",
             message: waRes.data.data.message || "Hello ACI Agro Solutions, I would like to inquire about your ayurvedic products.",
             customUrl: waRes.data.data.customUrl || "",
             isEnabled: waRes.data.data.isEnabled !== false,
@@ -376,10 +376,15 @@ export default function SettingsPage() {
   };
 
   // Preview target URL
-  const cleanPhone = whatsAppForm.phoneNumber.replace(/[^0-9]/g, "");
+  const cleanPhone = whatsAppForm.phoneNumber.replace(/\D/g, "");
+  const formattedPreviewPhone = cleanPhone.startsWith("91") && cleanPhone.length === 12 
+    ? cleanPhone 
+    : cleanPhone.length === 10 
+      ? `91${cleanPhone}` 
+      : (cleanPhone || "917597920642");
   const previewWhatsAppUrl = whatsAppForm.customUrl.trim() 
     ? whatsAppForm.customUrl.trim()
-    : `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsAppForm.message)}`;
+    : `https://wa.me/${formattedPreviewPhone}?text=${encodeURIComponent(whatsAppForm.message)}`;
 
   return (
     <>
@@ -528,7 +533,7 @@ export default function SettingsPage() {
                     type="text" 
                     value={whatsAppForm.phoneNumber} 
                     onChange={(e) => setWhatsAppForm({ ...whatsAppForm, phoneNumber: e.target.value })}
-                    placeholder="e.g. 919876543210 (without + or spaces)"
+                    placeholder="e.g. 917597920642 (or 7597920642)"
                     required
                   />
                   <small>
@@ -552,7 +557,7 @@ export default function SettingsPage() {
                     type="url" 
                     value={whatsAppForm.customUrl} 
                     onChange={(e) => setWhatsAppForm({ ...whatsAppForm, customUrl: e.target.value })}
-                    placeholder="https://wa.me/919876543210?text=..."
+                    placeholder="https://wa.me/917597920642?text=..."
                   />
                   <small>
                     Leave empty to automatically generate from number and message above.
