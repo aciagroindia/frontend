@@ -4,6 +4,11 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback,
 import axiosInstance from '@/utils/axiosInstance';
 import { toast } from 'react-hot-toast';
 
+export interface ComboRule {
+  quantity: number;
+  fixedPrice: number;
+}
+
 export interface Category {
   _id: string;
   id: string;
@@ -12,6 +17,7 @@ export interface Category {
   image: string;
   description?: string;
   status: "Active" | "Inactive";
+  comboRules?: ComboRule[];
 }
 
 interface CategoryContextType {

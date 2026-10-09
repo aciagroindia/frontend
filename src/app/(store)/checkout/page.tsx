@@ -66,6 +66,9 @@ function CheckoutContent() {
   const [checkoutTotal, setCheckoutTotal] = useState(0);
   const [discountInfo, setDiscountInfo] = useState<{
     subtotal: number;
+    comboDiscount?: number;
+    comboSubtotal?: number;
+    appliedCombos?: any[];
     discountAmount: number;
     finalTotal: number;
     appliedDiscount: any;
@@ -516,12 +519,13 @@ function CheckoutContent() {
     );
   }
 
-  const effectiveSubtotal = discountInfo ? discountInfo.subtotal : checkoutTotal;
+  const effectiveSubtotal = discountInfo ? (discountInfo.subtotal || checkoutTotal) : checkoutTotal;
+  const effectiveComboDiscount = discountInfo?.comboDiscount || 0;
   const effectiveAutoDiscount = discountInfo ? discountInfo.discountAmount : 0;
   const effectiveCouponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const effectiveShippingFee = shippingStatus.serviceable ? shippingFee : 0;
   const effectiveCodFee = paymentMethod === "COD" ? 30 : 0;
-  const effectiveTotal = Math.max(0, effectiveSubtotal - effectiveAutoDiscount - effectiveCouponDiscount + effectiveShippingFee + effectiveCodFee);
+  const effectiveTotal = Math.max(0, effectiveSubtotal - effectiveComboDiscount - effectiveAutoDiscount - effectiveCouponDiscount + effectiveShippingFee + effectiveCodFee);
 
   return (
     <div className="min-h-screen bg-gray-50/60 pb-16 pt-4 sm:pt-8">
@@ -1079,11 +1083,11 @@ function CheckoutContent() {
                   })()}
 
                   {/* Savings Banner */}
-                  {(effectiveAutoDiscount > 0 || effectiveCouponDiscount > 0) && (
+                  {(effectiveComboDiscount > 0 || effectiveAutoDiscount > 0 || effectiveCouponDiscount > 0) && (
                     <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs sm:text-sm font-semibold flex items-center gap-2 mb-4">
                       <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>
-                        Total Savings: ₹{(effectiveAutoDiscount + effectiveCouponDiscount).toFixed(2)} on this order!
+                        Total Savings: ₹{(effectiveComboDiscount + effectiveAutoDiscount + effectiveCouponDiscount).toFixed(2)} on this order!
                       </span>
                     </div>
                   )}
@@ -1094,6 +1098,19 @@ function CheckoutContent() {
                       <span>Subtotal</span>
                       <span className="font-medium text-gray-900">₹{effectiveSubtotal.toFixed(2)}</span>
                     </div>
+
+                    {effectiveComboDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium">
+                        <span className="flex items-center gap-1">
+                          <span>
+                            Combo Discount {discountInfo?.appliedCombos && discountInfo.appliedCombos.length > 0
+                              ? `(${discountInfo.appliedCombos.map(c => `${c.quantity} for ₹${c.fixedPrice}`).join(', ')})`
+                              : ''}
+                          </span>
+                        </span>
+                        <span>- ₹{effectiveComboDiscount.toFixed(2)}</span>
+                      </div>
+                    )}
 
                     {effectiveAutoDiscount > 0 && (
                       <div className="flex justify-between text-emerald-600 font-medium">

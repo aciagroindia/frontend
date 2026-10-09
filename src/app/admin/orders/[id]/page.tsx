@@ -211,9 +211,15 @@ export default function OrderDetailPage() {
                   <span>Items Subtotal:</span>
                   <span>₹{(order.subtotal || (order.totalAmount - (order.shippingFee || 0)) || 0).toLocaleString()}</span>
                 </div>
+                {order.comboDiscount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#16a34a', fontWeight: 500 }}>
+                    <span>Combo Deal Discount:</span>
+                    <span>- ₹{(order.comboDiscount || 0).toLocaleString()}</span>
+                  </div>
+                )}
                 {(order.discountAmount > 0 || (order.coupon?.discountAmount > 0)) && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#16a34a', fontWeight: 500 }}>
-                    <span>Discount:</span>
+                    <span>Coupon & Extra Discount:</span>
                     <span>- ₹{((order.discountAmount || 0) + (order.coupon?.discountAmount || 0)).toLocaleString()}</span>
                   </div>
                 )}

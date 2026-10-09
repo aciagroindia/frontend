@@ -15,7 +15,7 @@ interface CartProps {
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
   const router = useRouter();
-  const { cartItems, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, cartTotal, originalSubtotal, comboDiscount, appliedCombos } = useCart();
   const { products: allProducts } = useProducts();
 
   const subtotal = cartTotal;
@@ -222,6 +222,27 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                     paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))",
                   }}
                 >
+                  {appliedCombos && appliedCombos.length > 0 && (
+                    <div className={styles.comboSavingBanner}>
+                      🎉 Category Combo Applied: Saved Rs. {comboDiscount.toFixed(2)}!
+                    </div>
+                  )}
+
+                  {comboDiscount > 0 && (
+                    <>
+                      <div className={styles.originalSubtotalRow}>
+                        <span>Original Total:</span>
+                        <span style={{ textDecoration: "line-through" }}>
+                          Rs. {originalSubtotal.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className={styles.discountRow}>
+                        <span>Combo Discount:</span>
+                        <span>- Rs. {comboDiscount.toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
+
                   <div className={styles.subtotalRow}>
                     <span className={styles.subtotalLabel}>Subtotal:</span>
                     <span className={styles.subtotalValue}>

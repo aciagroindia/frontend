@@ -115,9 +115,15 @@ export default function UserOrderDetailPage() {
                 <span>Subtotal</span>
                 <span>₹{(order.subtotal || (order.totalAmount - (order.shippingFee || 0)) || 0).toLocaleString()}</span>
               </div>
+              {order.comboDiscount > 0 && (
+                <div className={styles.priceRow} style={{ color: '#16a34a' }}>
+                  <span>Combo Deal Discount</span>
+                  <span>- ₹{(order.comboDiscount || 0).toLocaleString()}</span>
+                </div>
+              )}
               {(order.discountAmount > 0 || (order.coupon?.discountAmount > 0)) && (
                 <div className={styles.priceRow} style={{ color: '#16a34a' }}>
-                  <span>Discount</span>
+                  <span>Coupon & Extra Discount</span>
                   <span>- ₹{((order.discountAmount || 0) + (order.coupon?.discountAmount || 0)).toLocaleString()}</span>
                 </div>
               )}

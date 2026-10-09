@@ -25,6 +25,15 @@ export interface CartItem {
   variant?: string;
 }
 
+export interface AppliedCombo {
+  categoryId: string;
+  categoryName: string;
+  quantity: number;
+  fixedPrice: number;
+  normalPrice: number;
+  savings: number;
+}
+
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (
@@ -37,6 +46,9 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (isOpen: boolean) => void;
   cartTotal: number;
+  originalSubtotal: number;
+  comboDiscount: number;
+  appliedCombos: AppliedCombo[];
   fetchCart: () => Promise<void>;
 }
 
@@ -45,6 +57,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
+  const [originalSubtotal, setOriginalSubtotal] = useState(0);
+  const [comboDiscount, setComboDiscount] = useState(0);
+  const [appliedCombos, setAppliedCombos] = useState<AppliedCombo[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { isAuthenticated, openLoginModal } = useAuth();
 
@@ -79,6 +94,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!isAuthenticated) {
       setCartItems([]);
       setCartTotal(0);
+      setOriginalSubtotal(0);
+      setComboDiscount(0);
+      setAppliedCombos([]);
       return;
     }
 
@@ -90,12 +108,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
         setCartItems(items);
 
-        const totalFromBackend = Number(cartData.totalPrice);
+        const rawSubtotal = Number(cartData.originalSubtotal ?? cartData.subtotal);
+        const comboDisc = Number(cartData.comboDiscount) || 0;
+        const totalFromBackend = Number(cartData.totalPrice ?? cartData.comboSubtotal);
+
+        setOriginalSubtotal(isNaN(rawSubtotal) ? items.reduce((acc, i) => acc + i.price * i.quantity, 0) : rawSubtotal);
+        setComboDiscount(comboDisc);
+        setAppliedCombos(Array.isArray(cartData.appliedCombos) ? cartData.appliedCombos : []);
+
         if (!isNaN(totalFromBackend)) {
           setCartTotal(totalFromBackend);
         } else {
           setCartTotal(
-            items.reduce((acc, i) => acc + i.price * i.quantity, 0)
+            items.reduce((acc, i) => acc + i.price * i.quantity, 0) - comboDisc
           );
         }
       }
@@ -299,6 +324,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       isCartOpen,
       setIsCartOpen,
       cartTotal,
+      originalSubtotal,
+      comboDiscount,
+      appliedCombos,
       fetchCart,
     }),
     [
@@ -308,6 +336,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       updateQuantity,
       isCartOpen,
       cartTotal,
+      originalSubtotal,
+      comboDiscount,
+      appliedCombos,
       fetchCart,
     ]
   );

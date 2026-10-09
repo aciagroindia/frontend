@@ -96,7 +96,14 @@ export default function CategoriesPage() {
                     <Image src={cat.image} alt={cat.name} width={40} height={40} className={styles.categoryImage} />
                   </div>
                 </td>
-                <td className={styles.categoryName}>{cat.name}</td>
+                <td className={styles.categoryName}>
+                  <div>{cat.name}</div>
+                  {cat.comboRules && cat.comboRules.length > 0 && (
+                    <div className={styles.comboBadge}>
+                      {cat.comboRules.map((r, i) => `${r.quantity} for ₹${r.fixedPrice}`).join(" | ")}
+                    </div>
+                  )}
+                </td>
                 <td>
                   <span className={`${styles.status} ${cat.status === "Active" ? styles.active : styles.inactive}`}>
                     {cat.status}

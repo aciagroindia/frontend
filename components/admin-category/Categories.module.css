@@ -373,3 +373,119 @@
   background-color: #fff;
   border: 1px solid #d1d5db;
 }
+
+/* ---------- COMBO PRICING RULES ---------- */
+
+.comboRulesSection {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comboHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comboTitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.comboHelpText {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.comboRuleRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  background: #ffffff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.comboInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.comboInputGroup label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.comboInputGroup input {
+  padding: 6px 8px;
+  font-size: 0.88rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.comboDeleteBtn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  transition: background 0.15s;
+}
+
+.comboDeleteBtn:hover {
+  background: #fee2e2;
+}
+
+.addComboBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px dashed #059669;
+  color: #059669;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.15s;
+}
+
+.addComboBtn:hover {
+  background: #ecfdf5;
+}
+
+.comboBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin-top: 4px;
+}
+
