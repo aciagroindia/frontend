@@ -1,35 +1,38 @@
 .section {
-  padding: clamp(30px, 4vw, 60px) clamp(16px, 4vw, 24px); /* SECTION PADDING KAM KIYA */
-  max-width: 1250px;
+  padding: clamp(20px, 3vw, 40px) clamp(12px, 3vw, 24px);
+  max-width: 1200px;
   margin: 0 auto;
   text-align: center;
 }
 
 .heading {
-  font-size: clamp(1.2rem, 2vw, 1.8rem); /* HEADING THODI CHHOTI */
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
   font-weight: 700;
   color: #111827;
-  margin-bottom: clamp(20px, 3vw, 40px); /* MARGIN KAM */
+  margin-bottom: clamp(14px, 2vw, 24px);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* CARDS KO CHHOTA KARNE KE LIYE GRID ADJUSTMENT */
+/* CARDS GRID: Compact and centered across all screens */
 .grid {
   display: grid;
-  /* CHANGE 1: minmax 180px se 130px kar diya taaki chote cards banein */
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
-  gap: clamp(12px, 2vw, 20px); /* GAP KAM KIYA */
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: clamp(8px, 1.5vw, 14px);
+  justify-items: center;
 }
 
 .card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 12px; /* Slight modern rounded edges, not circle */
+  width: 100%;
+  max-width: 90px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.3s ease; /* Smooth transition for everything */
+  transition: all 0.25s ease;
   background: #fff;
   border: 1px solid #e5e7eb;
 }
@@ -37,45 +40,156 @@
 @media (hover: hover) {
   .card:hover,
   .card:focus-visible {
-    transform: translateY(-4px); /* Halka sa lift */
-    box-shadow: 0 8px 20px rgb(0 0 0 / 0.08); /* Modern subtle shadow */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+    border-color: #16a34a;
   }
 
   .card:hover .image {
-    transform: scale(1.05); /* Zoom on hover */
+    transform: scale(1.06);
   }
 
-  /* ✅ CHANGE 3: HOVER GREEN EFFECT ON NAME */
   .card:hover .name {
-    color: #16a34a; /* A nice leafy green color */
+    color: #16a34a;
   }
 }
 
-/* Keep Square Image Container */
+/* Square Image Container */
 .imageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1; /* Pure Square aspect ratio */
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #f9fafb; /* Light background if icon has transparent part */
+  background: #f9fafb;
 }
 
 .image {
-  object-fit: cover; /* Fill the square area */
+  object-fit: cover;
   width: 100% !important;
   height: 100% !important;
-  transition: transform 0.4s ease;
+  transition: transform 0.35s ease;
 }
 
 .name {
   width: 100%;
-  padding: 10px 5px; /* Compact padding below image */
+  padding: 6px 4px;
   background: #fff;
-  font-size: clamp(0.75rem, 0.9vw, 0.9rem); /* Font thoda chhota optimized */
-  /* CHANGE 2: BOLD and Green Color default */
-  font-weight: 700; /* Kafi Bold */
-  color: #374151; /* Default grey color */
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #374151;
   text-align: center;
-  margin-top: auto; /* Push to bottom */
-  transition: color 0.3s ease; /* Smooth color change on hover */
+  margin-top: auto;
+  transition: color 0.25s ease;
+  line-height: 1.2;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
+
+/* Medium Tablets & Laptops (641px - 1024px) */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    max-width: 75px;
+    border-radius: 8px;
+  }
+
+  .name {
+    font-size: 0.66rem;
+    padding: 5px 2px;
+  }
+}
+
+/* Small Tablets / Large Mobiles (481px - 640px) */
+@media (max-width: 640px) and (min-width: 481px) {
+  .section {
+    padding: 18px 10px;
+  }
+
+  .heading {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 8px;
+  }
+
+  .card {
+    max-width: 60px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+  }
+
+  .imageWrapper {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px;
+    max-height: 48px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    margin: 0 auto;
+    background: #fff;
+  }
+
+  .name {
+    font-size: 0.60rem;
+    padding: 3px 1px 0;
+  }
+}
+
+/* Mobile Screens (<= 480px): Compact 40x40 */
+@media (max-width: 480px) {
+  .section {
+    padding: 16px 8px;
+  }
+
+  .heading {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 6px;
+  }
+
+  .card {
+    max-width: 52px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .imageWrapper {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    margin: 0 auto;
+    background: #fff;
+  }
+
+  .name {
+    font-size: 0.58rem;
+    font-weight: 600;
+    padding: 3px 1px 0;
+    line-height: 1.1;
+    background: transparent;
+  }
+}
