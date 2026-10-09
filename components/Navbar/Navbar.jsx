@@ -78,6 +78,19 @@ export default function Navbar() {
     setIsMegaMenuOpen(false);
   }, []);
 
+  const handleUserIconClick = () => {
+    if (typeof window !== "undefined" && window.innerWidth <= 1024) {
+      setActiveTab("menu");
+      setIsMobileDrawerOpen(true);
+    } else {
+      if (isAuthenticated) {
+        setIsLogoutModalOpen(true);
+      } else {
+        openLoginModal();
+      }
+    }
+  };
+
   return (
     <>
       <header className={styles.header}>
@@ -150,13 +163,13 @@ export default function Navbar() {
               <Image src="/assets/search-icon.svg" alt="Search" width={20} height={20} className={styles.darkIcon} />
             </button>
 
-            {/* Login/User Profile Icon - Always shows profile icon */}
+            {/* Login/User Profile Icon */}
             <button 
               type="button" 
-              onClick={() => (isAuthenticated ? setIsLogoutModalOpen(true) : openLoginModal())} 
+              onClick={handleUserIconClick} 
               className={styles.iconBtn} 
-              title={isAuthenticated ? `Hi, ${user?.name || 'User'} (Click to Logout)` : "Login / Register"} 
-              aria-label={isAuthenticated ? "User Account / Logout" : "Login or Register"}
+              title={isAuthenticated ? `Hi, ${user?.name || 'User'}` : "Login / Register"} 
+              aria-label={isAuthenticated ? "User Account / Menu" : "Login or Register"}
             >
               <Image src="/assets/User.svg" alt="User Profile" width={20} height={20} className={styles.darkIcon} />
             </button>
