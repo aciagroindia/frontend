@@ -80,17 +80,45 @@ export default function ProductsPage() {
   // Best seller count
   const bestSellerCount = products.filter(p => p.isBestSeller).length;
 
-  // FIX: Table ke liye data ko pehle se taiyaar karein taaki nested properties (jaise category.name) me confusion na ho.
-  const tableData = products.map(product => ({
-    ...product,
-    categoryName: product.category?.name || 'N/A',
-  }));
+  const tableData = products.map(product => {
+    let catDisplay = product.category?.name || 'N/A';
+    if (product.isAllCategories) {
+      catDisplay = '✨ All Categories';
+    } else if (Array.isArray(product.categories) && product.categories.length > 1) {
+      catDisplay = product.categories.map((c: any) => c.name || c).join(', ');
+    }
+    return {
+      ...product,
+      categoryName: catDisplay,
+    };
+  });
 
   const columns = [
     { key: "name", label: "Product Name" },
     { 
       key: "categoryName", 
       label: "Category",
+      render: (_: any, row: Product) => {
+        if (row.isAllCategories) {
+          return (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ecfdf5', color: '#0f5132', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 600 }}>
+              ✨ All Categories
+            </span>
+          );
+        }
+        if (Array.isArray(row.categories) && row.categories.length > 1) {
+          return (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              {row.categories.map((c: any, i: number) => (
+                <span key={i} style={{ background: '#f1f5f9', color: '#334155', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 500 }}>
+                  {c.name || c}
+                </span>
+              ))}
+            </div>
+          );
+        }
+        return <span>{row.category?.name || 'N/A'}</span>;
+      }
     },
     { 
       key: "price", 

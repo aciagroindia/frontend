@@ -13,6 +13,8 @@ export interface Product {
   descriptionSections?: { title: string; content: string }[];
   price: number;
   category: { _id: string; name: string; };
+  categories?: { _id: string; name: string; }[];
+  isAllCategories?: boolean;
   image: string;
   images?: string[];
   faqs: { question: string; answer: string; }[];
@@ -66,6 +68,8 @@ export const normalizeProduct = (product: any): Product => {
     id: product._id,
     image: mainImage,      
     images: galleryImages, 
+    categories: Array.isArray(product.categories) ? product.categories : [],
+    isAllCategories: Boolean(product.isAllCategories),
     price: Number(product.price) || 0,
     faqs: Array.isArray(product.faqs) ? product.faqs : [],
     packages: Array.isArray(product.packages) ? product.packages : [],

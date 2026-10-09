@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, useRef, ChangeEvent, FormEvent } from "react";
 import { useCategories } from "../../context/CategoryContext";
 import { Product } from "../../context/ProductContext";
+import { Check, ChevronDown, Sparkles } from "lucide-react";
 import styles from "./AddProductForm.module.css";
 
 // Proper Interfaces
@@ -101,6 +102,23 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     price: "", stock: "", status: "Active", category: "", unit: "", isBestSeller: false, faqs: [], packages: [], image: null, images: [],
   });
 
+  // Multi-Category Selection State
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isAllCategories, setIsAllCategories] = useState<boolean>(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState<boolean>(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close category dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // State for visual previews and tracking
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [existingGallery, setExistingGallery] = useState<string[]>([]); // DB Gallery (Minus Main)
@@ -148,6 +166,21 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         ? (initialData.category._id || (initialData.category as any).id || "")
         : (typeof initialData.category === 'string' ? initialData.category : "");
 
+      // Handle multi-category initialization
+      let resolvedCategoryIds: string[] = [];
+      const isAll = Boolean(initialData.isAllCategories);
+
+      if (Array.isArray(initialData.categories) && initialData.categories.length > 0) {
+        resolvedCategoryIds = initialData.categories.map((c: any) => 
+          typeof c === 'object' && c !== null ? (c._id || c.id) : String(c)
+        ).filter(Boolean);
+      } else if (resolvedCategoryId) {
+        resolvedCategoryIds = [resolvedCategoryId];
+      }
+
+      setSelectedCategories(resolvedCategoryIds);
+      setIsAllCategories(isAll);
+
       setFormData({
         name: initialData.name || "",
         description: initialData.description || "",
@@ -178,6 +211,8 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       setImagesToDelete([]);
     } else {
       // Reset logic for Add mode with 1 default variant size
+      setSelectedCategories([]);
+      setIsAllCategories(false);
       setFormData({
         name: "",
         description: "",
@@ -201,6 +236,36 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
       setImagesToDelete([]);
     }
   }, [initialData]);
+
+  const handleToggleAllCategories = () => {
+    if (isAllCategories) {
+      setIsAllCategories(false);
+      setSelectedCategories([]);
+    } else {
+      setIsAllCategories(true);
+      const allIds = categories.map(c => c._id || (c as any).id);
+      setSelectedCategories(allIds);
+    }
+  };
+
+  const handleToggleCategory = (catId: string) => {
+    let next: string[];
+    if (selectedCategories.includes(catId)) {
+      next = selectedCategories.filter(id => id !== catId);
+      setIsAllCategories(false);
+    } else {
+      next = [...selectedCategories, catId];
+      if (categories.length > 0 && next.length === categories.length) {
+        setIsAllCategories(true);
+      }
+    }
+    setSelectedCategories(next);
+  };
+
+  const handleClearCategories = () => {
+    setSelectedCategories([]);
+    setIsAllCategories(false);
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -370,11 +435,22 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
     const calculatedPrice = validPackages[0]?.price || 0;
     const plainDescription = validSections.map(s => `${s.title}\n${s.content}`).join('\n\n');
 
+    // Category Validation: Must select at least one or "All Categories"
+    if (selectedCategories.length === 0 && !isAllCategories) {
+      alert("Please select at least one Category or choose 'All Categories'.");
+      return;
+    }
+
+    const primaryCategoryId = selectedCategories[0] || (categories[0] ? (categories[0]._id || (categories[0] as any).id) : "");
+
     const formPayload = new FormData();
     // Append standard fields
-    ['name', 'stock', 'status', 'category', 'unit'].forEach(key => {
+    ['name', 'stock', 'status', 'unit'].forEach(key => {
       formPayload.append(key, (formData as any)[key]);
     });
+    formPayload.append('category', primaryCategoryId);
+    formPayload.append('categories', JSON.stringify(selectedCategories));
+    formPayload.append('isAllCategories', String(isAllCategories));
     formPayload.append('price', String(calculatedPrice));
     formPayload.append('isBestSeller', String(formData.isBestSeller));
 
@@ -417,19 +493,85 @@ export default function ProductForm({ initialData, onSubmit, buttonText = "Submi
         <input name="stock" type="number" placeholder="Total Stock (e.g. 50)" value={formData.stock} onChange={handleChange} required />
         <input name="unit" placeholder="Default Size / Unit (e.g. 500ml, 1 Litre, 250g)" value={formData.unit} onChange={handleChange} />
         
-        <select name="category" value={formData.category} onChange={handleChange} required disabled={categoriesLoading}>
-          <option value="" disabled>Select Category</option>
-          {categories.map(cat => (
-            <option key={cat._id || (cat as any).id} value={cat._id || (cat as any).id}>
-              {cat.name}
-            </option>
-          ))}
-          {!categories.some(cat => (cat._id || (cat as any).id) === formData.category) && formData.category && (
-            <option value={formData.category}>
-              {typeof (initialData?.category as any)?.name === "string" ? (initialData?.category as any).name : "Selected Category"}
-            </option>
+        {/* Multi-Category Selector Dropdown */}
+        <div className={styles.categoryDropdownContainer} ref={categoryDropdownRef}>
+          <button
+            type="button"
+            className={`${styles.categorySelectButton} ${isCategoryDropdownOpen ? styles.categorySelectButtonOpen : ""}`}
+            onClick={() => setIsCategoryDropdownOpen(prev => !prev)}
+            disabled={categoriesLoading}
+          >
+            <span className={styles.categorySelectText}>
+              {isAllCategories ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f5132', fontWeight: 600 }}>
+                  <Sparkles size={16} /> All Categories (Show in all)
+                </span>
+              ) : selectedCategories.length === 0 ? (
+                <span className={styles.categoryPlaceholder}>Select Category (Single, Multiple or All)</span>
+              ) : selectedCategories.length === 1 ? (
+                <span>
+                  {categories.find(c => (c._id || (c as any).id) === selectedCategories[0])?.name || "1 Category Selected"}
+                </span>
+              ) : (
+                <>
+                  <span>
+                    {categories.find(c => (c._id || (c as any).id) === selectedCategories[0])?.name || "Category"}
+                    {" "}
+                    <span style={{ color: "#64748b" }}>(+{selectedCategories.length - 1} more)</span>
+                  </span>
+                  <span className={styles.categoryBadge}>{selectedCategories.length} Selected</span>
+                </>
+              )}
+            </span>
+            <ChevronDown size={18} style={{ transform: isCategoryDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0 }} />
+          </button>
+
+          {isCategoryDropdownOpen && (
+            <div className={styles.categoryDropdownMenu}>
+              {/* Option 1: All Categories */}
+              <div
+                className={styles.allCategoryItem}
+                onClick={handleToggleAllCategories}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={16} color="#0f5132" />
+                  <span>All Categories</span>
+                </div>
+                <div className={`${styles.categoryCheckbox} ${isAllCategories ? styles.categoryCheckboxChecked : ""}`}>
+                  {isAllCategories && <Check size={13} strokeWidth={3} />}
+                </div>
+              </div>
+
+              {/* Individual Categories List with Checkboxes */}
+              {categories.map(cat => {
+                const catId = cat._id || (cat as any).id;
+                const isSelected = selectedCategories.includes(catId) || isAllCategories;
+
+                return (
+                  <div
+                    key={catId}
+                    className={styles.categoryOptionItem}
+                    onClick={() => handleToggleCategory(catId)}
+                  >
+                    <div className={`${styles.categoryCheckbox} ${isSelected ? styles.categoryCheckboxChecked : ""}`}>
+                      {isSelected && <Check size={13} strokeWidth={3} />}
+                    </div>
+                    <span style={{ flex: 1 }}>{cat.name}</span>
+                  </div>
+                );
+              })}
+
+              <div className={styles.categoryDropdownFooter}>
+                <span>{isAllCategories ? "Showing in all categories" : `${selectedCategories.length} category selected`}</span>
+                {(selectedCategories.length > 0 || isAllCategories) && (
+                  <button type="button" onClick={handleClearCategories} className={styles.clearSelectBtn}>
+                    Clear selection
+                  </button>
+                )}
+              </div>
+            </div>
           )}
-        </select>
+        </div>
         
         <select name="status" value={formData.status} onChange={handleChange} required>
           <option value="Active">Active</option>
