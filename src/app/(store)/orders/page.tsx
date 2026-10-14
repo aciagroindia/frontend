@@ -6,8 +6,10 @@ import { useAuth } from "../../../../context/AuthContext";
 import { useProducts } from "../../../../context/ProductContext";
 import styles from "./Orders.module.css";
 import OrderCard from "../../../../components/orders/OrderCard";
+import GoogleCustomerReviewsOptIn, { calculateEstimatedDeliveryDate } from "../../../../components/GoogleCustomerReviewsOptIn";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { CheckCircle2 } from "lucide-react";
 
 interface Item {
   productId: string;
@@ -28,6 +30,8 @@ interface Order {
   paymentMethod?: string;
   razorpay_order_id?: string;
   payu_txnid?: string;
+  rawCreatedAt?: string;
+  customerEmail?: string;
 }
 
 const getOrderStatusText = (status: string): string => {
@@ -46,7 +50,7 @@ const getOrderStatusText = (status: string): string => {
 };
 
 function OrdersContent() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { products: allProducts, loading: productsLoading } = useProducts();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,6 +115,8 @@ function OrdersContent() {
               paymentMethod: order.paymentMethod,
               razorpay_order_id: order.razorpay_order_id,
               payu_txnid: order.payu_txnid,
+              rawCreatedAt: order.createdAt,
+              customerEmail: order.shippingInfo?.email || order.shippingAddress?.email || (typeof order.customer === 'object' ? order.customer?.email : ''),
               items: order.orderItems.map((item: any) => {
                 const productId = item.product?._id || item.product;
                 const fullProduct = allProducts.find(p => p._id === productId);
@@ -148,8 +154,82 @@ function OrdersContent() {
 
   if (!isAuthenticated) return null;
 
+  // Identify if current page load is a newly completed / successful order
+  const cfOrderId = searchParams.get("order_id");
+  const cfOrderStatus = searchParams.get("order_status");
+  const status = searchParams.get("status");
+  const orderId = searchParams.get("orderId");
+
+  const isOrderSuccessful =
+    (cfOrderId && (cfOrderStatus === "PAID" || cfOrderStatus === "SUCCESS")) ||
+    status === "success";
+
+  const matchingOrder = isOrderSuccessful
+    ? orders.find(
+        (o) =>
+          o.id === orderId ||
+          o._id === orderId ||
+          o.id === cfOrderId ||
+          o._id === cfOrderId ||
+          o.razorpay_order_id === orderId ||
+          o.payu_txnid === orderId
+      ) || (orders.length > 0 ? orders[0] : null)
+    : null;
+
+  const targetOrderId = matchingOrder?._id || matchingOrder?.id || orderId || cfOrderId;
+  const customerEmail = matchingOrder?.customerEmail || user?.email || "";
+  const estimatedDeliveryDate = calculateEstimatedDeliveryDate(matchingOrder?.rawCreatedAt);
+
   return (
     <div className={styles.container}>
+      {/* 🌿 Order Confirmation Banner for Newly Completed Orders */}
+      {isOrderSuccessful && targetOrderId && (
+        <div style={{
+          backgroundColor: "#ecfdf5",
+          border: "1px solid #a7f3d0",
+          borderRadius: "1rem",
+          padding: "1.25rem 1.5rem",
+          marginBottom: "1.5rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          color: "#065f46",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
+        }}>
+          <div style={{
+            width: "2.5rem",
+            height: "2.5rem",
+            borderRadius: "9999px",
+            backgroundColor: "#d1fae5",
+            color: "#059669",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0
+          }}>
+            <CheckCircle2 size={22} />
+          </div>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "1.125rem", fontWeight: 700, color: "#064e3b" }}>
+              Order Confirmed Successfully! 🌿
+            </h2>
+            <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#047857" }}>
+              Thank you for choosing ACI Agro Solution. Your order #{targetOrderId.slice(-6).toUpperCase()} has been confirmed and is being prepared for dispatch.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 Google Customer Reviews Survey Opt-In (Merchant ID: 5317000737) */}
+      {isOrderSuccessful && targetOrderId && customerEmail && (
+        <GoogleCustomerReviewsOptIn
+          orderId={targetOrderId}
+          customerEmail={customerEmail}
+          deliveryCountry="IN"
+          estimatedDeliveryDate={estimatedDeliveryDate}
+        />
+      )}
+
       <h1 className={styles.heading}>My Orders 🌿</h1>
 
       {orders.length === 0 ? (

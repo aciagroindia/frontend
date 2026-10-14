@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import { ArrowLeft, User, ShoppingCart, Package, Truck, CheckCircle, Clock } from "lucide-react";
+import GoogleCustomerReviewsOptIn, { calculateEstimatedDeliveryDate } from "../../../../../components/GoogleCustomerReviewsOptIn";
 import { toast } from "react-hot-toast";
 import styles from "./page.module.css";
 import Image from "next/image";
@@ -13,7 +14,9 @@ import Image from "next/image";
 export default function UserOrderDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const orderId = params?.id as string;
+  const isStatusSuccess = searchParams.get("status") === "success";
   const [order, setOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,6 +43,16 @@ export default function UserOrderDetailPage() {
 
   return (
     <div className={styles.container}>
+      {/* 🌟 Google Customer Reviews Survey Opt-In (Merchant ID: 5317000737) */}
+      {isStatusSuccess && order && (
+        <GoogleCustomerReviewsOptIn
+          orderId={order._id || orderId}
+          customerEmail={order.shippingInfo?.email || order.shippingAddress?.email || (typeof order.customer === 'object' ? order.customer?.email : '')}
+          deliveryCountry="IN"
+          estimatedDeliveryDate={calculateEstimatedDeliveryDate(order.createdAt)}
+        />
+      )}
+
       {/* Action Header - Print Button added */}
       <div className={styles.topActions}>
         <button onClick={() => router.push("/orders")} className={styles.backBtn}>

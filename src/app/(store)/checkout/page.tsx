@@ -398,7 +398,8 @@ function CheckoutContent() {
           toast.success("Order Placed Successfully!");
           if (isBuyNow) sessionStorage.removeItem("buyNowItem");
           else await fetchCart();
-          router.push("/orders");
+          const createdOrderId = response.data?.data?._id || response.data?.data?.id;
+          router.push(createdOrderId ? `/orders?status=success&orderId=${createdOrderId}` : "/orders");
           return;
         }
 
