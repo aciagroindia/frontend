@@ -108,35 +108,50 @@ export default function GoogleCustomerReviewsOptIn({
     }
 
     // 5. Execution function safely loading surveyoptin module
-    const executeRender = () => {
+    const executeRender = (): boolean => {
+      if (renderedRef.current) return true;
+
       try {
+        if (!window.gapi) {
+          return false;
+        }
+
+        const triggerRender = () => {
+          if (
+            window.gapi &&
+            window.gapi.surveyoptin &&
+            typeof window.gapi.surveyoptin.render === "function"
+          ) {
+            console.log(
+              "[Google Customer Reviews] Rendering survey opt-in popup for order:",
+              String(orderId).slice(-6)
+            );
+            window.gapi.surveyoptin.render(optInConfig);
+            renderedRef.current = true;
+            try {
+              sessionStorage.setItem(storageKey, "true");
+            } catch (e) {}
+            return true;
+          }
+          return false;
+        };
+
         if (
-          window.gapi &&
           window.gapi.surveyoptin &&
           typeof window.gapi.surveyoptin.render === "function"
         ) {
-          window.gapi.surveyoptin.render(optInConfig);
-          renderedRef.current = true;
-          try {
-            sessionStorage.setItem(storageKey, "true");
-          } catch (e) {}
-        } else if (window.gapi && typeof window.gapi.load === "function") {
+          return triggerRender();
+        } else if (typeof window.gapi.load === "function") {
+          console.log("[Google Customer Reviews] Loading surveyoptin via gapi.load...");
           window.gapi.load("surveyoptin", () => {
-            if (
-              window.gapi.surveyoptin &&
-              typeof window.gapi.surveyoptin.render === "function"
-            ) {
-              window.gapi.surveyoptin.render(optInConfig);
-              renderedRef.current = true;
-              try {
-                sessionStorage.setItem(storageKey, "true");
-              } catch (e) {}
-            }
+            triggerRender();
           });
+          return true;
         }
       } catch (err) {
-        // Silently capture errors without exposing customer email or PII
+        console.error("[Google Customer Reviews] Error executing render:", err);
       }
+      return false;
     };
 
     // Register global callback for when Google platform script finishes loading
@@ -144,9 +159,25 @@ export default function GoogleCustomerReviewsOptIn({
       executeRender();
     };
 
+    // If gapi is already present and ready in the window, render immediately
+    if (executeRender()) {
+      return;
+    }
+
     // 6. Check if Google platform.js script is already in document
     const SCRIPT_ID = "google-customer-reviews-platform-script";
     let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    const startPollingForGapi = () => {
+      let attempts = 0;
+      pollInterval = setInterval(() => {
+        attempts++;
+        if (executeRender() || attempts > 25) {
+          if (pollInterval) clearInterval(pollInterval);
+        }
+      }, 200);
+    };
 
     if (!script) {
       script = document.createElement("script");
@@ -154,11 +185,25 @@ export default function GoogleCustomerReviewsOptIn({
       script.src = "https://apis.google.com/js/platform.js?onload=renderOptIn";
       script.async = true;
       script.defer = true;
+      script.onload = () => {
+        startPollingForGapi();
+      };
+      script.onerror = () => {
+        console.warn(
+          "[Google Customer Reviews] Failed to load apis.google.com/js/platform.js (Check if AdBlocker or Brave Shields is blocking it)."
+        );
+      };
       document.body.appendChild(script);
     } else {
-      // Script already loaded, trigger execution directly
-      executeRender();
+      // Script already loaded or loading in DOM
+      startPollingForGapi();
     }
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
   }, [
     orderId,
     customerEmail,
