@@ -51,9 +51,16 @@ const getOrderStatusText = (status: string): string => {
 
 function OrdersContent() {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  const { products: allProducts, loading: productsLoading } = useProducts();
+  const { products: allProducts, loading: productsLoading, fetchProducts } = useProducts();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Ensure products are fetched so items and reorder work reliably
+  useEffect(() => {
+    if (allProducts.length === 0 && typeof fetchProducts === "function") {
+      fetchProducts();
+    }
+  }, [allProducts.length, fetchProducts]);
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,15 +125,18 @@ function OrdersContent() {
               rawCreatedAt: order.createdAt,
               customerEmail: order.shippingInfo?.email || order.shippingAddress?.email || (typeof order.customer === 'object' ? order.customer?.email : ''),
               items: order.orderItems.map((item: any) => {
-                const productId = item.product?._id || item.product;
-                const fullProduct = allProducts.find(p => p._id === productId);
-                const image = fullProduct?.image || item.image || item.product?.image || "/assets/placeholder.png";
+                const rawProd = item.product;
+                const rawProdId = rawProd?._id || rawProd?.id || rawProd;
+                const cleanProductId = typeof rawProdId === "object" ? String(rawProdId?._id || rawProdId?.id || "") : String(rawProdId || "");
+                const fullProduct = allProducts.find((p) => String(p._id) === cleanProductId || String(p.id) === cleanProductId);
+                const image = fullProduct?.image || item.image || rawProd?.image || "/assets/placeholder.png";
                 return {
-                  productId: productId,
-                  name: fullProduct?.name || item.name || item.product?.name || "Product",
-                  quantity: item.quantity,
-                  price: item.price,
+                  productId: cleanProductId,
+                  name: fullProduct?.name || item.name || rawProd?.name || "Product",
+                  quantity: item.quantity || 1,
+                  price: item.price || fullProduct?.price || 0,
                   image: image,
+                  slug: fullProduct?.slug || rawProd?.slug || "",
                 };
               }),
             };

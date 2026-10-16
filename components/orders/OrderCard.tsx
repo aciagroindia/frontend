@@ -51,20 +51,45 @@ export default function OrderCard({ order }: { order: Order }) {
 
     toast.loading("Adding items to cart...", { id: "reorder-toast" });
 
-    const reorderPromises = order.items.map(item => {
-      const productToReorder = allProducts.find(p => p._id === item.productId);
-      if (productToReorder) {
-        return addToCart(productToReorder, item.quantity, true);
-      } else {
-        console.warn(`Product with ID ${item.productId} not found for reorder.`);
-        return Promise.resolve(null);
-      }
-    });
-
+    let addedCount = 0;
     try {
-      await Promise.all(reorderPromises);
-      toast.success("All items have been added to your cart!", { id: "reorder-toast" });
-      setIsCartOpen(true);
+      // Loop sequentially to avoid concurrent Mongoose version save conflicts in backend cart
+      for (const item of order.items) {
+        const cleanProductId =
+          typeof item.productId === "object"
+            ? String((item.productId as any)?._id || (item.productId as any)?.id || item.productId)
+            : String(item.productId || "");
+
+        if (!cleanProductId) continue;
+
+        // Try to match with existing products in context (matching string IDs)
+        const productToReorder = allProducts.find(
+          (p) => String(p._id) === cleanProductId || String(p.id) === cleanProductId
+        );
+
+        // Fallback product payload using the item data already present in the order
+        const productPayload = productToReorder || {
+          _id: cleanProductId,
+          id: cleanProductId,
+          productId: cleanProductId,
+          name: item.name || "Product",
+          price: Number(item.price) || 0,
+          image: item.image || "",
+          stock: 99,
+          status: "Active",
+          slug: (item as any).slug || "",
+        };
+
+        await addToCart(productPayload, item.quantity || 1, true);
+        addedCount++;
+      }
+
+      if (addedCount > 0) {
+        toast.success("All items have been added to your cart!", { id: "reorder-toast" });
+        setIsCartOpen(true);
+      } else {
+        toast.error("No items could be added to cart.", { id: "reorder-toast" });
+      }
     } catch (error) {
       toast.error("Some items could not be reordered.", { id: "reorder-toast" });
       console.error("Reorder failed:", error);
