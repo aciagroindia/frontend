@@ -1,10 +1,19 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
-    gapi?: any;
+    gapi?: {
+      load: (
+        name: string,
+        callback: () => void
+      ) => void;
+      surveyoptin?: {
+        render: (config: Record<string, unknown>) => void;
+      };
+    };
     renderOptIn?: () => void;
   }
 }
@@ -12,8 +21,8 @@ declare global {
 export interface GoogleCustomerReviewsOptInProps {
   orderId: string;
   customerEmail: string;
-  deliveryCountry?: string; // Default: 'IN'
-  estimatedDeliveryDate?: string; // Format: 'YYYY-MM-DD'
+  deliveryCountry?: string;
+  estimatedDeliveryDate?: string;
   products?: { gtin?: string }[];
   optInStyle?:
     | "CENTER_DIALOG"
@@ -24,31 +33,27 @@ export interface GoogleCustomerReviewsOptInProps {
     | "BOTTOM_TRAY";
 }
 
-/**
- * Calculates expected delivery date (Default: +6 days for Delhivery standard pan-India delivery)
- * Returns date strictly formatted as YYYY-MM-DD
- */
 export function calculateEstimatedDeliveryDate(
   orderDate?: string | Date,
   daysToAdd = 6
 ): string {
-  const date = orderDate ? new Date(orderDate) : new Date();
-  const validDate = isNaN(date.getTime()) ? new Date() : date;
-  validDate.setDate(validDate.getDate() + daysToAdd);
-  const year = validDate.getFullYear();
-  const month = String(validDate.getMonth() + 1).padStart(2, "0");
-  const day = String(validDate.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const parsedDate = orderDate
+    ? new Date(orderDate)
+    : new Date();
+
+  const date = Number.isNaN(parsedDate.getTime())
+    ? new Date()
+    : parsedDate;
+
+  date.setDate(date.getDate() + daysToAdd);
+
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 }
 
-/**
- * Google Customer Reviews Survey Opt-In Component
- * Follows official Google Merchant Center specifications:
- * - Merchant ID: 5317000737
- * - Dynamically passes actual order data (order_id, email, delivery_country, estimated_delivery_date)
- * - Prevents duplicate tracking across page refreshes via sessionStorage
- * - Zero PII logged to browser console or public config
- */
 export default function GoogleCustomerReviewsOptIn({
   orderId,
   customerEmail,
@@ -60,149 +65,190 @@ export default function GoogleCustomerReviewsOptIn({
   const renderedRef = useRef(false);
 
   useEffect(() => {
-    // 1. Guard against missing required fields or server-side rendering
-    if (typeof window === "undefined" || !orderId || !customerEmail) {
-      return;
-    }
+    if (!orderId || !customerEmail?.trim()) return;
+    if (renderedRef.current) return;
 
-    // 2. Prevent duplicate execution in the same component render cycle
-    if (renderedRef.current) {
-      return;
-    }
-
-    // 3. Prevent duplicate tracking on page refresh across session
     const storageKey = `gcr_optin_tracked_${orderId}`;
+
     try {
       if (sessionStorage.getItem(storageKey) === "true") {
         return;
       }
-    } catch (e) {
-      // Ignore private browsing storage restriction errors
+    } catch {
+      // Continue if sessionStorage is unavailable.
     }
 
-    const cleanEmail = customerEmail.trim();
-    if (!cleanEmail || !cleanEmail.includes("@")) {
+    const email = customerEmail.trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      console.warn(
+        "[Google Customer Reviews] Invalid customer email."
+      );
       return;
     }
 
-    const finalDeliveryDate =
-      estimatedDeliveryDate || calculateEstimatedDeliveryDate();
+    if (!/^[A-Z]{2}$/.test(deliveryCountry)) {
+      console.warn(
+        "[Google Customer Reviews] Invalid delivery country."
+      );
+      return;
+    }
 
-    // 4. Opt-in configuration strictly adhering to Google Customer Reviews schema
-    const optInConfig: Record<string, any> = {
+    const deliveryDate =
+      estimatedDeliveryDate ||
+      calculateEstimatedDeliveryDate();
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)) {
+      console.warn(
+        "[Google Customer Reviews] Invalid delivery date."
+      );
+      return;
+    }
+
+    const config: Record<string, unknown> = {
       merchant_id: 5317000737,
       order_id: String(orderId),
-      email: cleanEmail,
-      delivery_country: deliveryCountry || "IN",
-      estimated_delivery_date: finalDeliveryDate,
-      opt_in_style: optInStyle || "CENTER_DIALOG",
+      email,
+      delivery_country: deliveryCountry,
+      estimated_delivery_date: deliveryDate,
+      opt_in_style: optInStyle,
     };
 
-    if (products && products.length > 0) {
-      const validGtins = products
-        .filter((p) => p && p.gtin && p.gtin.trim())
-        .map((p) => ({ gtin: p.gtin!.trim() }));
-      if (validGtins.length > 0) {
-        optInConfig.products = validGtins;
-      }
+    const validProducts = products?.filter(
+      (product) => product.gtin?.trim()
+    );
+
+    if (validProducts?.length) {
+      config.products = validProducts.map((product) => ({
+        gtin: product.gtin!.trim(),
+      }));
     }
 
-    // 5. Execution function safely loading surveyoptin module
-    const executeRender = (): boolean => {
-      if (renderedRef.current) return true;
+    let cancelled = false;
+    let loadStarted = false;
 
+    const renderSurvey = () => {
+      if (cancelled || renderedRef.current || loadStarted) {
+        return;
+      }
+
+      // Do not display again for an order already handled
+      // in this browser tab's current session.
       try {
-        if (!window.gapi) {
-          return false;
+        if (sessionStorage.getItem(storageKey) === "true") {
+          return;
         }
-
-        const triggerRender = () => {
-          if (
-            window.gapi &&
-            window.gapi.surveyoptin &&
-            typeof window.gapi.surveyoptin.render === "function"
-          ) {
-            console.log(
-              "[Google Customer Reviews] Rendering survey opt-in popup for order:",
-              String(orderId).slice(-6)
-            );
-            window.gapi.surveyoptin.render(optInConfig);
-            renderedRef.current = true;
-            try {
-              sessionStorage.setItem(storageKey, "true");
-            } catch (e) {}
-            return true;
-          }
-          return false;
-        };
-
-        if (
-          window.gapi.surveyoptin &&
-          typeof window.gapi.surveyoptin.render === "function"
-        ) {
-          return triggerRender();
-        } else if (typeof window.gapi.load === "function") {
-          console.log("[Google Customer Reviews] Loading surveyoptin via gapi.load...");
-          window.gapi.load("surveyoptin", () => {
-            triggerRender();
-          });
-          return true;
-        }
-      } catch (err) {
-        console.error("[Google Customer Reviews] Error executing render:", err);
+      } catch {
+        // Continue if sessionStorage is unavailable.
       }
-      return false;
-    };
 
-    // Register global callback for when Google platform script finishes loading
-    window.renderOptIn = function () {
-      executeRender();
-    };
+      if (!window.gapi?.load) {
+        console.warn(
+          "[Google Customer Reviews] Google API is not ready."
+        );
+        return;
+      }
 
-    // If gapi is already present and ready in the window, render immediately
-    if (executeRender()) {
-      return;
-    }
+      loadStarted = true;
 
-    // 6. Check if Google platform.js script is already in document
-    const SCRIPT_ID = "google-customer-reviews-platform-script";
-    let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
-    let pollInterval: NodeJS.Timeout | null = null;
+      window.gapi.load("surveyoptin", () => {
+        if (cancelled || renderedRef.current) return;
 
-    const startPollingForGapi = () => {
-      let attempts = 0;
-      pollInterval = setInterval(() => {
-        attempts++;
-        if (executeRender() || attempts > 25) {
-          if (pollInterval) clearInterval(pollInterval);
+        try {
+          const survey = window.gapi?.surveyoptin;
+
+          if (!survey || typeof survey.render !== "function") {
+            loadStarted = false;
+
+            console.error(
+              "[Google Customer Reviews] Survey module is unavailable."
+            );
+            return;
+          }
+
+          // Mark before rendering to prevent duplicate calls
+          // during React rerenders or repeated callbacks.
+          renderedRef.current = true;
+
+          try {
+            sessionStorage.setItem(storageKey, "true");
+          } catch {
+            // The ref still prevents duplicates in this mount.
+          }
+
+          console.log(
+            "[Google Customer Reviews] Rendering opt-in for order:",
+            String(orderId).slice(-6)
+          );
+
+          survey.render(config);
+        } catch (error) {
+          renderedRef.current = false;
+
+          try {
+            sessionStorage.removeItem(storageKey);
+          } catch {
+            // Ignore storage errors.
+          }
+
+          loadStarted = false;
+
+          console.error(
+            "[Google Customer Reviews] Survey render failed:",
+            error
+          );
         }
-      }, 200);
+      });
+    };
+
+    window.renderOptIn = renderSurvey;
+
+    const SCRIPT_ID =
+      "google-customer-reviews-platform-script";
+
+    let script = document.getElementById(
+      SCRIPT_ID
+    ) as HTMLScriptElement | null;
+
+    const handleScriptLoad = () => {
+      renderSurvey();
     };
 
     if (!script) {
       script = document.createElement("script");
       script.id = SCRIPT_ID;
-      script.src = "https://apis.google.com/js/platform.js?onload=renderOptIn";
+      script.src =
+        "https://apis.google.com/js/platform.js?onload=renderOptIn";
       script.async = true;
       script.defer = true;
-      script.onload = () => {
-        startPollingForGapi();
-      };
-      script.onerror = () => {
-        console.warn(
-          "[Google Customer Reviews] Failed to load apis.google.com/js/platform.js (Check if AdBlocker or Brave Shields is blocking it)."
-        );
-      };
+
+      script.addEventListener("load", handleScriptLoad, {
+        once: true,
+      });
+
+      script.addEventListener(
+        "error",
+        () => {
+          console.error(
+            "[Google Customer Reviews] Failed to load platform.js."
+          );
+        },
+        { once: true }
+      );
+
       document.body.appendChild(script);
+    } else if (window.gapi?.load) {
+      // Reuse the existing Google script.
+      renderSurvey();
     } else {
-      // Script already loaded or loading in DOM
-      startPollingForGapi();
+      script.addEventListener("load", handleScriptLoad, {
+        once: true,
+      });
     }
 
     return () => {
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
+      cancelled = true;
+      script?.removeEventListener("load", handleScriptLoad);
     };
   }, [
     orderId,
@@ -213,5 +259,5 @@ export default function GoogleCustomerReviewsOptIn({
     products,
   ]);
 
-  return null; // Headless integration, renders native Google dialog
+  return null;
 }
