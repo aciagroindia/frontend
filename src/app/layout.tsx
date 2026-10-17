@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "react-hot-toast"; // 1. Toast import kiya
+import { Analytics } from '@vercel/analytics/next';
 
 import { CartProvider } from "../../context/CartContext";
 import { WishlistProvider } from "../../context/WishlistContext";
@@ -111,6 +112,7 @@ export default function RootLayout({
             </ProductProvider>
           </CategoryProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
