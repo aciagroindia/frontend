@@ -1,6 +1,15 @@
 // next.config.ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
   reactStrictMode: true,
   devIndicators: {
     buildActivity: false,
