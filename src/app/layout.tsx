@@ -48,7 +48,7 @@ description: "Shop authentic Ayurvedic and herbal wellness products made with tr
     siteName: "ACI Agro Solutions",
     title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
     description:
-      "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
     images: [
       {
         url: "/og-image.png",
@@ -62,7 +62,7 @@ description: "Shop authentic Ayurvedic and herbal wellness products made with tr
     card: "summary_large_image",
     title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
     description:
-      "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
     images: ["/og-image.png"],
   },
 };
