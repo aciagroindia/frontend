@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: ["https://aciagro.com/og-image.png"],
     title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-    description: Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+   description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
   },
   robots: {
     index: true,
