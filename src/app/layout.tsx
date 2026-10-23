@@ -18,7 +18,7 @@ export const metadata = {
     default: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
     template: "%s | ACI Agro Solutions",
   },
-  description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+description: "Shop authentic Ayurvedic and herbal wellness products from ACI Agro Solutions. Discover natural herbal juices and wellness products across India.",
   keywords: [
     "Ayurvedic products",
     "Herbal wellness",
