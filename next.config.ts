@@ -8,6 +8,11 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+        {
+        source: '/products/red-vinegar',
+        destination: '/products/red-vinegar-500-ml--red-food-vinegar-aci-agro-solution',
+        permanent: true,
+      },
     ];
   },
   reactStrictMode: true,
