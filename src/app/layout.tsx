@@ -74,11 +74,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta
-          name="description"
-          content="Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions."
-        />
+      <head> 
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <Script
