@@ -47,12 +47,23 @@ export const metadata = {
     url: "https://aciagro.com",
     siteName: "ACI Agro Solutions",
     title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
-    description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+    description:
+      "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
-    description: "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+    description:
+      "Shop 100% natural, pure Ayurvedic herbal wellness products, juices, and organic remedies online at best prices across India with ACI Agro Solutions.",
+    images: ["/og-image.png"],
   },
 };
 
