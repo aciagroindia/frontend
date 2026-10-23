@@ -8,13 +8,13 @@ import ScrollingStrip from "../../components/ScrollingStrip/ScrollingStrip";
 
 export const metadata: Metadata = {
   title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-  description: "Discover pure and authentic Ayurvedic wellness products crafted with traditional wisdom and modern precision at ACI Agro Solutions.",
+  description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/",
   },
   openGraph: {
     title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-    description: "Discover pure and authentic Ayurvedic wellness products crafted with traditional wisdom and modern precision at ACI Agro Solutions.",
+    description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
     url: "https://aciagro.com/",
     siteName: "ACI Agro Solutions",
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: ["https://aciagro.com/og-image.png"],
     title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-    description: "Discover pure and authentic Ayurvedic wellness products crafted with traditional wisdom and modern precision at ACI Agro Solutions.",
+    description: Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
   },
   robots: {
     index: true,
