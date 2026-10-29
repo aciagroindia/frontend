@@ -8,19 +8,30 @@ export default function EagleWelcome() {
   const [landed, setLanded] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [run, setRun] = useState(0);
-  const [videoError, setVideoError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
 
     setLanded(false);
     setWelcomeOpen(false);
-    setVideoError(false);
+    setImageError(false);
+
+    const landingTimer = window.setTimeout(() => {
+      setLanded(true);
+    }, 4000);
+
+    const welcomeTimer = window.setTimeout(() => {
+      setWelcomeOpen(true);
+    }, 4400);
+
+    return () => {
+      window.clearTimeout(landingTimer);
+      window.clearTimeout(welcomeTimer);
+    };
   }, [visible, run]);
 
-  if (!visible) {
-    return null;
-  }
+  if (!visible) return null;
 
   const dismissWelcome = () => {
     setVisible(false);
@@ -29,7 +40,7 @@ export default function EagleWelcome() {
   const replayEagle = () => {
     setLanded(false);
     setWelcomeOpen(false);
-    setVideoError(false);
+    setImageError(false);
     setRun((value) => value + 1);
   };
 
@@ -43,30 +54,23 @@ export default function EagleWelcome() {
           landed ? styles.landed : styles.flying
         }`}
       >
-        <video
+        <img
           key={run}
           className={styles.eagleImage}
           src="/eagle-flight-transparent.webp"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          onLoadedData={() => {
-            console.log("Eagle video loaded successfully");
-          }}
-          onEnded={() => {
-            setLanded(true);
-            setWelcomeOpen(true);
+          alt="Eagle flying"
+          onLoad={() => {
+            setImageError(false);
           }}
           onError={() => {
-            setVideoError(true);
-            console.error("Eagle video failed to load");
+            setImageError(true);
+            console.error("Eagle animation failed to load");
           }}
         />
 
-        {videoError && (
+        {imageError && (
           <p role="alert">
-            Eagle animation could not load. Please refresh the page.
+            Eagle animation could not load. Please check the image file.
           </p>
         )}
       </div>
