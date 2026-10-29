@@ -1,5 +1,3 @@
-import EagleWelcome from "../../../components/EagleWelcome/EagleWelcome";
-
 export default function StoreLayout({
   children,
 }: {
@@ -9,7 +7,6 @@ export default function StoreLayout({
     <>
       <div className="min-h-screen mt-[86px]">
         {children}
-        <EagleWelcome />
       </div>
     </>
   );
