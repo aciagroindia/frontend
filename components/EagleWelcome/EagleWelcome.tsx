@@ -57,7 +57,7 @@ export default function EagleWelcome() {
         aria-hidden="true"
       >
         <img
-          src="/eagle-perched.webp"
+          src="/eagle-perched.webp.png"
           alt=""
           className={styles.eagleImage}
         />
