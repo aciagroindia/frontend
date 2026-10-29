@@ -13,51 +13,34 @@ export default function EagleWelcome() {
 
     setLanded(false);
     setWelcomeOpen(false);
-
-    const landingTimer = window.setTimeout(() => {
-      setLanded(true);
-    }, 2800);
-
-    const welcomeTimer = window.setTimeout(() => {
-      setWelcomeOpen(true);
-    }, 3400);
-
-    return () => {
-      window.clearTimeout(landingTimer);
-      window.clearTimeout(welcomeTimer);
-    };
   }, [visible, run]);
 
   if (!visible) {
-    return (
-      <button
-        type="button"
-        className={styles.reopen}
-        onClick={() => {
-          setVisible(true);
-          setRun((value) => value + 1);
-        }}
-        aria-label="Show eagle welcome"
-        title="Welcome"
-      >
-        🦅
-      </button>
-    );
+    return null;
   }
 
+  const dismissWelcome = () => {
+    setVisible(false);
+  };
+
   return (
-    <aside className={styles.widget} aria-label="Welcome to ACI Agro Solution">
-      <div
-        key={run}
-        className={`${styles.eagle} ${
-          landed ? styles.landed : styles.flying
-        }`}
-        aria-hidden="true"
-      >
-        <img
-          src="/eagle-perched.webp.png"
-          alt=""
+    <aside
+      className={styles.widget}
+      aria-label="Welcome to ACI Agro Solution"
+    >
+      <div className={`${styles.eagle} ${landed ? styles.landed : styles.flying}`}>
+        <video
+          key={run}
           className={styles.eagleImage}
+          src="/eagle-flight-transparent.webp.mp4"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={() => {
+            setLanded(true);
+            setWelcomeOpen(true);
+          }}
         />
       </div>
 
@@ -76,7 +59,11 @@ export default function EagleWelcome() {
           <h2>Welcome to ACI Agro Solution!</h2>
           <p>Discover our range of nature-inspired products.</p>
 
-          <a href="/products" className={styles.explore}>
+          <a
+            href="/products"
+            className={styles.explore}
+            onClick={dismissWelcome}
+          >
             Explore Products →
           </a>
         </section>
@@ -93,7 +80,7 @@ export default function EagleWelcome() {
         </button>
         <button
           type="button"
-          onClick={() => setVisible(false)}
+          onClick={dismissWelcome}
           aria-label="Close eagle welcome"
           title="Close"
         >
