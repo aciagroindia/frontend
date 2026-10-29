@@ -32,7 +32,7 @@ export default function EagleWelcome() {
         <video
           key={run}
           className={styles.eagleImage}
-          src="/eagle-flight-transparent.webp.mp4"
+          src="/eagle-flight-transparent.webp"
           autoPlay
           muted
           playsInline
