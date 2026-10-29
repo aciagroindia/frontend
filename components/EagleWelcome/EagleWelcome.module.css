@@ -34,10 +34,12 @@
   animation: flyIn 2.8s ease-in-out both;
 }
 
+
 .flying .eagleImage {
-  animation: fadeIn 300ms ease forwards;
-  animation-delay: 2.5s;
+  opacity: 1;
+  animation: flyIn 2.8s ease-in-out both;
 }
+
 
 .landed .eagleImage {
   opacity: 1;
