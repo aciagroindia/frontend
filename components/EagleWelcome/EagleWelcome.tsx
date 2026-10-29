@@ -8,14 +8,14 @@ export default function EagleWelcome() {
   const [landed, setLanded] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [run, setRun] = useState(0);
-  const [imageError, setImageError] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
 
     setLanded(false);
     setWelcomeOpen(false);
-    setImageError(false);
+    setVideoError(false);
 
     const landingTimer = window.setTimeout(() => {
       setLanded(true);
@@ -40,7 +40,7 @@ export default function EagleWelcome() {
   const replayEagle = () => {
     setLanded(false);
     setWelcomeOpen(false);
-    setImageError(false);
+    setVideoError(false);
     setRun((value) => value + 1);
   };
 
@@ -54,21 +54,28 @@ export default function EagleWelcome() {
           landed ? styles.landed : styles.flying
         }`}
       >
-        <img
+        <video
           key={run}
           className={styles.eagleImage}
-          src="/eagle-flight-transparent.webp"
-          alt="Eagle flying"
-          onLoad={() => setImageError(false)}
+          src="/eagle-flight-transparent.webp.mp4"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onLoadedData={() => setVideoError(false)}
+          onEnded={() => {
+            setLanded(true);
+            setWelcomeOpen(true);
+          }}
           onError={() => {
-            setImageError(true);
-            console.error("Eagle animation failed to load");
+            setVideoError(true);
+            console.error("Eagle video failed to load");
           }}
         />
 
-        {imageError && (
+        {videoError && (
           <p role="alert">
-            Eagle animation could not load. Please check the image file.
+            Eagle animation could not load. Please check the video file.
           </p>
         )}
       </div>
