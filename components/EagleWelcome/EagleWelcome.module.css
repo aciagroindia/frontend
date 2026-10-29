@@ -30,8 +30,12 @@
   filter: drop-shadow(0 8px 12px rgb(0 0 0 / 15%));
 }
 
+.flying {
+  animation: eagleFlyAcross 4s cubic-bezier(0.22, 0.7, 0.25, 1) both;
+}
+
 .flying .eagleImage {
-  animation: eagleArrive 700ms ease-out both;
+  animation: eagleWingMotion 900ms ease-in-out infinite alternate;
 }
 
 .landed .eagleImage {
@@ -114,14 +118,37 @@
   box-shadow: 0 3px 12px rgb(0 0 0 / 10%);
 }
 
-@keyframes eagleArrive {
-  from {
+@keyframes eagleFlyAcross {
+  0% {
     opacity: 0;
-    transform: translate(100px, -70px) scale(0.85);
+    transform: translate(-100vw, -35vh) scale(0.75);
   }
-  to {
+
+  15% {
+    opacity: 1;
+  }
+
+  75% {
+    transform: translate(-15vw, -10vh) scale(0.95);
+  }
+
+  90% {
+    transform: translate(-3vw, 0) scale(1.03);
+  }
+
+  100% {
     opacity: 1;
     transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes eagleWingMotion {
+  from {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+
+  to {
+    transform: translateY(3px) rotate(1deg);
   }
 }
 
@@ -129,6 +156,7 @@
   from {
     transform: translateY(-8px);
   }
+
   to {
     transform: translateY(0);
   }
@@ -139,6 +167,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
