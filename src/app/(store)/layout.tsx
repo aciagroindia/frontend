@@ -1,4 +1,4 @@
-import EagleWelcome from "@/components/EagleWelcome/EagleWelcome";
+import EagleWelcome from "../../../components/EagleWelcome/EagleWelcome";
 
 export default function StoreLayout({
   children,
