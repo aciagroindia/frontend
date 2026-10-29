@@ -1,5 +1,5 @@
 "use client";
-
+import EagleWelcome from "./EagleWelcome/EagleWelcome";
 import { usePathname } from "next/navigation";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
@@ -26,6 +26,7 @@ export default function ConditionalLayout({
       <TopAnnouncementBar />
       <Navbar />
       {children}
+      <EagleWelcome />
       <WhatsAppButton />
       <FeaturesStrip />
       <Footer />
