@@ -59,7 +59,6 @@ export default function EagleWelcome() {
           alt=""
           className={styles.eagleImage}
         />
-        {!landed && <span className={styles.flightFallback}>🦅</span>}
       </div>
 
       {welcomeOpen && (
