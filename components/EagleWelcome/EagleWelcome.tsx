@@ -59,9 +59,7 @@ export default function EagleWelcome() {
           className={styles.eagleImage}
           src="/eagle-flight-transparent.webp"
           alt="Eagle flying"
-          onLoad={() => {
-            setImageError(false);
-          }}
+          onLoad={() => setImageError(false)}
           onError={() => {
             setImageError(true);
             console.error("Eagle animation failed to load");
@@ -91,11 +89,11 @@ export default function EagleWelcome() {
           <p>Discover our range of nature-inspired products.</p>
 
           <a
-            href="/products"
+            href="https://aciagro.com/about"
             className={styles.explore}
             onClick={dismissWelcome}
           >
-            Explore Products →
+            About →
           </a>
         </section>
       )}
