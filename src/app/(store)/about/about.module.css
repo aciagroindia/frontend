@@ -164,7 +164,8 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
   gap: clamp(20px, 4vw, 60px);
   padding: clamp(45px, 6vw, 85px) clamp(16px, 4vw, 5%);
-  background-color: #14854e;
+  background: linear-gradient(90deg, #123D2B, #1B5038, #123D2B);
+  border-bottom: 1px solid #D9B76E;
   color: white;
   text-align: center;
   position: relative;
