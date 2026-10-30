@@ -4,6 +4,7 @@
   padding: clamp(40px, 6vw, 60px) 20px;
   border-bottom: 1px solid #D9B76E;
 }
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,14 +21,25 @@
   align-items: center;
 }
 
-/* ICON */
+/* PREMIUM GOLD ICONS */
 .icon {
-  margin-bottom: clamp(14px, 3vw, 20px);
+  width: 54px;
+  height: 54px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #D9B76E;
+  border-radius: 50%;
+  background: rgba(217, 183, 110, 0.08);
+  color: #D9B76E;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, background 0.3s ease;
 }
 
-.icon img {
-  width: clamp(32px, 6vw, 40px);
-  height: auto;
+.featureCard:hover .icon {
+  transform: translateY(-4px);
+  background: rgba(217, 183, 110, 0.16);
 }
 
 /* TITLE */
@@ -36,6 +48,7 @@
   font-weight: 600;
   letter-spacing: 1px;
   margin-bottom: 6px;
+  color: #ffffff;
 }
 
 /* DESCRIPTION */
@@ -43,15 +56,20 @@
   font-size: clamp(0.8rem, 2.2vw, 0.9rem);
   opacity: 0.9;
   line-height: 1.4;
+  color: #ffffff;
 }
 
-/* ================= RESPONSIVE ================= */
-
-/* Tablet */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .container {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 24px 16px;
+  }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
   }
 
   .title {
@@ -61,8 +79,10 @@
   .description {
     font-size: 0.85rem;
   }
+}
 
-  .icon img {
-    width: 36px;
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
   }
 }
