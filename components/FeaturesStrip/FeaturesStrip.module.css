@@ -1,17 +1,18 @@
 .section {
   width: 100%;
-  padding: 35px 20px;
-  background: #ffffff;
+  padding: 45px 5%;
+  box-sizing: border-box;
+  background: linear-gradient(90deg, #123D2B, #1B5038, #123D2B);
+  border-bottom: 1px solid #D9B76E;
 }
 
 .container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 28px 14px;
+  padding: 0;
   box-sizing: border-box;
-  background: linear-gradient(110deg, #123D2B, #174532);
-  border-radius: 16px;
+  background: transparent;
   color: #ffffff;
 }
 
@@ -74,12 +75,7 @@
 /* MOBILE */
 @media (max-width: 600px) {
   .section {
-    padding: 24px 12px;
-  }
-
-  .container {
-    padding: 22px 17px 13px;
-    border-radius: 14px;
+    padding: 30px 16px;
   }
 
   .featuresGrid {
