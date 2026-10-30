@@ -1,3 +1,4 @@
+
 import styles from "./FeaturesStrip.module.css";
 import Image from "next/image";
 
@@ -10,23 +11,23 @@ interface FeatureItem {
 const featuresData: FeatureItem[] = [
   {
     icon: "/certifiedIcons/Asset_15.svg",
-    title: "FREE SHIPPING",
-    description: "For all orders above 499",
-  },
-  {
-    icon: "/certifiedIcons/Asset_15.svg",
-    title: "SECURE PAYMENT",
-    description: "Protect online payment.",
+    title: "NATURE INSPIRED",
+    description: "Carefully Selected Ingredients",
   },
   {
     icon: "/certifiedIcons/Asset_15.svg",
     title: "QUALITY ASSURED",
-    description: "100% quality assured products.",
+    description: "Quality Checked Products",
   },
   {
     icon: "/certifiedIcons/Asset_15.svg",
-    title: "SUPPORT ONLINE",
-    description: "Support available 9AM to 6PM",
+    title: "SECURE CHECKOUT",
+    description: "Safe & Secure Payments",
+  },
+  {
+    icon: "/certifiedIcons/Asset_15.svg",
+    title: "DEDICATED SUPPORT",
+    description: "Here to Help You",
   },
 ];
 
@@ -37,8 +38,14 @@ export default function FeaturesStrip() {
         {featuresData.map((item, index) => (
           <div key={index} className={styles.featureCard}>
             <div className={styles.icon}>
-              <Image src={item.icon} alt={item.title} width={40} height={40} />
+              <Image
+                src={item.icon}
+                alt={item.title}
+                width={40}
+                height={40}
+              />
             </div>
+
             <h4 className={styles.title}>{item.title}</h4>
             <p className={styles.description}>{item.description}</p>
           </div>
@@ -47,3 +54,4 @@ export default function FeaturesStrip() {
     </section>
   );
 }
+        
