@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import styles from "./EagleWelcome.module.css";
 
@@ -8,44 +7,35 @@ export default function EagleWelcome() {
 
   if (!visible) return null;
 
-  const dismissWelcome = () => {
-    setVisible(false);
-  };
-
   return (
-    <aside
-      className={styles.widget}
-      aria-label="Welcome to ACI Agro Solution"
-    >
-      <section className={styles.welcome} role="status">
+    <aside className={styles.widget} aria-label="ACI welcome">
+      {/* Separate floating logo */}
+      <div className={styles.logoArea}>
+        <img
+          src="/aci-welcome-logo.png"
+          alt="ACI Agro Solution"
+          className={styles.logo}
+        />
+      </div>
+
+      {/* Separate welcome message */}
+      <section className={styles.welcome}>
         <button
           type="button"
           className={styles.closeMessage}
-          onClick={dismissWelcome}
+          onClick={() => setVisible(false)}
           aria-label="Close welcome message"
         >
           ×
         </button>
 
-        <img
-          className={styles.logo}
-          src="/aci-welcome-logo.png"
-          alt="ACI Agro Solution Logo"
-        />
-
         <p className={styles.eyebrow}>A WARM WELCOME</p>
 
         <h2>Welcome to ACI Agro Solution!</h2>
 
-        <p>
-          Discover our range of nature-inspired products.
-        </p>
+        <p>Discover our range of nature-inspired products.</p>
 
-        <a
-          href="https://aciagro.com/about"
-          className={styles.explore}
-          onClick={dismissWelcome}
-        >
+        <a href="https://aciagro.com/about" className={styles.explore}>
           About →
         </a>
       </section>
