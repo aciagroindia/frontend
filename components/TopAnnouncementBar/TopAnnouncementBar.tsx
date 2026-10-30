@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import styles from './TopAnnouncementBar.module.css';
-
 const announcements = [
   "🌿 100% Pure & Organic Ayurvedic Solutions",
-  "🚚 Free Shipping on all orders above ₹999!",
+  "🌱 Quality You Can Trust • Nature-Inspired Wellness for Everyday Life",
   "⚡ Flash Sale: Get 20% Off on Bestsellers",
   "🛡️ Safe, Secure & 100% Trusted Payments"
 ];
-
 export default function TopAnnouncementBar() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
