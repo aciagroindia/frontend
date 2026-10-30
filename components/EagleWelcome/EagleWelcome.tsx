@@ -29,7 +29,7 @@ export default function EagleWelcome() {
 
         <img
           className={styles.logo}
-          src="/images/aci-welcome-logo.png"
+          src="/aci-welcome-logo.png"
           alt="ACI Agro Solution Logo"
         />
 
