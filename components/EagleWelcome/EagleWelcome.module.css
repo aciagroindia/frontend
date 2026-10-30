@@ -4,19 +4,21 @@
   bottom: 24px;
   z-index: 1000;
   display: flex;
-  align-items: flex-end;
-  gap: 14px;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
   pointer-events: none;
 }
 
 .logoArea {
-  width: 115px;
-  height: 140px;
+  width: 95px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
   animation: logoFloat 3s ease-in-out infinite;
+  margin-bottom: -5px;
 }
 
 .logo {
@@ -29,12 +31,12 @@
 .welcome {
   position: relative;
   box-sizing: border-box;
-  width: 320px;
-  padding: 25px 20px 22px;
+  width: 280px;
+  padding: 20px 16px 17px;
   background: #fff;
   color: #263c2d;
   border: 1px solid #e4e9e2;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 12px 38px rgb(0 0 0 / 16%);
   text-align: center;
   pointer-events: auto;
@@ -42,7 +44,7 @@
 }
 
 .eyebrow {
-  margin: 0 0 9px;
+  margin: 0 0 8px;
   color: #547653;
   font-size: 10px;
   font-weight: 700;
@@ -50,27 +52,27 @@
 }
 
 .welcome h2 {
-  margin: 0 15px 9px;
+  margin: 0 15px 8px;
   color: #263c2d;
-  font-size: 21px;
+  font-size: 19px;
   line-height: 1.35;
 }
 
 .welcome p:not(.eyebrow) {
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   color: #66736a;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .explore {
   display: inline-block;
-  padding: 12px 22px;
+  padding: 10px 20px;
   background: #315b3b;
   color: #fff;
   border-radius: 9px;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   transition: background 180ms ease, transform 180ms ease;
 }
@@ -82,15 +84,15 @@
 
 .closeMessage {
   position: absolute;
-  top: 8px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
+  top: 7px;
+  right: 9px;
+  width: 28px;
+  height: 28px;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: #526157;
-  font-size: 23px;
+  font-size: 22px;
   cursor: pointer;
 }
 
@@ -102,8 +104,9 @@
   0%, 100% {
     transform: translateY(0);
   }
+
   50% {
-    transform: translateY(-14px);
+    transform: translateY(-12px);
   }
 }
 
@@ -112,6 +115,7 @@
     opacity: 0;
     transform: translateY(18px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -122,17 +126,16 @@
   .widget {
     right: 12px;
     bottom: 12px;
-    gap: 5px;
   }
 
   .logoArea {
     width: 75px;
-    height: 100px;
+    height: 72px;
   }
 
   .welcome {
-    width: min(270px, calc(100vw - 105px));
-    padding: 22px 12px 17px;
+    width: min(250px, calc(100vw - 24px));
+    padding: 18px 13px 15px;
   }
 
   .welcome h2 {
