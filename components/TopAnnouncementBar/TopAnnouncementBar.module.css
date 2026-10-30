@@ -1,16 +1,16 @@
 /* TopAnnouncementBar.module.css */
-
 .announcementContainer {
   width: 100%;
-  background-color: rgb(26, 142, 95); /* Aapka green color */
+  background: linear-gradient(90deg, #123D2B, #1B5038, #123D2B);
   padding: 8px 0;
   overflow: hidden;
   position: relative;
-  height: 40px; 
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 50;
+  border-bottom: 1px solid #D9B76E;
 }
 
 .textWrapper {
@@ -26,9 +26,9 @@
 
 .announcementText {
   position: absolute;
-  font-size: 14px; 
-  font-weight: bold; /* Text bold kar diya */
-  color: #ffffff; /* Text strictly white */
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
   width: 100%;
   text-align: center;
   padding: 0 16px;
@@ -45,17 +45,17 @@
 
 .hidden {
   opacity: 0;
-  transform: translateY(-15px); 
+  transform: translateY(-15px);
   pointer-events: none;
 }
 
 /* Tablet and Desktop Responsiveness */
 @media (min-width: 768px) {
   .announcementContainer {
-    height: 44px; 
+    height: 44px;
   }
-  
+
   .announcementText {
-    font-size: 16px; 
+    font-size: 16px;
   }
 }
