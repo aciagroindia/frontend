@@ -11,21 +11,20 @@ import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { useCategories } from "../../context/CategoryContext";
+import TopAnnouncementBar from "../../components/TopAnnouncementBar/TopAnnouncementBar";
 
-// 👇 YAHAN IMPORT ADD KIYA HAI (Aap apne path ke hisaab se adjust kar lena)
-import TopAnnouncementBar from "../../components/TopAnnouncementBar/TopAnnouncementBar"; 
-
-// Search input ke liye ek simple debounce hook
+// Search input ke liye debounce hook
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
-    return () => {
-      clearTimeout(handler);
-    };
+
+    return () => clearTimeout(handler);
   }, [value, delay]);
+
   return debouncedValue;
 }
 
@@ -33,42 +32,67 @@ export default function Navbar() {
   const { isCartOpen, setIsCartOpen, cartItems } = useCart();
   const { wishlist } = useWishlist();
   const { categories, loading: categoriesLoading } = useCategories();
-  const { user, isAuthenticated, logout, openLoginModal } = useAuth(); 
-  
-  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const { user, isAuthenticated, logout, openLoginModal } = useAuth();
+
+  const totalItems = cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0
+  );
+
   const [isSearchMenuOpen, setIsSearchMenuOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("categories");
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false); 
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [isBulkMenuOpen, setIsBulkMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  
-  const searchContainerRef = useRef(null); 
+
+  const searchContainerRef = useRef(null);
 
   useEffect(() => {
-    if (isMobileDrawerOpen || isMobileSearchOpen || isCartOpen || isLogoutModalOpen) {
+    if (
+      isMobileDrawerOpen ||
+      isMobileSearchOpen ||
+      isCartOpen ||
+      isLogoutModalOpen
+    ) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
-  }, [isMobileDrawerOpen, isMobileSearchOpen, isCartOpen, isLogoutModalOpen]);
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [
+    isMobileDrawerOpen,
+    isMobileSearchOpen,
+    isCartOpen,
+    isLogoutModalOpen,
+  ]);
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target)
+      ) {
         setIsSearchMenuOpen(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [searchContainerRef]);
+  }, []);
 
   const closeDrawer = () => setIsMobileDrawerOpen(false);
+
   const closeSearch = useCallback(() => {
     setIsSearchMenuOpen(false);
     setIsMobileSearchOpen(false);
@@ -94,109 +118,291 @@ export default function Navbar() {
   return (
     <>
       <header className={styles.header}>
-        {/* 👇 YAHAN COMPONENT ADD KIYA HAI - FIXED HEADER KE ANDAR */}
         <TopAnnouncementBar />
 
         <nav className={styles.navbar}>
-          <button className={styles.hamburger} onClick={() => setIsMobileDrawerOpen(true)} aria-label="Open Navigation Menu">
+          <button
+            className={styles.hamburger}
+            onClick={() => setIsMobileDrawerOpen(true)}
+            aria-label="Open Navigation Menu"
+          >
             <div className={styles.bar}></div>
             <div className={styles.bar}></div>
             <div className={styles.bar}></div>
           </button>
 
-          <Link href="/" className={styles.logoLink} aria-label="ACI Agro Solutions Home">
+          <Link
+            href="/"
+            className={styles.logoLink}
+            aria-label="ACI Agro Solutions Home"
+          >
             <div className={styles.logo}>
-              <Image src="/assets/Aci logo.png" alt="ACI Agro Solutions" width={60} height={60} />
+              <Image
+                src="/assets/Aci logo.png"
+                alt="ACI Agro Solutions"
+                width={60}
+                height={60}
+              />
             </div>
           </Link>
 
+          {/* DESKTOP MENU */}
           <div className={styles.menu}>
-            <Link href="/" className={styles.menuItem}>Home</Link>
-            <div 
+            <Link href="/" className={styles.menuItem}>
+              Home
+            </Link>
+
+            <div
               className={styles.shopArea}
               onMouseEnter={() => setIsMegaMenuOpen(true)}
               onMouseLeave={() => setIsMegaMenuOpen(false)}
             >
-              <button 
+              <button
                 type="button"
-                className={styles.menuItem} 
+                className={styles.menuItem}
                 onClick={(e) => {
                   e.preventDefault();
-                  setIsMegaMenuOpen(prev => !prev);
+                  setIsMegaMenuOpen((prev) => !prev);
                 }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  font: "inherit",
+                }}
                 aria-expanded={isMegaMenuOpen}
                 aria-label="Toggle Shop Menu"
               >
                 Shop
-                <Image src="/assets/keyboad-arrowdown.svg" alt="" width={20} height={20} className={styles.subtleIcon} />
+                <Image
+                  src="/assets/keyboad-arrowdown.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles.subtleIcon}
+                />
               </button>
-              {isMegaMenuOpen && <MegaMenu onLinkClick={closeMegaMenu} />}
+
+              {isMegaMenuOpen && (
+                <MegaMenu onLinkClick={closeMegaMenu} />
+              )}
             </div>
-            <Link href="/orders" className={styles.menuItem}>Orders</Link>
-            <Link href="/bulk-order" className={styles.menuItem}>Bulk Order</Link>
-            <Link href="/about" className={styles.menuItem}>About</Link>
+
+            <Link href="/orders" className={styles.menuItem}>
+              Orders
+            </Link>
+
+            {/* BULK ORDER DROPDOWN */}
+            <div
+              className={styles.bulkOrderArea}
+              onMouseEnter={() => setIsBulkMenuOpen(true)}
+              onMouseLeave={() => setIsBulkMenuOpen(false)}
+            >
+              <button
+                type="button"
+                className={styles.menuItem}
+                onClick={() =>
+                  setIsBulkMenuOpen((prev) => !prev)
+                }
+                aria-expanded={isBulkMenuOpen}
+                aria-haspopup="true"
+              >
+                Bulk Order
+                <Image
+                  src="/assets/keyboad-arrowdown.svg"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className={styles.subtleIcon}
+                />
+              </button>
+
+              {isBulkMenuOpen && (
+                <div className={styles.bulkDropdown}>
+                  <Link
+                    href="/bulk-order"
+                    className={styles.bulkDropdownLink}
+                    onClick={() => setIsBulkMenuOpen(false)}
+                  >
+                    <strong>Bulk Product Orders</strong>
+                    <span>
+                      Bulk purchasing and supply enquiries
+                    </span>
+                  </Link>
+
+                  <Link
+                    href="/contract-manufacturing"
+                    className={styles.bulkDropdownLink}
+                    onClick={() => setIsBulkMenuOpen(false)}
+                  >
+                    <strong>
+                      Contract & Private Label Manufacturing
+                    </strong>
+                    <span>
+                      Manufacturing partnerships for your brand
+                    </span>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <Link href="/about" className={styles.menuItem}>
+              About
+            </Link>
           </div>
 
+          {/* ICON GROUP */}
           <div className={styles.iconGroup}>
-            {/* Search */}
-            <div 
+            {/* Desktop Search */}
+            <div
               ref={searchContainerRef}
-              className={`${styles.searchArea} ${styles.desktopSearch}`} 
+              className={`${styles.searchArea} ${styles.desktopSearch}`}
               onFocus={() => setIsSearchMenuOpen(true)}
             >
               <div className={styles.search}>
-                <Image src="/assets/search-icon.svg" alt="" width={20} height={20} className={styles.subtleIcon} />
-                <input 
-                  type="text" 
-                  placeholder="I'm looking for..." 
+                <Image
+                  src="/assets/search-icon.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles.subtleIcon}
+                />
+
+                <input
+                  type="text"
+                  placeholder="I'm looking for..."
                   className={styles.searchInput}
                   aria-label="Search products"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)} />
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              {isSearchMenuOpen && <SearchMegaMenu searchTerm={debouncedSearchTerm} onResultClick={closeSearch} />}
+
+              {isSearchMenuOpen && (
+                <SearchMegaMenu
+                  searchTerm={debouncedSearchTerm}
+                  onResultClick={closeSearch}
+                />
+              )}
             </div>
 
-            {/* Mobile search button */}
-            <button className={`${styles.iconBtn} ${styles.mobileSearchBtn}`} onClick={() => setIsMobileSearchOpen(true)} aria-label="Open Search">
-              <Image src="/assets/search-icon.svg" alt="Search" width={20} height={20} className={styles.darkIcon} />
+            {/* Mobile Search */}
+            <button
+              className={`${styles.iconBtn} ${styles.mobileSearchBtn}`}
+              onClick={() => setIsMobileSearchOpen(true)}
+              aria-label="Open Search"
+            >
+              <Image
+                src="/assets/search-icon.svg"
+                alt="Search"
+                width={20}
+                height={20}
+                className={styles.darkIcon}
+              />
             </button>
 
-            {/* Login/User Profile Icon */}
-            <button 
-              type="button" 
-              onClick={handleUserIconClick} 
-              className={styles.iconBtn} 
-              title={isAuthenticated ? `Hi, ${user?.name || 'User'}` : "Login / Register"} 
-              aria-label={isAuthenticated ? "User Account / Menu" : "Login or Register"}
+            {/* Login / User */}
+            <button
+              type="button"
+              onClick={handleUserIconClick}
+              className={styles.iconBtn}
+              title={
+                isAuthenticated
+                  ? `Hi, ${user?.name || "User"}`
+                  : "Login / Register"
+              }
+              aria-label={
+                isAuthenticated
+                  ? "User Account / Menu"
+                  : "Login or Register"
+              }
             >
-              <Image src="/assets/User.svg" alt="User Profile" width={20} height={20} className={styles.darkIcon} />
+              <Image
+                src="/assets/User.svg"
+                alt="User Profile"
+                width={20}
+                height={20}
+                className={styles.darkIcon}
+              />
             </button>
 
             {/* Wishlist */}
-            <Link href="/Whichlist" className={styles.iconBtn} style={{ position: "relative" }} aria-label="View Wishlist">
-              <Image src="/assets/favourite-icon.svg" alt="Wishlist" width={20} height={20} className={styles.brightIcon} />
+            <Link
+              href="/Whichlist"
+              className={styles.iconBtn}
+              style={{ position: "relative" }}
+              aria-label="View Wishlist"
+            >
+              <Image
+                src="/assets/favourite-icon.svg"
+                alt="Wishlist"
+                width={20}
+                height={20}
+                className={styles.brightIcon}
+              />
+
               {wishlist.length > 0 && (
-                <span style={{
-                  position: 'absolute', top: '-5px', right: '-5px', background: '#1a8e5f', color: 'white',
-                  fontSize: '10px', width: '16px', height: '16px', borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
-                }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                    background: "#1a8e5f",
+                    color: "white",
+                    fontSize: "10px",
+                    width: "16px",
+                    height: "16px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: "bold",
+                  }}
+                >
                   {wishlist.length}
                 </span>
               )}
             </Link>
 
             {/* Cart */}
-            <button onClick={() => setIsCartOpen(true)} className={styles.iconBtn} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, position: 'relative' }} aria-label="Open Cart">
-              <Image src="/assets/cart.svg" alt="Cart" width={20} height={20} />
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className={styles.iconBtn}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                position: "relative",
+              }}
+              aria-label="Open Cart"
+            >
+              <Image
+                src="/assets/cart.svg"
+                alt="Cart"
+                width={20}
+                height={20}
+              />
+
               {cartItems.length > 0 && (
-                <span style={{
-                  position: 'absolute', top: '-5px', right: '-5px', background: '#1a8e5f', color: 'white',
-                  fontSize: '10px', width: '16px', height: '16px', borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
-                }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                    background: "#1a8e5f",
+                    color: "white",
+                    fontSize: "10px",
+                    width: "16px",
+                    height: "16px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: "bold",
+                  }}
+                >
                   {totalItems}
                 </span>
               )}
@@ -205,29 +411,55 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Cart Component */}
-      <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      {/* Cart */}
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
 
       {/* Mobile Drawer Overlay */}
-      <div className={`${styles.drawerOverlay} ${isMobileDrawerOpen ? styles.overlayOpen : ""}`} onClick={closeDrawer} />
+      <div
+        className={`${styles.drawerOverlay} ${
+          isMobileDrawerOpen ? styles.overlayOpen : ""
+        }`}
+        onClick={closeDrawer}
+      />
 
-      {/* Mobile Drawer Panel */}
-      <div className={`${styles.mobileDrawer} ${isMobileDrawerOpen ? styles.drawerOpen : ""}`}>
+      {/* Mobile Drawer */}
+      <div
+        className={`${styles.mobileDrawer} ${
+          isMobileDrawerOpen ? styles.drawerOpen : ""
+        }`}
+      >
         <div className={styles.drawerHeader}>
-          <button onClick={closeDrawer} className={styles.closeBtn} aria-label="Close Navigation Drawer">
-            <Image src="/assets/Close.svg" alt="Close" width={24} height={24} />
+          <button
+            onClick={closeDrawer}
+            className={styles.closeBtn}
+            aria-label="Close Navigation Drawer"
+          >
+            <Image
+              src="/assets/Close.svg"
+              alt="Close"
+              width={24}
+              height={24}
+            />
           </button>
         </div>
 
         <div className={styles.drawerTabs}>
           <button
-            className={`${styles.tabBtn} ${activeTab === "menu" ? styles.activeTab : ""}`}
+            className={`${styles.tabBtn} ${
+              activeTab === "menu" ? styles.activeTab : ""
+            }`}
             onClick={() => setActiveTab("menu")}
           >
             Menu
           </button>
+
           <button
-            className={`${styles.tabBtn} ${activeTab === "categories" ? styles.activeTab : ""}`}
+            className={`${styles.tabBtn} ${
+              activeTab === "categories" ? styles.activeTab : ""
+            }`}
             onClick={() => setActiveTab("categories")}
           >
             Categories
@@ -237,31 +469,102 @@ export default function Navbar() {
         <div className={styles.drawerContent}>
           {activeTab === "menu" && (
             <div className={styles.tabPane}>
-              <Link href="/" className={styles.drawerLink} onClick={closeDrawer}>Home</Link>
-              <Link href="/orders" className={styles.drawerLink} onClick={closeDrawer}>Orders</Link>
-              <Link href="/bulk-order" className={styles.drawerLink} onClick={closeDrawer}>Bulk Order</Link>
-              <Link href="/about" className={styles.drawerLink} onClick={closeDrawer}>About</Link>
-              
-              {/* Mobile Login/Logout Toggle */}
+              <Link
+                href="/"
+                className={styles.drawerLink}
+                onClick={closeDrawer}
+              >
+                Home
+              </Link>
+
+              <Link
+                href="/orders"
+                className={styles.drawerLink}
+                onClick={closeDrawer}
+              >
+                Orders
+              </Link>
+
+              {/* MOBILE BULK ORDER LINKS */}
+              <div className={styles.mobileBulkGroup}>
+                <div className={styles.mobileBulkHeading}>
+                  Bulk Order
+                </div>
+
+                <Link
+                  href="/bulk-order"
+                  className={styles.drawerSubLink}
+                  onClick={closeDrawer}
+                >
+                  Bulk Product Orders
+                </Link>
+
+                <Link
+                  href="/contract-manufacturing"
+                  className={styles.drawerSubLink}
+                  onClick={closeDrawer}
+                >
+                  Contract & Private Label Manufacturing
+                </Link>
+              </div>
+
+              <Link
+                href="/about"
+                className={styles.drawerLink}
+                onClick={closeDrawer}
+              >
+                About
+              </Link>
+
+              {/* Mobile Login / Logout */}
               {isAuthenticated ? (
                 <>
-                  <div className={styles.drawerLink} style={{ color: '#1a8e5f', fontWeight: 'bold' }}>
+                  <div
+                    className={styles.drawerLink}
+                    style={{
+                      color: "#1a8e5f",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Welcome, {user?.name}
                   </div>
-                  <button 
-                    className={styles.drawerLink} 
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', color: 'red', cursor: 'pointer' }}
-                    onClick={() => { closeDrawer(); setIsLogoutModalOpen(true); }}
+
+                  <button
+                    className={styles.drawerLink}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
+                      color: "red",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      closeDrawer();
+                      setIsLogoutModalOpen(true);
+                    }}
                   >
                     Logout
                   </button>
                 </>
               ) : (
-                <button 
-                  type="button" 
-                  className={styles.drawerLink} 
-                  style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', padding: '12px 16px' }}
-                  onClick={() => { closeDrawer(); openLoginModal(); }}
+                <button
+                  type="button"
+                  className={styles.drawerLink}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    fontSize: "inherit",
+                    padding: "12px 16px",
+                  }}
+                  onClick={() => {
+                    closeDrawer();
+                    openLoginModal();
+                  }}
                 >
                   Login / Register
                 </button>
@@ -272,7 +575,9 @@ export default function Navbar() {
           {activeTab === "categories" && (
             <div className={styles.tabPane}>
               {categoriesLoading ? (
-                <span className={styles.drawerLink}>Loading...</span>
+                <span className={styles.drawerLink}>
+                  Loading...
+                </span>
               ) : (
                 categories.map((cat) => (
                   <Link
@@ -291,47 +596,87 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Search Panel */}
-      <div className={`${styles.mobileSearchPanel} ${isMobileSearchOpen ? styles.panelOpen : ""}`}>
+      <div
+        className={`${styles.mobileSearchPanel} ${
+          isMobileSearchOpen ? styles.panelOpen : ""
+        }`}
+      >
         <div className={styles.mobileSearchHeader}>
           <div className={styles.mobileSearchInputWrapper}>
             <div className={styles.search}>
-              <Image src="/assets/search-icon.svg" alt="" width={20} height={20} className={styles.subtleIcon} />
-              <input 
-                type="text" 
-                placeholder="I'm looking for..." 
-                className={styles.searchInput} 
-                autoFocus 
+              <Image
+                src="/assets/search-icon.svg"
+                alt=""
+                width={20}
+                height={20}
+                className={styles.subtleIcon}
+              />
+
+              <input
+                type="text"
+                placeholder="I'm looking for..."
+                className={styles.searchInput}
+                autoFocus
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} />
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
-          <button onClick={closeSearch} className={styles.closeBtn}>&times;</button>
+
+          <button
+            onClick={closeSearch}
+            className={styles.closeBtn}
+          >
+            &times;
+          </button>
         </div>
+
         <div className={styles.mobileSearchContent}>
-          {isMobileSearchOpen && <SearchMegaMenu searchTerm={debouncedSearchTerm} onResultClick={closeSearch} />}
+          {isMobileSearchOpen && (
+            <SearchMegaMenu
+              searchTerm={debouncedSearchTerm}
+              onResultClick={closeSearch}
+            />
+          )}
         </div>
       </div>
 
-      {/* ================= LOGOUT CONFIRMATION MODAL ================= */}
+      {/* Logout Confirmation Modal */}
       {isLogoutModalOpen && (
-        <div 
-          className={styles.modalOverlay} 
+        <div
+          className={styles.modalOverlay}
           onClick={() => setIsLogoutModalOpen(false)}
         >
-          <div 
-            className={styles.modalCard} 
-            onClick={(e) => e.stopPropagation()} 
-            role="dialog" 
+          <div
+            className={styles.modalCard}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
             aria-modal="true"
           >
             <div className={styles.modalIconWrap}>
-              <Image src="/assets/User.svg" alt="Logout" width={26} height={26} style={{ filter: 'invert(27%) sepia(85%) saturate(2300%) hue-rotate(345deg) brightness(98%) contrast(95%)' }} />
+              <Image
+                src="/assets/User.svg"
+                alt="Logout"
+                width={26}
+                height={26}
+                style={{
+                  filter:
+                    "invert(27%) sepia(85%) saturate(2300%) hue-rotate(345deg) brightness(98%) contrast(95%)",
+                }}
+              />
             </div>
 
-            <h3 className={styles.modalTitle}>Confirm Logout</h3>
-            
+            <h3 className={styles.modalTitle}>
+              Confirm Logout
+            </h3>
+
             <p className={styles.modalSubtitle}>
-              Are you sure you want to log out, <strong>{user?.name?.split(' ')[0] || "User"}</strong>? You will need to sign in again to view your orders and cart.
+              Are you sure you want to log out,{" "}
+              <strong>
+                {user?.name?.split(" ")[0] || "User"}
+              </strong>
+              ? You will need to sign in again to view your orders
+              and cart.
             </p>
 
             <div className={styles.modalActions}>
@@ -342,6 +687,7 @@ export default function Navbar() {
               >
                 Cancel
               </button>
+
               <button
                 type="button"
                 className={styles.confirmLogoutBtn}
