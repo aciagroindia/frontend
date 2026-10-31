@@ -431,7 +431,113 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
         </section>
       )}
 
-      {/* 7. DYNAMIC CUSTOM SECTIONS ADDED BY ADMIN */}
+      {/* 7. MANUFACTURING FACILITY & INFRASTRUCTURE */}
+      <section className={styles.manufacturingSection}>
+        <div className={styles.manufacturingContainer}>
+          <span className={styles.manufacturingEyebrow}>ACI AGRO SOLUTIONS</span>
+          <h2 className={styles.manufacturingHeading}>
+            Manufacturing Facility & Infrastructure
+          </h2>
+          <p className={styles.manufacturingIntro}>
+            We work with a planned manufacturing approach for herbal juice
+            products, with attention to product requirements, processing,
+            packaging and business needs. Manufacturing arrangements are
+            discussed according to each project’s specifications.
+          </p>
+          <div className={styles.manufacturingFeatureGrid}>
+            <article className={styles.manufacturingFeatureCard}>
+              <span className={styles.manufacturingIcon} aria-hidden="true">🏭</span>
+              <h3>Manufacturing Coordination</h3>
+              <p>Product requirements and production planning are aligned before a project moves forward.</p>
+            </article>
+            <article className={styles.manufacturingFeatureCard}>
+              <span className={styles.manufacturingIcon} aria-hidden="true">🧴</span>
+              <h3>Packaging Options</h3>
+              <p>Packaging format and bottle size can be discussed based on the product and order requirement.</p>
+            </article>
+            <article className={styles.manufacturingFeatureCard}>
+              <span className={styles.manufacturingIcon} aria-hidden="true">🤝</span>
+              <h3>B2B Requirements</h3>
+              <p>We discuss bulk supply, contract manufacturing and private-label requirements with business clients.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. MANUFACTURING PROCESS */}
+      <section className={styles.processSection}>
+        <div className={styles.manufacturingContainer}>
+          <span className={styles.manufacturingEyebrow}>FROM REQUIREMENT TO DELIVERY</span>
+          <h2 className={styles.manufacturingHeading}>Our Manufacturing Process</h2>
+          <p className={styles.manufacturingIntro}>
+            Each project is discussed and planned around its product,
+            packaging and order requirements.
+          </p>
+          <div className={styles.processGrid}>
+            <article className={styles.processStep}>
+              <span className={styles.processNumber}>01</span>
+              <h3>Share Your Requirement</h3>
+              <p>Tell us about the product, quantity, packaging and intended market.</p>
+            </article>
+            <article className={styles.processStep}>
+              <span className={styles.processNumber}>02</span>
+              <h3>Product Discussion</h3>
+              <p>Discuss product specifications, ingredients and project expectations.</p>
+            </article>
+            <article className={styles.processStep}>
+              <span className={styles.processNumber}>03</span>
+              <h3>Planning & Quotation</h3>
+              <p>Review the proposed requirements, feasibility, timelines and commercial details.</p>
+            </article>
+            <article className={styles.processStep}>
+              <span className={styles.processNumber}>04</span>
+              <h3>Production & Packaging</h3>
+              <p>Proceed with the mutually agreed product and packaging plan.</p>
+            </article>
+            <article className={styles.processStep}>
+              <span className={styles.processNumber}>05</span>
+              <h3>Final Review & Dispatch</h3>
+              <p>Complete the agreed checks and coordinate dispatch details.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. QUALITY CONTROL APPROACH */}
+      <section className={styles.qualityControlSection}>
+        <div className={styles.manufacturingContainer}>
+          <span className={styles.manufacturingEyebrow}>ATTENTION TO EVERY DETAIL</span>
+          <h2 className={styles.manufacturingHeading}>Our Quality Control Approach</h2>
+          <p className={styles.manufacturingIntro}>
+            Product quality is considered throughout the project, from
+            requirement discussions to packaging and final review.
+          </p>
+          <div className={styles.qualityControlGrid}>
+            <article className={styles.qualityControlCard}>
+              <span aria-hidden="true">🌿</span>
+              <h3>Ingredient & Specification Review</h3>
+              <p>Product specifications and ingredient requirements are reviewed for the project.</p>
+            </article>
+            <article className={styles.qualityControlCard}>
+              <span aria-hidden="true">⚙️</span>
+              <h3>Process Attention</h3>
+              <p>Agreed processing and handling requirements are considered during production planning.</p>
+            </article>
+            <article className={styles.qualityControlCard}>
+              <span aria-hidden="true">🔍</span>
+              <h3>Packaging Inspection</h3>
+              <p>Packaging details and presentation are reviewed against the agreed requirements.</p>
+            </article>
+            <article className={styles.qualityControlCard}>
+              <span aria-hidden="true">📋</span>
+              <h3>Documentation & Final Review</h3>
+              <p>Applicable product and order documentation is discussed and reviewed as required.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. DYNAMIC CUSTOM SECTIONS ADDED BY ADMIN */}
       {customSections &&
         customSections.length > 0 &&
         customSections
@@ -505,10 +611,10 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
             </section>
           ))}
 
-      {/* 8. CERTIFICATES (Existing) */}
+      {/* 11. CERTIFICATES (Existing) */}
       <Certificates />
 
-      {/* 9. TRUST METRICS */}
+      {/* 12. TRUST METRICS */}
       {metrics.isActive !== false && (
         <section
           className={styles.metrics}
@@ -527,7 +633,7 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
         </section>
       )}
 
-      {/* 10. CLOSING CTA */}
+      {/* 13. CLOSING CTA */}
       {closing.isActive !== false && (
         <section
           className={styles.closing}
