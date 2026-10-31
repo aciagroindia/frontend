@@ -177,7 +177,7 @@ export default function Navbar() {
                 Shop
                 <Image
                   src="/assets/keyboad-arrowdown.svg"
-                  alt=""
+                  alt="Shop dropdown arrow"
                   width={20}
                   height={20}
                   className={styles.subtleIcon}
@@ -211,7 +211,7 @@ export default function Navbar() {
                 Bulk Order
                 <Image
                   src="/assets/keyboad-arrowdown.svg"
-                  alt=""
+                  alt="Bulk Order dropdown arrow"
                   width={16}
                   height={16}
                   className={styles.subtleIcon}
