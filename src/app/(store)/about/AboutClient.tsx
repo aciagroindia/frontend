@@ -646,6 +646,14 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
             {closing.title}
           </h2>
           <p>{closing.subtitle}</p>
+          <a
+            href="/contract-manufacturing"
+            className={styles.closingCtaButton}
+            aria-label="Explore contract manufacturing services"
+          >
+            Explore Contract Manufacturing
+            <span aria-hidden="true">→</span>
+          </a>
         </section>
       )}
     </div>
