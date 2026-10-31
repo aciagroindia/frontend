@@ -362,4 +362,188 @@
   .imageWrapper {
     max-width: 100%;
   }
+} 
+
+
+/* ================= MANUFACTURING & QUALITY SECTIONS ================= */
+
+.manufacturingSection,
+.processSection,
+.qualityControlSection {
+  padding: clamp(48px, 6vw, 82px) clamp(16px, 5vw, 8%);
+  width: 100%;
 }
+
+.manufacturingSection {
+  background: #f3f9f6;
+}
+
+.processSection {
+  background: #fffdf8;
+}
+
+.qualityControlSection {
+  background: #f3f9f6;
+}
+
+.manufacturingContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.manufacturingEyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: #14854e;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.manufacturingHeading {
+  margin: 0 0 14px;
+  color: #123d2b;
+  font-size: clamp(1.55rem, 3.5vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.manufacturingIntro {
+  max-width: 780px;
+  margin: 0 auto;
+  color: #52615a;
+  font-size: 1rem;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.manufacturingFeatureGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 34px;
+}
+
+.manufacturingFeatureCard,
+.qualityControlCard {
+  padding: 28px 24px;
+  border: 1px solid #e3ebe5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(18, 61, 43, 0.045);
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.manufacturingFeatureCard:hover,
+.qualityControlCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(18, 61, 43, 0.09);
+}
+
+.manufacturingIcon {
+  display: inline-flex;
+  width: 58px;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: #eaf5ee;
+  font-size: 1.7rem;
+}
+
+.manufacturingFeatureCard h3,
+.processStep h3,
+.qualityControlCard h3 {
+  margin: 0 0 10px;
+  color: #173f2e;
+  font-size: 1.08rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.manufacturingFeatureCard p,
+.processStep p,
+.qualityControlCard p {
+  margin: 0;
+  color: #647168;
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.processGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 38px;
+}
+
+.processStep {
+  position: relative;
+  padding: 24px 18px;
+  border: 1px solid #e9e5d9;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: left;
+}
+
+.processNumber {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #14854e;
+  font-size: 1.55rem;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+
+.qualityControlGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 34px;
+}
+
+.qualityControlCard > span {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  background: #eaf5ee;
+  font-size: 1.45rem;
+}
+
+@media (max-width: 900px) {
+  .processGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qualityControlGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .manufacturingFeatureGrid,
+  .processGrid,
+  .qualityControlGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .manufacturingFeatureCard,
+  .qualityControlCard {
+    padding: 24px 20px;
+  }
+
+  .processStep {
+    padding: 22px 20px;
+  }
+}
+
