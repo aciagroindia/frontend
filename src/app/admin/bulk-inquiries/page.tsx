@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "../../../../components/admin-layout/DashboardLayout";
 import AdvancedTable from "../../../../components/admin-ui/AdvancedTable";
 import Modal from "../../../../components/admin-ui/Modal";
@@ -24,11 +24,19 @@ interface BulkInquiry {
   createdAt: string;
 }
 
+type DateFilter = "all" | "today" | "7days" | "30days" | "custom";
+
 export default function BulkInquiryPage() {
   const [inquiries, setInquiries] = useState<BulkInquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] =
     useState<BulkInquiry | null>(null);
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const fetchInquiries = async () => {
     try {
@@ -53,6 +61,150 @@ export default function BulkInquiryPage() {
     fetchInquiries();
   }, []);
 
+  // FILTER ENQUIRIES
+  const filteredInquiries = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const now = new Date();
+
+    let fromDate: Date | null = null;
+    let toDate: Date | null = null;
+
+    if (dateFilter === "today") {
+      fromDate = new Date(now);
+      fromDate.setHours(0, 0, 0, 0);
+    }
+
+    if (dateFilter === "7days") {
+      fromDate = new Date(now);
+      fromDate.setDate(fromDate.getDate() - 6);
+      fromDate.setHours(0, 0, 0, 0);
+    }
+
+    if (dateFilter === "30days") {
+      fromDate = new Date(now);
+      fromDate.setDate(fromDate.getDate() - 29);
+      fromDate.setHours(0, 0, 0, 0);
+    }
+
+    if (dateFilter === "custom") {
+      if (startDate) {
+        fromDate = new Date(`${startDate}T00:00:00`);
+      }
+
+      if (endDate) {
+        toDate = new Date(`${endDate}T23:59:59.999`);
+      }
+    }
+
+    return inquiries.filter((item) => {
+      const searchableText = [
+        item.firstName,
+        item.companyName,
+        item.email,
+        item.phone,
+        item.productRequired,
+        item.quantity,
+        item.packagingSize,
+        item.packagingType,
+        item.manufacturingRequirement,
+        item.message,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        !term || searchableText.includes(term);
+
+      const matchesStatus =
+        statusFilter === "all" || item.status === statusFilter;
+
+      const inquiryDate = new Date(item.createdAt);
+
+      const matchesDate =
+        (!fromDate || inquiryDate >= fromDate) &&
+        (!toDate || inquiryDate <= toDate);
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [inquiries, search, statusFilter, dateFilter, startDate, endDate]);
+
+  // EXPORT ONLY FILTERED ENQUIRIES
+  const exportToCSV = () => {
+    if (filteredInquiries.length === 0) {
+      toast.error("No enquiries available to export.");
+      return;
+    }
+
+    const headers = [
+      "Inquiry Date",
+      "Contact Person",
+      "Company / Brand",
+      "Business Email",
+      "Mobile",
+      "Product Required",
+      "Quantity",
+      "Packaging Size",
+      "Packaging Type",
+      "Manufacturing Requirement",
+      "Additional Details",
+      "Status",
+    ];
+
+    const safeValue = (value: unknown) => {
+      let text = String(value ?? "");
+
+      // Prevent spreadsheet formula execution
+      if (/^[\s]*[=+\-@]/.test(text)) {
+        text = "'" + text;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+
+    const rows = filteredInquiries.map((item) => [
+      item.createdAt
+        ? new Date(item.createdAt).toLocaleString("en-IN")
+        : "",
+      item.firstName,
+      item.companyName,
+      item.email,
+      item.phone,
+      item.productRequired,
+      item.quantity,
+      item.packagingSize,
+      item.packagingType,
+      item.manufacturingRequirement,
+      item.message,
+      item.status,
+    ]);
+
+    const csvContent = [
+      headers.map(safeValue).join(","),
+      ...rows.map((row) => row.map(safeValue).join(",")),
+    ].join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `ACI-B2B-Enquiries-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(`${filteredInquiries.length} enquiries exported successfully.`);
+  };
+
+  // UPDATE STATUS
   const handleStatusChange = async (
     id: string,
     newStatus: BulkInquiry["status"]
@@ -81,6 +233,14 @@ export default function BulkInquiryPage() {
         error.response?.data?.message || "Failed to update status"
       );
     }
+  };
+
+  const resetFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setDateFilter("all");
+    setStartDate("");
+    setEndDate("");
   };
 
   const columns = [
@@ -161,14 +321,139 @@ export default function BulkInquiryPage() {
         </div>
       </div>
 
+      {/* SEARCH AND FILTER SECTION */}
+      <div
+        style={{
+          background: "#ffffff",
+          padding: "20px",
+          borderRadius: "12px",
+          border: "1px solid #e5e7eb",
+          marginBottom: "20px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: "15px",
+          alignItems: "end",
+        }}
+      >
+        <div>
+          <label style={{ display: "block", marginBottom: "7px", fontWeight: 600 }}>
+            Search Enquiries
+          </label>
+          <input
+            type="search"
+            placeholder="Name, company, mobile, product..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={filterInputStyle}
+          />
+        </div>
+
+        <div>
+          <label style={{ display: "block", marginBottom: "7px", fontWeight: 600 }}>
+            Filter by Status
+          </label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={filterInputStyle}
+          >
+            <option value="all">All Statuses</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <div>
+          <label style={{ display: "block", marginBottom: "7px", fontWeight: 600 }}>
+            Filter by Date
+          </label>
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as DateFilter)}
+            style={filterInputStyle}
+          >
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="custom">Custom Date Range</option>
+          </select>
+        </div>
+
+        {dateFilter === "custom" && (
+          <>
+            <div>
+              <label style={{ display: "block", marginBottom: "7px", fontWeight: 600 }}>
+                From Date
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                max={endDate || undefined}
+                onChange={(e) => setStartDate(e.target.value)}
+                style={filterInputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", marginBottom: "7px", fontWeight: 600 }}>
+                To Date
+              </label>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate || undefined}
+                onChange={(e) => setEndDate(e.target.value)}
+                style={filterInputStyle}
+              />
+            </div>
+          </>
+        )}
+
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className={styles.viewBtn}
+            onClick={resetFilters}
+          >
+            Reset Filters
+          </button>
+
+          <button
+            type="button"
+            className={styles.viewBtn}
+            onClick={exportToCSV}
+            disabled={filteredInquiries.length === 0}
+            style={{
+              background: "#155b38",
+              color: "#ffffff",
+              border: "none",
+            }}
+          >
+            Export CSV ({filteredInquiries.length})
+          </button>
+        </div>
+
+        <div style={{ gridColumn: "1 / -1", color: "#64748b", fontSize: "13px" }}>
+          Showing {filteredInquiries.length} of {inquiries.length} enquiries.
+          Export will include only the enquiries currently shown after filtering.
+        </div>
+      </div>
+
+      {/* ENQUIRIES TABLE */}
       <div className={styles.tableCard}>
         {loading ? (
           <p>Loading B2B enquiries...</p>
         ) : (
-          <AdvancedTable columns={columns} data={inquiries} />
+          <AdvancedTable
+            columns={columns}
+            data={filteredInquiries}
+          />
         )}
       </div>
 
+      {/* ENQUIRY DETAILS MODAL */}
       <Modal
         isOpen={!!selectedInquiry}
         onClose={() => setSelectedInquiry(null)}
@@ -176,77 +461,28 @@ export default function BulkInquiryPage() {
       >
         {selectedInquiry && (
           <div className={styles.modalContent}>
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Contact Person</span>
-              <span className={styles.value}>
-                {selectedInquiry.firstName || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Company / Brand Name</span>
-              <span className={styles.value}>
-                {selectedInquiry.companyName || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Business Email</span>
-              <span className={styles.value}>
-                {selectedInquiry.email || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Mobile</span>
-              <span className={styles.value}>
-                {selectedInquiry.phone || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Product Required</span>
-              <span className={styles.value}>
-                {selectedInquiry.productRequired || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Quantity Required</span>
-              <span className={styles.value}>
-                {selectedInquiry.quantity || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Packaging Size</span>
-              <span className={styles.value}>
-                {selectedInquiry.packagingSize || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Packaging Type</span>
-              <span className={styles.value}>
-                {selectedInquiry.packagingType || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Manufacturing Requirement</span>
-              <span className={styles.value}>
-                {selectedInquiry.manufacturingRequirement || "-"}
-              </span>
-            </div>
-
-            <div className={styles.detailRow}>
-              <span className={styles.label}>Inquiry Date</span>
-              <span className={styles.value}>
-                {selectedInquiry.createdAt
+            {[
+              ["Contact Person", selectedInquiry.firstName],
+              ["Company / Brand Name", selectedInquiry.companyName],
+              ["Business Email", selectedInquiry.email],
+              ["Mobile", selectedInquiry.phone],
+              ["Product Required", selectedInquiry.productRequired],
+              ["Quantity Required", selectedInquiry.quantity],
+              ["Packaging Size", selectedInquiry.packagingSize],
+              ["Packaging Type", selectedInquiry.packagingType],
+              ["Manufacturing Requirement", selectedInquiry.manufacturingRequirement],
+              [
+                "Inquiry Date",
+                selectedInquiry.createdAt
                   ? new Date(selectedInquiry.createdAt).toLocaleString("en-IN")
-                  : "-"}
-              </span>
-            </div>
+                  : "-",
+              ],
+            ].map(([label, value]) => (
+              <div className={styles.detailRow} key={label}>
+                <span className={styles.label}>{label}</span>
+                <span className={styles.value}>{value || "-"}</span>
+              </div>
+            ))}
 
             <div className={styles.detailRow}>
               <span className={styles.label}>Additional Details</span>
@@ -279,3 +515,14 @@ export default function BulkInquiryPage() {
     </DashboardLayout>
   );
 }
+
+const filterInputStyle: React.CSSProperties = {
+  width: "100%",
+  minHeight: "42px",
+  padding: "9px 12px",
+  border: "1px solid #d1d5db",
+  borderRadius: "7px",
+  background: "#ffffff",
+  color: "#1f2937",
+  outline: "none",
+};
