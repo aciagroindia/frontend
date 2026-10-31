@@ -1,0 +1,676 @@
+/* ================= PAGE BASE ================= */
+
+.page {
+  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  color: #183b2a;
+}
+
+.page * {
+  box-sizing: border-box;
+}
+
+.page a {
+  text-decoration: none;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 610px;
+  display: flex;
+  align-items: center;
+  padding: 85px 7%;
+  background:
+    radial-gradient(circle at 85% 35%, rgba(185, 154, 82, 0.16), transparent 28%),
+    linear-gradient(120deg, #092f20 0%, #124b32 60%, #0b3825 100%);
+  color: #ffffff;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  right: -160px;
+  top: -180px;
+  border: 1px solid rgba(220, 194, 135, 0.2);
+  border-radius: 50%;
+}
+
+.heroInner {
+  width: 100%;
+  max-width: 1250px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 65px;
+  position: relative;
+  z-index: 1;
+}
+
+.heroContent {
+  max-width: 700px;
+}
+
+.eyebrow,
+.sectionLabel {
+  display: inline-block;
+  color: #b99a52;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 2px;
+  line-height: 1.6;
+}
+
+.heroTitle {
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  line-height: 1.12;
+  letter-spacing: -1.8px;
+  font-weight: 750;
+  margin: 25px 0;
+  color: #ffffff;
+}
+
+.heroTitle span {
+  display: block;
+  color: #d9bd7b;
+}
+
+.heroText {
+  max-width: 620px;
+  color: #dce8df;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  margin-bottom: 32px;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.primaryButton,
+.secondaryButton,
+.productButton,
+.globalButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 23px;
+  border-radius: 7px;
+  font-size: 0.92rem;
+  font-weight: 650;
+  transition: all 0.25s ease;
+}
+
+.primaryButton {
+  background: #c6a65e;
+  color: #143a28;
+}
+
+.primaryButton:hover {
+  background: #e1c783;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+}
+
+.secondaryButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.heroTags,
+.marketTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.heroTags span,
+.marketTags span {
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  border-radius: 30px;
+  color: #e6ede7;
+  font-size: 0.78rem;
+}
+
+.heroVisual {
+  position: relative;
+  min-height: 390px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visualCircle {
+  position: absolute;
+  width: min(350px, 90%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(215, 185, 113, 0.5);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 25px rgba(255, 255, 255, 0.025),
+    0 0 0 55px rgba(255, 255, 255, 0.018);
+}
+
+.visualContent {
+  position: relative;
+  z-index: 1;
+  width: 300px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px;
+  border: 1px solid rgba(215, 185, 113, 0.55);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #1c5a3c, #0b3020);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.visualSmall,
+.visualBottom {
+  color: #d9c38d;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.visualContent strong {
+  color: #ffffff;
+  font-size: 1.65rem;
+  line-height: 1.2;
+}
+
+.visualDivider {
+  width: 65px;
+  height: 2px;
+  background: #c6a65e;
+  margin: 8px 0;
+}
+
+.visualDecoration {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: rgba(255, 255, 255, 0.07);
+  font-size: 7rem;
+  font-weight: 800;
+}
+
+/* ================= INTRO ================= */
+
+.intro,
+.services,
+.packaging,
+.process {
+  padding: 90px 7%;
+}
+
+.sectionHeading {
+  max-width: 760px;
+  margin: 0 auto 45px;
+  text-align: center;
+}
+
+.sectionHeading h2,
+.productIntro h2,
+.globalContent h2,
+.enquiryHeading h2 {
+  font-size: clamp(2rem, 3.6vw, 3rem);
+  font-weight: 750;
+  color: #173d2a;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin: 14px 0;
+}
+
+.sectionHeading h2 span,
+.productIntro h2 span,
+.globalContent h2 span,
+.enquiryHeading h2 span {
+  color: #9a7c3e;
+}
+
+.sectionHeading p,
+.productIntro p,
+.globalContent p,
+.enquiryHeading p {
+  color: #69766e;
+  font-size: 0.98rem;
+  line-height: 1.85;
+}
+
+.audienceGrid {
+  max-width: 1050px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.audienceGrid div {
+  padding: 22px 14px;
+  text-align: center;
+  border: 1px solid #e5eae5;
+  border-radius: 9px;
+  background: #f8faf7;
+  color: #28563b;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+/* ================= SERVICES ================= */
+
+.services {
+  background: #f5f8f4;
+}
+
+.serviceGrid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.serviceCard {
+  padding: 34px;
+  border: 1px solid #e3e9e1;
+  border-radius: 12px;
+  background: #ffffff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.serviceCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(20, 65, 40, 0.08);
+}
+
+.serviceNumber {
+  display: inline-flex;
+  color: #a5894d;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.serviceCard h3,
+.packagingCard h3,
+.processCard h3 {
+  font-size: 1.3rem;
+  color: #19472e;
+  font-weight: 750;
+  margin-bottom: 13px;
+}
+
+.serviceCard p,
+.packagingCard p,
+.processCard p {
+  color: #6b786e;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+.serviceCard ul {
+  padding-left: 20px;
+  margin: 20px 0;
+}
+
+.serviceCard li {
+  color: #405b49;
+  font-size: 0.88rem;
+  line-height: 2;
+}
+
+.serviceCard a {
+  display: inline-block;
+  margin-top: 8px;
+  color: #17613b;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+/* ================= PRODUCTS ================= */
+
+.products {
+  padding: 95px 7%;
+  background: #ffffff;
+}
+
+.productInner {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 75px;
+  align-items: center;
+}
+
+.productIntro p {
+  margin: 20px 0 28px;
+}
+
+.productButton {
+  background: #164d32;
+  color: #ffffff;
+}
+
+.productButton:hover {
+  background: #0b3521;
+}
+
+.productList {
+  border-top: 1px solid #e4e9e3;
+}
+
+.productItem {
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: 45px 1fr 25px;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid #e4e9e3;
+}
+
+.productItem > span:first-child {
+  color: #a68a4c;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.productItem strong {
+  color: #284d37;
+  font-size: 0.97rem;
+  font-weight: 650;
+}
+
+.productArrow {
+  color: #a68a4c;
+  font-size: 1.1rem;
+}
+
+/* ================= PACKAGING ================= */
+
+.packaging {
+  background: #f6f8f5;
+}
+
+.packagingGrid {
+  max-width: 1150px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.packagingCard {
+  background: #ffffff;
+  border: 1px solid #e2e9e1;
+  border-radius: 11px;
+  padding: 32px;
+}
+
+.packagingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 23px;
+  border-radius: 9px;
+  background: #edf3eb;
+  color: #9a7c3e;
+  font-weight: 800;
+}
+
+/* ================= PROCESS ================= */
+
+.process {
+  background: #ffffff;
+}
+
+.processGrid {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.processCard {
+  padding: 25px 20px;
+  border-left: 3px solid #b99a52;
+  background: #f8faf7;
+}
+
+.processCard > span {
+  color: #a5894d;
+  font-size: 1rem;
+  font-weight: 800;
+  display: inline-block;
+  margin-bottom: 22px;
+}
+
+/* ================= GLOBAL BUSINESS ================= */
+
+.global {
+  padding: 95px 7%;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(185, 154, 82, 0.12), transparent 30%),
+    linear-gradient(120deg, #0c3623, #164d32);
+}
+
+.globalContent {
+  max-width: 850px;
+  margin: auto;
+  text-align: center;
+}
+
+.globalContent h2 {
+  color: #ffffff;
+}
+
+.globalContent h2 span {
+  color: #d9bd7b;
+}
+
+.globalContent p {
+  color: #d7e4d9;
+}
+
+.marketTags {
+  justify-content: center;
+  margin: 27px 0;
+}
+
+.globalButton {
+  background: #c6a65e;
+  color: #143a28;
+}
+
+.globalButton:hover {
+  background: #e1c783;
+}
+
+/* ================= ENQUIRY ================= */
+
+.enquiry {
+  padding: 90px 20px 100px;
+  background: linear-gradient(180deg, #f5f8f4, #ffffff);
+}
+
+.enquiryHeading {
+  max-width: 720px;
+  margin: 0 auto 30px;
+  text-align: center;
+}
+
+/* Existing OrderForm component width */
+.enquiry > section {
+  width: 100%;
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 900px) {
+  .hero {
+    padding: 75px 5%;
+  }
+
+  .heroInner {
+    gap: 30px;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+  }
+
+  .audienceGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .productInner {
+    gap: 40px;
+  }
+
+  .processGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 650px) {
+  .hero {
+    min-height: auto;
+    padding: 65px 22px;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .heroTitle {
+    font-size: clamp(2.4rem, 10vw, 3.2rem);
+  }
+
+  .heroText {
+    font-size: 0.94rem;
+  }
+
+  .heroActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroActions a {
+    width: 100%;
+  }
+
+  .heroVisual {
+    min-height: 320px;
+  }
+
+  .visualContent {
+    width: 260px;
+    min-height: 260px;
+  }
+
+  .intro,
+  .services,
+  .packaging,
+  .process,
+  .products {
+    padding: 65px 20px;
+  }
+
+  .sectionHeading {
+    margin-bottom: 32px;
+  }
+
+  .sectionHeading h2,
+  .productIntro h2,
+  .globalContent h2,
+  .enquiryHeading h2 {
+    font-size: 2rem;
+  }
+
+  .audienceGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .audienceGrid div {
+    padding: 17px 10px;
+    font-size: 0.82rem;
+  }
+
+  .serviceGrid,
+  .packagingGrid,
+  .processGrid,
+  .productInner {
+    grid-template-columns: 1fr;
+  }
+
+  .serviceCard,
+  .packagingCard {
+    padding: 25px;
+  }
+
+  .productInner {
+    gap: 35px;
+  }
+
+  .processGrid {
+    gap: 14px;
+  }
+
+  .global {
+    padding: 70px 22px;
+  }
+
+  .enquiry {
+    padding: 65px 12px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 380px) {
+  .heroTags {
+    gap: 7px;
+  }
+
+  .heroTags span {
+    font-size: 0.7rem;
+    padding: 8px 10px;
+  }
+
+  .audienceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .visualContent {
+    width: 235px;
+    min-height: 235px;
+  }
+}
