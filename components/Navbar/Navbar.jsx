@@ -263,7 +263,7 @@ export default function Navbar() {
               <div className={styles.search}>
                 <Image
                   src="/assets/search-icon.svg"
-                  alt=""
+                  alt="Search"
                   width={20}
                   height={20}
                   className={styles.subtleIcon}
@@ -606,7 +606,7 @@ export default function Navbar() {
             <div className={styles.search}>
               <Image
                 src="/assets/search-icon.svg"
-                alt=""
+                alt="Search"
                 width={20}
                 height={20}
                 className={styles.subtleIcon}
