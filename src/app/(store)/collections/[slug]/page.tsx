@@ -4,6 +4,8 @@ import axiosInstance from "@/utils/axiosInstance";
 
 export const revalidate = 60;
 
+const BRAND_NAME = "ACI Agro Solutions";
+
 interface Category {
   _id: string;
   name: string;
@@ -29,31 +31,48 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
   try {
     const categoryRes = await axiosInstance.get(`/categories/${slug}`);
+
     if (!categoryRes.data?.success || !categoryRes.data?.data) {
       return {};
     }
+
     const category: Category = categoryRes.data.data;
+
     if (category.status && category.status !== "Active") {
       return {};
     }
-    const title = `${category.name} | ACI Agro Solutions`;
+
+    // Preserve all category keywords and remove duplicate brand suffixes.
+    const cleanCategoryName = category.name
+      .replace(/(\s*\|\s*ACI Agro Solutions)+\s*$/gi, "")
+      .trim();
+
+    const title = `${cleanCategoryName} | ${BRAND_NAME}`;
+
     const plainDesc = category.description
-      ? category.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160)
-      : `Explore our authentic range of ${category.name} products at ACI Agro Solutions.`;
+      ? category.description
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 160)
+      : `Explore our authentic range of ${cleanCategoryName} products at ACI Agro Solutions.`;
+
+    const canonicalUrl = `https://aciagro.com/collections/${category.slug}`;
 
     return {
       title,
       description: plainDesc,
       alternates: {
-        canonical: `https://aciagro.com/collections/${category.slug}`,
+        canonical: canonicalUrl,
       },
       openGraph: {
         title,
         description: plainDesc,
-        url: `https://aciagro.com/collections/${category.slug}`,
-        siteName: "ACI Agro Solutions",
+        url: canonicalUrl,
+        siteName: BRAND_NAME,
         type: "website",
       },
       twitter: {
@@ -81,24 +100,35 @@ export default async function CollectionPage({
   try {
     // 1. Fetch category by slug
     const categoryRes = await axiosInstance.get(`/categories/${slug}`);
+
     if (!categoryRes.data?.success || !categoryRes.data?.data) {
       return notFound();
     }
+
     const category: Category = categoryRes.data.data;
+
     if (category.status && category.status !== "Active") {
       return notFound();
     }
 
     // 2. Fetch products by category ID
-    const productsRes = await axiosInstance.get(`/products?category=${category._id}&status=all`);
-    const rawProducts = Array.isArray(productsRes.data) ? productsRes.data : [];
-    const products: Product[] = rawProducts
-      .map((p: any) => ({
-        ...p,
-        id: p._id,
-        stock: p.stock !== undefined && p.stock !== null ? Number(p.stock) : 0,
-        status: p.status || "Active",
-      }));
+    const productsRes = await axiosInstance.get(
+      `/products?category=${category._id}&status=all`
+    );
+
+    const rawProducts = Array.isArray(productsRes.data)
+      ? productsRes.data
+      : [];
+
+    const products: Product[] = rawProducts.map((p: any) => ({
+      ...p,
+      id: p._id,
+      stock:
+        p.stock !== undefined && p.stock !== null
+          ? Number(p.stock)
+          : 0,
+      status: p.status || "Active",
+    }));
 
     return (
       <CollectionLayout
