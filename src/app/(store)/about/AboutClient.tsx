@@ -348,6 +348,7 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
                src={philosophy.imageUrl}
                alt={philosophy.title || "Ayurveda"}
                fill
+               sizes="(max-width: 768px) 100vw, 480px"
                className={styles.image}
                unoptimized={philosophy.imageUrl.startsWith("http")}
             />
