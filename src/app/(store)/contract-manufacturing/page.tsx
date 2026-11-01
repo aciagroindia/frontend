@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import OrderForm from "../../../../components/BulkOrder/OrderForm/page";
 import styles from "./page.module.css";
 
+
 export const metadata: Metadata = {
   title: "Herbal Juice Manufacturing",
   description:
@@ -17,6 +18,14 @@ export const metadata: Metadata = {
     url: "https://aciagro.com/contract-manufacturing",
     siteName: "ACI Agro Solutions",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -24,13 +33,13 @@ export const metadata: Metadata = {
       "Herbal Juice Contract & Private Label Manufacturing | ACI Agro Solutions",
     description:
       "Explore herbal juice contract manufacturing and private label opportunities with ACI Agro Solutions.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
     follow: true,
   },
 };
-
 const services = [
   {
     number: "01",
