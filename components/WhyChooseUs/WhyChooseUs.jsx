@@ -26,12 +26,15 @@ const DEFAULT_DATA = {
       description: "Strict quality control for every batch.",
     },
   ],
-  imageUrl: "/certifiedIcons/whychooseus.png",
+  imageUrl: "",
   isActive: true,
 };
 
 export default function WhyChooseUs() {
-  const [data, setData] = useState(DEFAULT_DATA);
+  const [data, setData] = useState({
+  ...DEFAULT_DATA,
+  imageUrl: "",
+});
 
   useEffect(() => {
     let isMounted = true;
@@ -57,8 +60,7 @@ export default function WhyChooseUs() {
     return null;
   }
 
-  const imageSrc = data.imageUrl || "/certifiedIcons/whychooseus.png";
-
+ const imageSrc = data.imageUrl || "";
   return (
     <section className={styles.section} id="why-choose-us">
       <h2 className={styles.mainHeading}>{data.mainHeading || "WHY CHOOSE US"}</h2>
@@ -102,15 +104,17 @@ export default function WhyChooseUs() {
         {/* RIGHT IMAGE */}
         <div className={styles.imageWrapper}>
           <div className={styles.imageBg}></div>
-          <Image
-            src={imageSrc}
-            alt={data.heading || "ACI Product - Crafted by Nature"}
-            fill
-            className={styles.image}
-            sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 500px"
-            unoptimized={typeof imageSrc === "string" && imageSrc.startsWith("http")}
-            priority={false}
-          />
+          {imageSrc && (
+    <Image
+    src={imageSrc}
+    alt={data.heading || "ACI Product - Crafted by Nature"}
+    fill
+    className={styles.image}
+    sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 500px"
+    unoptimized={typeof imageSrc === "string" && imageSrc.startsWith("http")}
+    priority={false}
+  />
+)}
         </div>
       </div>
     </section>
