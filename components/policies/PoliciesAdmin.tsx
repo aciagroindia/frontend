@@ -268,7 +268,15 @@ export default function PoliciesAdmin() {
                   >
                     <ListOrdered size={15} /> <span>Numbers</span>
                   </button>
-
+                  <button
+  type="button"
+  className={styles.toolBtn}
+  onMouseDown={(e) => e.preventDefault()}
+  onClick={() => formatDoc("formatBlock", "<p>")}
+  title="Convert selected text to paragraph"
+>
+  <span>Paragraph</span>
+</button>
                   {/* Tabs */}
                   <div className={styles.viewToggle}>
                     <button
