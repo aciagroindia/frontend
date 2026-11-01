@@ -442,26 +442,25 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
             Manufacturing Facility & Infrastructure
           </h2>
           <p className={styles.manufacturingIntro}>
-            We work with a planned manufacturing approach for herbal juice
-            products, with attention to product requirements, processing,
-            packaging and business needs. Manufacturing arrangements are
-            discussed according to each project’s specifications.
+            We plan each herbal juice project around its product and order
+            needs. This includes processing, packaging and other business
+            needs. We agree on the details before work begins.
           </p>
           <div className={styles.manufacturingFeatureGrid}>
             <article className={styles.manufacturingFeatureCard}>
               <span className={styles.manufacturingIcon} aria-hidden="true">🏭</span>
               <h3>Manufacturing Coordination</h3>
-              <p>Product requirements and production planning are aligned before a project moves forward.</p>
+              <p>We review the product and plan the work before we begin.</p>
             </article>
             <article className={styles.manufacturingFeatureCard}>
               <span className={styles.manufacturingIcon} aria-hidden="true">🧴</span>
               <h3>Packaging Options</h3>
-              <p>Packaging format and bottle size can be discussed based on the product and order requirement.</p>
+              <p>We discuss bottle size and pack type for each order.</p>
             </article>
             <article className={styles.manufacturingFeatureCard}>
               <span className={styles.manufacturingIcon} aria-hidden="true">🤝</span>
               <h3>B2B Requirements</h3>
-              <p>We discuss bulk supply, contract manufacturing and private-label requirements with business clients.</p>
+              <p>We help businesses with bulk orders and private label products.</p>
             </article>
           </div>
         </div>
@@ -473,34 +472,33 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
           <span className={styles.manufacturingEyebrow}>FROM REQUIREMENT TO DELIVERY</span>
           <h2 className={styles.manufacturingHeading}>Our Manufacturing Process</h2>
           <p className={styles.manufacturingIntro}>
-            Each project is discussed and planned around its product,
-            packaging and order requirements.
+            We plan each order based on the product, pack and quantity.
           </p>
           <div className={styles.processGrid}>
             <article className={styles.processStep}>
               <span className={styles.processNumber}>01</span>
               <h3>Share Your Requirement</h3>
-              <p>Tell us about the product, quantity, packaging and intended market.</p>
+              <p>Tell us the product, amount and pack you need.</p>
             </article>
             <article className={styles.processStep}>
               <span className={styles.processNumber}>02</span>
               <h3>Product Discussion</h3>
-              <p>Discuss product specifications, ingredients and project expectations.</p>
+              <p>We talk about the product, its ingredients and your needs.</p>
             </article>
             <article className={styles.processStep}>
               <span className={styles.processNumber}>03</span>
               <h3>Planning & Quotation</h3>
-              <p>Review the proposed requirements, feasibility, timelines and commercial details.</p>
+              <p>We share the plan, cost and time needed for the order.</p>
             </article>
             <article className={styles.processStep}>
               <span className={styles.processNumber}>04</span>
               <h3>Production & Packaging</h3>
-              <p>Proceed with the mutually agreed product and packaging plan.</p>
+              <p>We make the product and pack it as agreed.</p>
             </article>
             <article className={styles.processStep}>
               <span className={styles.processNumber}>05</span>
               <h3>Final Review & Dispatch</h3>
-              <p>Complete the agreed checks and coordinate dispatch details.</p>
+              <p>We check the order and arrange dispatch.</p>
             </article>
           </div>
         </div>
@@ -512,29 +510,29 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
           <span className={styles.manufacturingEyebrow}>ATTENTION TO EVERY DETAIL</span>
           <h2 className={styles.manufacturingHeading}>Our Quality Control Approach</h2>
           <p className={styles.manufacturingIntro}>
-            Product quality is considered throughout the project, from
-            requirement discussions to packaging and final review.
+            We check product details at each stage. This includes the first
+            discussion, the pack and the final review.
           </p>
           <div className={styles.qualityControlGrid}>
             <article className={styles.qualityControlCard}>
               <span aria-hidden="true">🌿</span>
               <h3>Ingredient & Specification Review</h3>
-              <p>Product specifications and ingredient requirements are reviewed for the project.</p>
+              <p>We check the product details and ingredient needs.</p>
             </article>
             <article className={styles.qualityControlCard}>
               <span aria-hidden="true">⚙️</span>
               <h3>Process Attention</h3>
-              <p>Agreed processing and handling requirements are considered during production planning.</p>
+              <p>We follow the agreed steps for making and handling the product.</p>
             </article>
             <article className={styles.qualityControlCard}>
               <span aria-hidden="true">🔍</span>
               <h3>Packaging Inspection</h3>
-              <p>Packaging details and presentation are reviewed against the agreed requirements.</p>
+              <p>We check the pack against the agreed details.</p>
             </article>
             <article className={styles.qualityControlCard}>
               <span aria-hidden="true">📋</span>
               <h3>Documentation & Final Review</h3>
-              <p>Applicable product and order documentation is discussed and reviewed as required.</p>
+              <p>We review the product and order papers that apply.</p>
             </article>
           </div>
         </div>
