@@ -26,7 +26,7 @@ export default function ConditionalLayout({
       <TopAnnouncementBar />
       <Navbar />
       {children}
-      <EagleWelcome />
+      {pathname === "/" && <EagleWelcome />}
       <WhatsAppButton />
       <FeaturesStrip />
       <Footer />
