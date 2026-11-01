@@ -342,18 +342,17 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
               philosophy.imagePosition === "right" ? styles.splitReverse : ""
             }`}
           >
+            {philosophy.imageUrl && (
             <div className={styles.imageWrapper}>
-              <Image
-                src={philosophy.imageUrl || "/certifiedIcons/whychooseus.png"}
-                alt={philosophy.title || "Ayurveda"}
-                fill
-                className={styles.image}
-                unoptimized={
-                  typeof philosophy.imageUrl === "string" &&
-                  philosophy.imageUrl.startsWith("http")
-                }
-              />
-            </div>
+            <Image
+               src={philosophy.imageUrl}
+               alt={philosophy.title || "Ayurveda"}
+               fill
+               className={styles.image}
+               unoptimized={philosophy.imageUrl.startsWith("http")}
+            />
+          </div>
+            )}
             <div className={styles.textSide}>
               <h2 style={{ color: philosophy.headingColor || "#111827" }}>
                 {philosophy.title}
