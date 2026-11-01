@@ -347,8 +347,9 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
             <Image
                src={philosophy.imageUrl}
                alt={philosophy.title || "Ayurveda"}
-               fill
-               sizes="(max-width: 768px) 100vw, 480px"
+            width={800}
+            height={600}
+              sizes="(max-width: 768px) 100vw, 480px"
                className={styles.image}
                unoptimized={philosophy.imageUrl.startsWith("http")}
             />
@@ -384,7 +385,8 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
                     <Image
                       src={item.url}
                       alt={item.title || "About Media"}
-                      fill
+                      width={800}
+                      height={450}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className={styles.mediaElement}
                       unoptimized={
