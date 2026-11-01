@@ -83,6 +83,12 @@ export default function ArticlesClient() {
             habits. Our blog shares simple information to help you learn about herbal
             products and make informed choices.
           </p>
+           <p className={styles.subtitle}>
+            You can also explore articles about fruit and herb cultivation, including
+            papaya, guava, pomegranate and stevia. Each article covers a specific topic
+            and offers useful details about plants, herbal products and their uses.
+            Browse the collection to find topics that match your interests.
+          </p>
         </div>
 
         {/* Live Articles Grid */}
