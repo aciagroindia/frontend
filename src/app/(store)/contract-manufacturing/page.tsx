@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "Herbal Juice Manufacturing",
   description:
-    "ACI Agro Solutions offers herbal juice contract manufacturing, private label manufacturing and bulk supply for Indian and international brands. Share your manufacturing requirements.",
+  "Herbal juice contract manufacturing and private label solutions for brands in India and abroad. Discuss bulk orders with ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/contract-manufacturing",
   },
