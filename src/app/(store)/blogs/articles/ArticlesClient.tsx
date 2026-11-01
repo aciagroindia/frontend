@@ -69,12 +69,19 @@ export default function ArticlesClient() {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        
+
         {/* Header */}
         <div className={styles.header}>
           <h1 className={styles.heading}>ARTICLES & BLOGS</h1>
           <p className={styles.subtitle}>
             Explore Wellness Tips, Ancient Remedies & Ayurvedic Solutions from our experts.
+          </p>
+          <p className={styles.subtitle}>
+            Read our articles on herbal juices, natural ingredients and everyday wellness.
+            Explore guides to products such as Noni, Aloe Vera and Sea Buckthorn, along
+            with information on cultivation, ingredient choices and healthy lifestyle
+            habits. Our blog shares simple information to help you learn about herbal
+            products and make informed choices.
           </p>
         </div>
 
