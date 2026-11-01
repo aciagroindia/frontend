@@ -16,11 +16,20 @@ export const metadata: Metadata = {
     url: "https://aciagro.com/about",
     siteName: "ACI Agro Solutions",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "About Us | ACI Agro Solutions",
     description: "Learn about ACI Agro Solutions, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
