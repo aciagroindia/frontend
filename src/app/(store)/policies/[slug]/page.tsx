@@ -52,9 +52,16 @@ export async function generateMetadata({
   const title = policy.title;
   const canonicalUrl = `${SITE_URL}/policies/${policy.slug}`;
 
+  const description =
+    slug === "privacy-policy"
+      ? "Read the ACI Agro Solutions Privacy Policy to learn how we collect, use, store, and protect your personal information when you visit our website or contact us."
+      : slug === "terms-of-service"
+      ? "Review the ACI Agro Solutions Terms of Service, including website usage rules, terms and conditions, and responsibilities when using our website and services."
+      : `Official ${policy.title} for ACI Agro Solutions. Read our policies, terms, and guidelines.`;
+
   return {
     title,
-    description: `Official ${policy.title} for ACI Agro Solutions. Read our policies, terms, and guidelines.`,
+    description,
     alternates: {
       canonical: canonicalUrl,
     },
