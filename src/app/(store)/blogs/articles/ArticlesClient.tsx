@@ -90,7 +90,9 @@ export default function ArticlesClient() {
             Browse the collection to find topics that match your interests.
           </p>
         </div>
-
+        <h2 className={styles.sectionTitle}>
+        Explore Our Latest Articles
+        </h2>
         {/* Live Articles Grid */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "#64748b" }}>
