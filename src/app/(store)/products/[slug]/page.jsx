@@ -151,7 +151,7 @@ export default async function ProductPage({ params }) {
       ? Number(product.numReviews)
       : 1;
 
-  // 1. Enhanced Product JSON-LD Schema (with Rich Snippets, SKU, MPN, AggregateRating)
+  // 1. Enhanced Product JSON-LD Schema
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -234,7 +234,7 @@ export default async function ProductPage({ params }) {
     "itemListElement": breadcrumbElements,
   };
 
-  // 3. FAQPage JSON-LD Schema (Google Rich FAQ snippets in SERP)
+  // 3. FAQPage JSON-LD Schema
   let faqJsonLd = null;
   if (Array.isArray(product.faqs) && product.faqs.length > 0) {
     faqJsonLd = {
@@ -251,15 +251,8 @@ export default async function ProductPage({ params }) {
     };
   }
 
-  const metaDescription = cleanDescription && cleanDescription.length > 20
-    ? cleanDescription.slice(0, 160)
-    : `Buy authentic 100% natural and Ayurvedic ${product.name} online at best price from ACI Agro Solutions. Fast shipping across India.`;
-
   return (
     <>
-      <head>
-        <meta name="description" content={metaDescription} />
-      </head>
       <script
         id="product-jsonld"
         type="application/ld+json"
