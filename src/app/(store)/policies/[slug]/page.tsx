@@ -49,7 +49,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const title = `${policy.title} | ACI Agro Solutions`;
+  const title = policy.title;
   const canonicalUrl = `${SITE_URL}/policies/${policy.slug}`;
 
   return {
