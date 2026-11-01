@@ -46,7 +46,7 @@ export default function ArticlesClient() {
     const fetchLiveArticles = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get(`/articles?page=${currentPage}&limit=12`);
+        const response = await axiosInstance.get(`/articles?page=${currentPage}&limit=50`);
         if (response.data.success && Array.isArray(response.data.data)) {
           setArticles(response.data.data);
           if (response.data.pagination) {
