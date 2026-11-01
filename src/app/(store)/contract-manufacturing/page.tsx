@@ -3,8 +3,7 @@ import OrderForm from "../../../../components/BulkOrder/OrderForm/page";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title:
-    "Herbal Juice Contract & Private Label Manufacturing | ACI Agro Solutions",
+  title: "Herbal Juice Manufacturing",
   description:
     "ACI Agro Solutions offers herbal juice contract manufacturing, private label manufacturing and bulk supply for Indian and international brands. Share your manufacturing requirements.",
   alternates: {
