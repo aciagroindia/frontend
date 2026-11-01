@@ -12,10 +12,12 @@ export default function EagleWelcome() {
       {/* Separate floating logo */}
       <div className={styles.logoArea}>
         <img
-          src="/aci-welcome-logo.png"
-          alt="ACI Agro Solution"
-          className={styles.logo}
-        />
+  src="/aci-welcome-logo.png"
+  alt="ACI Agro Solution"
+  width={1269}
+  height={1213}
+  className={styles.logo}
+/>
       </div>
 
       {/* Separate welcome message */}
