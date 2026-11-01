@@ -385,6 +385,7 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
                       src={item.url}
                       alt={item.title || "About Media"}
                       fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className={styles.mediaElement}
                       unoptimized={
                         typeof item.url === "string" && item.url.startsWith("http")
