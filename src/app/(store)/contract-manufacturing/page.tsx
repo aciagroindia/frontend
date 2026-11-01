@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "Herbal Juice Manufacturing",
   description:
-  "Herbal juice contract manufacturing and private label solutions for brands in India and abroad. Discuss bulk orders with ACI Agro Solutions.",
+    "Herbal juice contract manufacturing and private label solutions for brands in India and abroad. Discuss bulk orders with ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/contract-manufacturing",
   },
@@ -36,44 +36,44 @@ const services = [
     number: "01",
     title: "Contract Manufacturing",
     description:
-      "Manufacturing support for businesses looking to source herbal juice products under their own business requirements.",
+      "We help businesses source herbal juice products for their own brands and needs.",
     points: [
       "Bulk production enquiries",
       "Product and packaging discussions",
-      "Business-specific requirements",
+      "Plans for your business",
     ],
   },
   {
     number: "02",
     title: "Private Label Manufacturing",
     description:
-      "Explore opportunities to develop herbal juice products under your own brand with suitable packaging and labelling options.",
+      "Create herbal juice products under your own brand with packaging and labelling options that fit your needs.",
     points: [
       "Your brand identity",
       "Packaging options",
-      "Product range discussions",
+      "Product range options",
     ],
   },
   {
     number: "03",
     title: "Bulk Juice Supply",
     description:
-      "Connect with our team for bulk herbal juice supply requirements for your distribution and business operations.",
+      "Contact our team for bulk herbal juice supply for your business or distribution needs.",
     points: [
       "Bulk supply enquiries",
-      "Product availability discussions",
-      "Quantity-based requirements",
+      "Check product availability",
+      "Order quantity options",
     ],
   },
   {
     number: "04",
     title: "Custom Product Requirements",
     description:
-      "Have a specific herbal juice or product requirement? Share your idea and discuss possible manufacturing options with our team.",
+      "Need a specific herbal juice product? Share your idea with our team and discuss available production options.",
     points: [
-      "Custom product discussions",
+      "Custom product ideas",
       "Packaging preferences",
-      "Business requirements",
+      "Your business needs",
     ],
   },
 ];
@@ -92,25 +92,25 @@ const steps = [
     number: "01",
     title: "Share Your Requirement",
     description:
-      "Tell us about your product, quantity, packaging and business requirements.",
+      "Tell us what product you need, the quantity, and your packaging needs.",
   },
   {
     number: "02",
     title: "Requirement Discussion",
     description:
-      "Our team reviews your enquiry and discusses suitable product and packaging options.",
+      "Our team reviews your enquiry and helps you choose the right product and packaging options.",
   },
   {
     number: "03",
     title: "Quotation & Planning",
     description:
-      "Discuss the proposed order specifications, pricing and manufacturing requirements.",
+      "We discuss the order details, pricing and production needs with you.",
   },
   {
     number: "04",
     title: "Move Forward",
     description:
-      "Proceed with the mutually agreed product and order requirements.",
+      "Move ahead with the agreed product details and order plan.",
   },
 ];
 
@@ -133,7 +133,7 @@ export default function ContractManufacturingPage() {
             <p className={styles.heroText}>
               Looking for a manufacturing partner for your herbal juice brand?
               Explore contract manufacturing, private label solutions and bulk
-              supply opportunities with ACI Agro Solutions.
+              supply with ACI Agro Solutions.
             </p>
 
             <div className={styles.heroActions}>
@@ -181,9 +181,9 @@ export default function ContractManufacturingPage() {
             <span> Growing Brands</span>
           </h2>
           <p>
-            Whether you are an established business, distributor, startup or
-            international brand, connect with ACI Agro Solutions to discuss
-            herbal juice manufacturing and bulk supply requirements.
+            Whether you run an established business, a startup or a distribution
+            company, talk to ACI Agro Solutions about herbal juice manufacturing
+            and bulk supply.
           </p>
         </div>
 
@@ -204,8 +204,8 @@ export default function ContractManufacturingPage() {
             <span> Services</span>
           </h2>
           <p>
-            Discuss your requirements and explore suitable manufacturing and
-            supply options for your business.
+            Tell us what your business needs. We will help you explore the right
+            manufacturing and supply options.
           </p>
         </div>
 
@@ -240,8 +240,8 @@ export default function ContractManufacturingPage() {
               <span> Herbal Juice Range</span>
             </h2>
             <p>
-              Connect with our team to discuss available products, packaging
-              options and specific product requirements for your business.
+              Contact our team to learn about available products, packaging
+              options and product choices for your business.
             </p>
             <a href="#enquiry" className={styles.productButton}>
               Enquire About Products →
@@ -269,8 +269,7 @@ export default function ContractManufacturingPage() {
             <span> Your Brand</span>
           </h2>
           <p>
-            Discuss suitable packaging formats and sizes based on your product
-            and business requirements.
+            Explore packaging types and sizes that fit your product and business needs.
           </p>
         </div>
 
@@ -279,8 +278,8 @@ export default function ContractManufacturingPage() {
             <span className={styles.packagingIcon}>01</span>
             <h3>Bottle Sizes</h3>
             <p>
-              Discuss available sizes such as 200 ml, 400 ml, 500 ml, 1 litre
-              and custom requirements.
+              Available sizes include 200 ml, 400 ml, 500 ml and 1 litre.
+              You can also ask about custom sizes.
             </p>
           </article>
 
@@ -288,8 +287,7 @@ export default function ContractManufacturingPage() {
             <span className={styles.packagingIcon}>02</span>
             <h3>Packaging Types</h3>
             <p>
-              Explore PET bottles, glass bottles and other suitable packaging
-              options.
+              Choose from PET bottles, glass bottles and other packaging options.
             </p>
           </article>
 
@@ -297,8 +295,7 @@ export default function ContractManufacturingPage() {
             <span className={styles.packagingIcon}>03</span>
             <h3>Private Label</h3>
             <p>
-              Discuss your brand name, product labelling and packaging
-              requirements.
+              Share your brand name and discuss product labels and packaging.
             </p>
           </article>
         </div>
@@ -334,10 +331,9 @@ export default function ContractManufacturingPage() {
             <span> Across Markets</span>
           </h2>
           <p>
-            ACI Agro Solutions welcomes manufacturing and bulk supply
-            enquiries from businesses in India and international markets.
-            Share your requirements to begin a business discussion with our
-            team.
+            ACI Agro Solutions welcomes contract manufacturing and bulk supply
+            enquiries from businesses in India and around the world. Share your
+            needs with our team to start a discussion.
           </p>
 
           <div className={styles.marketTags}>
@@ -361,8 +357,8 @@ export default function ContractManufacturingPage() {
             <span> Manufacturing Quote</span>
           </h2>
           <p>
-            Tell us about your business and product requirements. Our team will
-            review your enquiry and get in touch.
+            Tell us about your business and the products you need. Our team will
+            review your enquiry and contact you.
           </p>
         </div>
 
