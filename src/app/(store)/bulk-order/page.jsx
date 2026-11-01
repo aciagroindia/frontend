@@ -14,11 +14,20 @@ export const metadata = {
     url: "https://aciagro.com/bulk-order",
     siteName: "ACI Agro Solutions",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Bulk Orders | ACI Agro Solutions",
     description: "Exclusive bulk order options for premium Ayurvedic and herbal wellness products for retailers, wellness centers, and distributors at ACI Agro Solutions.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
