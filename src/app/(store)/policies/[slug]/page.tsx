@@ -71,11 +71,20 @@ export async function generateMetadata({
       url: canonicalUrl,
       siteName: "ACI Agro Solutions",
       type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+        },
+      ],
     },
     twitter: {
       card: "summary",
       title,
       description: `Official ${policy.title} for ACI Agro Solutions.`,
+      images: ["/og-image.png"],
     },
     robots: {
       index: true,
