@@ -13,11 +13,20 @@ export const metadata: Metadata = {
     url: "https://aciagro.com/blogs/articles",
     siteName: "ACI Agro Solutions",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Articles & Blogs | ACI Agro Solutions",
     description: "Explore Ayurvedic wellness tips, ancient natural remedies, lifestyle advice, and herbal solutions from the health experts at ACI Agro Solutions.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
