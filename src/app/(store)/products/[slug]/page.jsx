@@ -24,6 +24,31 @@ const getProduct = cache(async (slug) => {
   return null;
 });
 
+// Fetch related products on the server for SEO-friendly internal links
+const getRelatedProducts = cache(async (slug) => {
+  if (!slug) return [];
+
+  try {
+    const res = await axiosInstance.get(
+      `/products/related/${encodeURIComponent(slug)}`
+    );
+
+    if (res.data?.success && Array.isArray(res.data.products)) {
+      return res.data.products.filter(
+        (product) =>
+          product.slug &&
+          product.status === "Active" &&
+          Number(product.stock) > 0
+      );
+    }
+
+    return [];
+  } catch (error) {
+    console.error("Related products fetch failed:", error.message);
+    return [];
+  }
+});
+
 function stripHtml(html) {
   if (!html) return "";
   return html
@@ -134,6 +159,8 @@ export default async function ProductPage({ params }) {
   if (!product) {
     return notFound();
   }
+
+  const relatedProducts = await getRelatedProducts(slug);
 
   const cleanDescription = getProductDescriptionText(product);
   const productImages = (Array.isArray(product.images) && product.images.length > 0
@@ -276,7 +303,11 @@ export default async function ProductPage({ params }) {
           }}
         />
       ) : null}
-      <ProductDetail slug={slug} initialProduct={product} />
+      <ProductDetail
+        slug={slug}
+        initialProduct={product}
+        initialRelatedProducts={relatedProducts}
+      />
     </>
   );
 }
