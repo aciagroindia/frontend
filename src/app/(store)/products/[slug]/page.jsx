@@ -49,6 +49,21 @@ const getRelatedProducts = cache(async (slug) => {
   }
 });
 
+// Build time par saare product pages pre-render ho jayenge (cold start / TTFB spike nahi aayega).
+// API na mile toh [] return hota hai, build fail nahi hoga aur pages on-demand ban jayenge.
+export async function generateStaticParams() {
+  try {
+    const res = await axiosInstance.get("/products");
+    const list = Array.isArray(res.data) ? res.data : [];
+    return list
+      .filter((p) => p && typeof p.slug === "string" && p.slug)
+      .map((p) => ({ slug: p.slug }));
+  } catch (err) {
+    console.error("generateStaticParams (products) failed:", err.message);
+    return [];
+  }
+}
+
 function stripHtml(html) {
   if (!html) return "";
   return html
@@ -154,13 +169,15 @@ export default async function ProductPage({ params }) {
     return notFound();
   }
 
-  const product = await getProduct(slug);
+  // Product aur related products ek saath fetch hote hain (pehle ek ke baad ek hote the)
+  const [product, relatedProducts] = await Promise.all([
+    getProduct(slug),
+    getRelatedProducts(slug),
+  ]);
 
   if (!product) {
     return notFound();
   }
-
-  const relatedProducts = await getRelatedProducts(slug);
 
   const cleanDescription = getProductDescriptionText(product);
   const productImages = (Array.isArray(product.images) && product.images.length > 0
