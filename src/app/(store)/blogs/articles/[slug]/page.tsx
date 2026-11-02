@@ -21,6 +21,8 @@ interface ArticleData {
   content: string;
   status?: string;
   faqs?: FaqItem[];
+  buttonText?: string;
+  buttonUrl?: string;
   createdAt?: string;
 }
 
@@ -155,6 +157,21 @@ export default async function ArticleDetailPage({
       })
     : "";
 
+  // Validate external button URL
+  let externalButtonUrl = "";
+
+  if (article.buttonText?.trim() && article.buttonUrl?.trim()) {
+    try {
+      const parsedUrl = new URL(article.buttonUrl.trim());
+
+      if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+        externalButtonUrl = parsedUrl.toString();
+      }
+    } catch {
+      externalButtonUrl = "";
+    }
+  }
+
   return (
     <main className={styles.pageWrapper}>
       <div className={styles.container}>
@@ -209,6 +226,31 @@ export default async function ArticleDetailPage({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* OPTIONAL EXTERNAL BUTTON */}
+          {externalButtonUrl && (
+            <div style={{ marginTop: "32px", textAlign: "center" }}>
+              <a
+                href={externalButtonUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-block",
+                  padding: "13px 30px",
+                  backgroundColor: "#123F2A",
+                  color: "#FFFFFF",
+                  border: "1px solid #C5A45D",
+                  borderRadius: "6px",
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {article.buttonText}
+              </a>
             </div>
           )}
         </div>
