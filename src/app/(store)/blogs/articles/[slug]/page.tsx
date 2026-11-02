@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +28,8 @@ interface ArticleData {
   createdAt?: string;
 }
 
-async function getArticle(slug: string): Promise<ArticleData | null> {
+// cache(): generateMetadata aur page dono ke liye ek hi API call hogi (pehle 2 baar hoti thi)
+const getArticle = cache(async (slug: string): Promise<ArticleData | null> => {
   try {
     const res = await axiosInstance.get(`/articles/${slug}`);
 
@@ -45,41 +47,42 @@ async function getArticle(slug: string): Promise<ArticleData | null> {
   } catch (err) {
     return null;
   }
-}
+});
 
-// Fetch published articles for internal linking
-async function getRelatedArticles(
-  currentArticle: ArticleData
-): Promise<ArticleData[]> {
+// Published articles ki list (ek hi baar fetch, article ke saath parallel)
+const getArticleList = cache(async (): Promise<ArticleData[]> => {
   try {
     const res = await axiosInstance.get("/articles?limit=50");
-
-    const articles: ArticleData[] = Array.isArray(res.data?.data)
-      ? res.data.data
-      : [];
-
-    const publishedArticles = articles.filter(
-      (item) =>
-        item?.slug &&
-        item.slug !== currentArticle.slug &&
-        (!item.status || item.status === "Published")
-    );
-
-    const sameCategory = currentArticle.category
-      ? publishedArticles.filter(
-          (item) => item.category === currentArticle.category
-        )
-      : [];
-
-    const otherArticles = publishedArticles.filter(
-      (item) => !sameCategory.some((related) => related.slug === item.slug)
-    );
-
-    return [...sameCategory, ...otherArticles].slice(0, 3);
+    return Array.isArray(res.data?.data) ? res.data.data : [];
   } catch (error) {
     console.error("Related articles fetch failed:", error);
     return [];
   }
+});
+
+// Internal linking ke liye related articles (list pehle se aa chuki hai, koi extra API call nahi)
+function pickRelatedArticles(
+  currentArticle: ArticleData,
+  articles: ArticleData[]
+): ArticleData[] {
+  const publishedArticles = articles.filter(
+    (item) =>
+      item?.slug &&
+      item.slug !== currentArticle.slug &&
+      (!item.status || item.status === "Published")
+  );
+
+  const sameCategory = currentArticle.category
+    ? publishedArticles.filter(
+        (item) => item.category === currentArticle.category
+      )
+    : [];
+
+  const otherArticles = publishedArticles.filter(
+    (item) => !sameCategory.some((related) => related.slug === item.slug)
+  );
+
+  return [...sameCategory, ...otherArticles].slice(0, 3);
 }
 
 function stripHtml(html: string) {
@@ -197,14 +200,17 @@ export default async function ArticleDetailPage({
 }) {
   const { slug } = await params;
 
-  const article = await getArticle(slug);
+  // Article aur articles ki list parallel fetch hoti hain
+  const [article, articleList] = await Promise.all([
+    getArticle(slug),
+    getArticleList(),
+  ]);
 
   if (!article) {
     return notFound();
   }
 
-  // Fetch related published articles
-  const relatedArticles = await getRelatedArticles(article);
+  const relatedArticles = pickRelatedArticles(article, articleList);
 
   const formattedDate = article.createdAt
     ? new Date(article.createdAt).toLocaleDateString("en-US", {
