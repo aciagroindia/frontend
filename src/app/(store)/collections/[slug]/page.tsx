@@ -139,12 +139,44 @@ export default async function CollectionPage({
       status: p.status || "Active",
     }));
 
+    // Category ItemList structured data
+    const categoryUrl = `https://aciagro.com/collections/${category.slug}`;
+
+    const itemListSchema = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": category.name,
+      "description": category.description
+        ? category.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+        : `${category.name} products at ACI Agro Solutions.`,
+      "url": categoryUrl,
+      "numberOfItems": products.filter((product) => product.slug).length,
+      "itemListElement": products
+        .filter((product) => product.slug)
+        .map((product, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": product.name,
+          "url": `https://aciagro.com/products/${product.slug}`,
+        })),
+    };
+
     return (
-      <CollectionLayout
-        title={category.name}
-        description={category.description}
-        products={products}
-      />
+      <>
+        {/* CATEGORY ITEMLIST STRUCTURED DATA */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema).replace(/</g, "\\u003c"),
+          }}
+        />
+
+        <CollectionLayout
+          title={category.name}
+          description={category.description}
+          products={products}
+        />
+      </>
     );
   } catch (error) {
     return notFound();
