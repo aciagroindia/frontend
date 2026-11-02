@@ -3,72 +3,100 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useProducts, Product, normalizeProduct } from "../../context/ProductContext";
+import {
+  useProducts,
+  Product,
+  normalizeProduct,
+} from "../../context/ProductContext";
 import styles from "./ProductDetail.module.css";
 import ProductGallery from "./ProductGallery";
 import ProductInfo from "./ProductInfo";
-
 import ProductTabs from "./ProductTabs";
 import RelatedProducts from "./RelatedProducts";
-const RecentlyViewed = dynamic(() => import("../collection/RecentlyViewed"), { ssr: false });
+
+const RecentlyViewed = dynamic(
+  () => import("../collection/RecentlyViewed"),
+  { ssr: false }
+);
 
 interface Props {
   slug: string;
   initialProduct?: any;
+  initialRelatedProducts?: Product[];
 }
 
-export default function ProductDetail({ slug, initialProduct }: Props) {
-  const { products, fetchProductBySlug, fetchRelatedProducts, lastUpdatedProduct } = useProducts();
-  
-  // 👇 NAYA: Synchronous cache check. If we have the product in memory or from server, load it instantly!
+export default function ProductDetail({
+  slug,
+  initialProduct,
+  initialRelatedProducts = [],
+}: Props) {
+  const { products, fetchProductBySlug, lastUpdatedProduct } = useProducts();
+
+  // Load product from server data or existing cache
   const [product, setProduct] = useState<Product | null>(() => {
     if (initialProduct) {
-      return normalizeProduct ? normalizeProduct(initialProduct) : initialProduct;
+      return normalizeProduct(initialProduct);
     }
-    if (lastUpdatedProduct?.slug === slug) return lastUpdatedProduct;
-    const cached = products.find((p) => p.slug === slug || p.slug?.toLowerCase() === slug?.toLowerCase());
+
+    if (lastUpdatedProduct?.slug === slug) {
+      return lastUpdatedProduct;
+    }
+
+    const cached = products.find(
+      (p) =>
+        p.slug === slug ||
+        p.slug?.toLowerCase() === slug?.toLowerCase()
+    );
+
     return cached || null;
   });
 
-  // 👇 NAYA: Only show loading screen if we have absolutely NO cached or initial product
   const [loading, setLoading] = useState(!product);
 
   useEffect(() => {
     let isMounted = true;
 
-    // Track to recently viewed safely
-    if (product) {
+    // Track recently viewed product
+    const saveRecentlyViewed = (item: Product) => {
       try {
         const stored = localStorage.getItem("recentlyViewed");
         let list = stored ? JSON.parse(stored) : [];
+
         if (Array.isArray(list)) {
-          list = list.filter((p: any) => p && (p._id !== product._id && p.id !== product.id));
-          list.unshift(product);
-          if (list.length > 20) list.pop();
-          localStorage.setItem("recentlyViewed", JSON.stringify(list));
+          list = list.filter(
+            (p: any) =>
+              p &&
+              p._id !== item._id &&
+              p.id !== item.id
+          );
+
+          list.unshift(item);
+
+          if (list.length > 20) {
+            list.pop();
+          }
+
+          localStorage.setItem(
+            "recentlyViewed",
+            JSON.stringify(list)
+          );
         }
       } catch (e) {}
+    };
+
+    if (product) {
+      saveRecentlyViewed(product);
     }
 
     const loadProduct = async () => {
       try {
-        const [freshData] = await Promise.all([
-          !product ? fetchProductBySlug(slug) : Promise.resolve(null),
-          fetchRelatedProducts(slug)
-        ]);
+        if (!product) {
+          const freshData = await fetchProductBySlug(slug);
 
-        if (isMounted && freshData) {
-          setProduct(freshData);
-          try {
-            const stored = localStorage.getItem("recentlyViewed");
-            let list = stored ? JSON.parse(stored) : [];
-            if (Array.isArray(list)) {
-              list = list.filter((p: any) => p && (p._id !== freshData._id && p.id !== freshData.id));
-              list.unshift(freshData);
-              if (list.length > 20) list.pop();
-              localStorage.setItem("recentlyViewed", JSON.stringify(list));
-            }
-          } catch (e) {}
+          if (isMounted && freshData) {
+            setProduct(freshData);
+            saveRecentlyViewed(freshData);
+          }
         }
       } catch (error) {
         console.error("Error fetching product details:", error);
@@ -84,22 +112,50 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
     return () => {
       isMounted = false;
     };
-  }, [slug, fetchProductBySlug, fetchRelatedProducts]);
+  }, [slug, fetchProductBySlug]);
 
-  if (loading) return <div style={{ textAlign: "center", padding: "100px" }}>Loading...</div>;
-
-  if (!product && !loading) {
-    return <div style={{ textAlign: "center", padding: "100px", fontSize: "20px" }}>Product Not Found</div>;
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px" }}>
+        Loading...
+      </div>
+    );
   }
 
-  // ✅ TS Ignore/Check fallback just in case
+  if (!product && !loading) {
+    return (
+      <div
+        style={{
+          textAlign: "center",
+          padding: "100px",
+          fontSize: "20px",
+        }}
+      >
+        Product Not Found
+      </div>
+    );
+  }
+
   if (!product) return null;
 
   const categorySlug =
-    product.category && typeof (product.category as any).slug === "string"
+    product.category &&
+    typeof (product.category as any).slug === "string"
       ? (product.category as any).slug
       : null;
+
   const categoryName = product.category?.name || null;
+
+  // Normalize server-rendered related products
+  const normalizedRelatedProducts = initialRelatedProducts
+    .filter(
+      (item) =>
+        item &&
+        item.slug &&
+        item.status === "Active" &&
+        Number(item.stock) > 0
+    )
+    .map((item) => normalizeProduct(item));
 
   return (
     <div className={styles.wrapper}>
@@ -113,6 +169,7 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
               </Link>
               <span className={styles.breadcrumbSeparator}>›</span>
             </li>
+
             {categorySlug && categoryName ? (
               <li className={styles.breadcrumbItem}>
                 <Link
@@ -124,8 +181,12 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
                 <span className={styles.breadcrumbSeparator}>›</span>
               </li>
             ) : null}
+
             <li className={styles.breadcrumbItem}>
-              <span className={styles.breadcrumbCurrent} aria-current="page">
+              <span
+                className={styles.breadcrumbCurrent}
+                aria-current="page"
+              >
                 {product.name}
               </span>
             </li>
@@ -133,12 +194,15 @@ export default function ProductDetail({ slug, initialProduct }: Props) {
         </nav>
       </div>
 
-      {/* Hero Section - Loads instantly now */}
+      {/* Product Hero Section */}
       <ProductDetailHero product={product} />
 
-      {/* Niche ke sections - Loads slightly after the hero section */}
+      {/* Product Details */}
       <ProductTabs product={product} />
-      <RelatedProducts />
+
+      {/* Server-rendered Related Products */}
+      <RelatedProducts products={normalizedRelatedProducts} />
+
       <RecentlyViewed />
     </div>
   );
@@ -148,6 +212,7 @@ function ProductDetailHero({ product }: { product: Product }) {
   const [selectedPlan, setSelectedPlan] = useState<any>(() => {
     if (Array.isArray(product.packages) && product.packages.length > 0) {
       const first = product.packages[0] as any;
+
       return {
         id: first._id || first.id || "pkg-0",
         name: first.name,
@@ -156,17 +221,23 @@ function ProductDetailHero({ product }: { product: Product }) {
         image: first.image || "",
       };
     }
+
     return null;
   });
 
-  // Keep in sync if product changes
+  // Keep selected package in sync with product
   useEffect(() => {
-    if (Array.isArray(product.packages) && product.packages.length > 0) {
+    if (
+      Array.isArray(product.packages) &&
+      product.packages.length > 0
+    ) {
       setSelectedPlan((prev: any) => {
         if (prev) {
           const matched = product.packages.find(
-            (p: any) => (p._id || p.id) === (prev._id || prev.id)
+            (p: any) =>
+              (p._id || p.id) === (prev._id || prev.id)
           );
+
           if (matched) {
             return {
               id: (matched as any)._id || (matched as any).id,
@@ -177,7 +248,9 @@ function ProductDetailHero({ product }: { product: Product }) {
             };
           }
         }
+
         const first = product.packages[0] as any;
+
         return {
           id: first._id || first.id || "pkg-0",
           name: first.name,
@@ -193,7 +266,11 @@ function ProductDetailHero({ product }: { product: Product }) {
 
   return (
     <div className={styles.topSection}>
-      <ProductGallery product={product} variantImage={variantImage} />
+      <ProductGallery
+        product={product}
+        variantImage={variantImage}
+      />
+
       <ProductInfo
         product={product}
         selectedPlan={selectedPlan}
