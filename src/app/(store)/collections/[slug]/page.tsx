@@ -50,7 +50,7 @@ export async function generateMetadata({
       .replace(/(\s*\|\s*ACI Agro Solutions)+\s*$/gi, "")
       .trim();
 
-    const title = `${cleanCategoryName} | ${BRAND_NAME}`;
+    const title = cleanCategoryName;
 
     const plainDesc = category.description
       ? category.description
