@@ -18,7 +18,7 @@ export const metadata = {
     default: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
     template: "%s | ACI Agro Solutions",
   },
-description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+  description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
   keywords: [
     "Ayurvedic products",
     "Herbal wellness",
@@ -72,11 +72,34 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://aciagro.com/#organization",
+    "name": "ACI Agro Solutions",
+    "url": "https://aciagro.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://aciagro.com/assets/Aci%20logo.png",
+    },
+    "description":
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+  };
+
   return (
     <html lang="en">
-      <head> 
+      <head>
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+
+        {/* ORGANIZATION STRUCTURED DATA */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema).replace(/</g, "\\u003c"),
+          }}
+        />
+
         <Script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-XENSPV6GWS"
@@ -94,8 +117,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {/* 2. Toaster add kiya - Isse UI change nahi hoga, sirf popups dikhenge */}
-        <Toaster 
-          position="bottom-center" 
+        <Toaster
+          position="bottom-center"
           reverseOrder={false}
           toastOptions={{
             duration: 2000, // 2 second tak dikhega
