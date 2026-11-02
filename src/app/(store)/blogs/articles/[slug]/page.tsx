@@ -157,6 +157,36 @@ export default async function ArticleDetailPage({
       })
     : "";
 
+  // Article structured data (JSON-LD)
+  const articleUrl = `${SITE_URL}/blogs/articles/${article.slug}`;
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "description": article.description
+      ? stripHtml(article.description)
+      : `Read about ${article.title} on ACI Agro Solutions.`,
+    "url": articleUrl,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+    ...(article.image ? { "image": [article.image] } : {}),
+    ...(article.createdAt
+      ? { "datePublished": article.createdAt }
+      : {}),
+    "author": {
+      "@type": "Organization",
+      "name": "ACI Agro Solutions",
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ACI Agro Solutions",
+      "url": SITE_URL,
+    },
+  };
+
   // Validate external button URL
   let externalButtonUrl = "";
 
@@ -174,6 +204,14 @@ export default async function ArticleDetailPage({
 
   return (
     <main className={styles.pageWrapper}>
+      {/* ARTICLE STRUCTURED DATA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <div className={styles.container}>
         {/* BREADCRUMB */}
         <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
