@@ -1,8 +1,14 @@
 import CollectionLayout from "../../../../../components/collection/CollectionLayout";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 
 export const revalidate = 60;
+
+// cache(): generateMetadata aur page dono ke liye category ek hi baar fetch hogi
+const getCategoryRes = cache((slug: string) =>
+  axiosInstance.get(`/categories/${slug}`)
+);
 
 const BRAND_NAME = "ACI Agro Solutions";
 
@@ -33,7 +39,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   try {
-    const categoryRes = await axiosInstance.get(`/categories/${slug}`);
+    const categoryRes = await getCategoryRes(slug);
 
     if (!categoryRes.data?.success || !categoryRes.data?.data) {
       return {};
@@ -108,7 +114,7 @@ export default async function CollectionPage({
 
   try {
     // 1. Fetch category by slug
-    const categoryRes = await axiosInstance.get(`/categories/${slug}`);
+    const categoryRes = await getCategoryRes(slug);
 
     if (!categoryRes.data?.success || !categoryRes.data?.data) {
       return notFound();
