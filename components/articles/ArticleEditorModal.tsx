@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { 
-  X, 
-  Upload, 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Eye, 
+import {
+  X,
+  Upload,
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Eye,
   Edit3,
   Plus,
   Trash2,
@@ -32,6 +32,8 @@ export interface ArticleData {
   description?: string;
   content: string;
   image?: string;
+  buttonText?: string;
+  buttonUrl?: string;
   faqs?: FaqItem[];
   status: "Published" | "Draft";
   views?: number;
@@ -75,6 +77,8 @@ export default function ArticleEditorModal({
 }: ArticleEditorModalProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [buttonText, setButtonText] = useState("");
+  const [buttonUrl, setButtonUrl] = useState("");
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [status, setStatus] = useState<"Published" | "Draft">("Published");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -87,12 +91,16 @@ export default function ArticleEditorModal({
     if (isOpen) {
       if (initialData) {
         setTitle(initialData.title || "");
+        setButtonText(initialData.buttonText || "");
+        setButtonUrl(initialData.buttonUrl || "");
         setContent(initialData.content || "");
         setFaqs(initialData.faqs && Array.isArray(initialData.faqs) ? initialData.faqs : []);
         setStatus(initialData.status || "Published");
         setImagePreview(initialData.image || null);
       } else {
         setTitle("");
+        setButtonText("");
+        setButtonUrl("");
         setContent("");
         setFaqs([]);
         setStatus("Published");
@@ -170,7 +178,7 @@ export default function ArticleEditorModal({
 
     // Auto-generate clean slug
     const autoSlug = slugify(title.trim()) || `article-${Date.now()}`;
-    
+
     // Auto-generate excerpt from plain text
     const plainText = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const autoDescription = plainText.length > 180 ? `${plainText.substring(0, 180)}...` : plainText || title;
@@ -186,6 +194,8 @@ export default function ArticleEditorModal({
     formData.append("content", content);
     formData.append("status", status);
     formData.append("faqs", JSON.stringify(validFaqs));
+    formData.append("buttonText", buttonText.trim());
+    formData.append("buttonUrl", buttonUrl.trim());
 
     if (imageFile) {
       formData.append("image", imageFile);
@@ -266,7 +276,7 @@ export default function ArticleEditorModal({
                 💡 Standalone bold line = <strong>Heading</strong>. Inline bold = normal bold text.
               </span>
             </div>
-            
+
             <div className={styles.editorContainer}>
               {/* Toolbar */}
               <div className={styles.toolbar}>
@@ -350,6 +360,35 @@ export default function ArticleEditorModal({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Optional External Button */}
+          <div className={styles.formGroup}>
+            <label htmlFor="article-button-text">
+              External Button Text (Optional)
+            </label>
+            <input
+              type="text"
+              id="article-button-text"
+              placeholder="e.g. Read Full Article"
+              value={buttonText}
+              onChange={(e) => setButtonText(e.target.value)}
+            />
+
+            <label htmlFor="article-button-url" style={{ marginTop: "12px" }}>
+              External Button URL (Optional)
+            </label>
+            <input
+              type="url"
+              id="article-button-url"
+              placeholder="https://example.blogspot.com/..."
+              value={buttonUrl}
+              onChange={(e) => setButtonUrl(e.target.value)}
+            />
+
+            <span className={styles.hint}>
+              Leave both fields blank if you don't want to show an external button.
+            </span>
           </div>
 
           {/* FAQs and Answers Section */}
