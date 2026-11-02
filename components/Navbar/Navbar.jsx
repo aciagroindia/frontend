@@ -3,15 +3,22 @@
 import Link from "next/link";
 import styles from "./Navbar.module.css";
 import Image from "next/image";
-import MegaMenu from "../../components/MegaMenu/MegaMenu";
-import Cart from "../../components/Cart/cart";
+import dynamic from "next/dynamic";
 import { useState, useEffect, useRef, useCallback } from "react";
-import SearchMegaMenu from "../../components/SearchMenu/SearchMegaMenu";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { useCategories } from "../../context/CategoryContext";
 import TopAnnouncementBar from "../../components/TopAnnouncementBar/TopAnnouncementBar";
+
+// Heavy components ko alag chunk mein rakha hai: Cart (framer-motion ke saath),
+// MegaMenu aur SearchMegaMenu ab har page ke main JS bundle mein nahi jaate.
+const MegaMenu = dynamic(() => import("../../components/MegaMenu/MegaMenu"), { ssr: false });
+const Cart = dynamic(() => import("../../components/Cart/cart"), { ssr: false });
+const SearchMegaMenu = dynamic(
+  () => import("../../components/SearchMenu/SearchMegaMenu"),
+  { ssr: false }
+);
 
 // Search input ke liye debounce hook
 function useDebounce(value, delay) {
