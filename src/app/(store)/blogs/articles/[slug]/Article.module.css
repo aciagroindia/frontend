@@ -175,4 +175,126 @@
   .faqItem {
     padding: 16px;
   }
+  
+/* =========================================
+   RELATED ARTICLES - INTERNAL LINKING
+   ========================================= */
+
+.relatedSection {
+  margin-top: 55px;
+  padding-top: 40px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.relatedHeading {
+  font-size: clamp(1.4rem, 2.8vw, 1.8rem);
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 25px;
+  letter-spacing: -0.01em;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.relatedCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.relatedCard:hover {
+  transform: translateY(-4px);
+  border-color: #c5a45d;
+  box-shadow: 0 10px 25px rgba(15, 81, 50, 0.09);
+}
+
+.relatedImageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.relatedImage {
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.relatedCard:hover .relatedImage {
+  transform: scale(1.04);
+}
+
+.relatedCardBody {
+  padding: 18px;
+}
+
+.relatedCardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #123f2a;
+  line-height: 1.45;
+  margin: 0 0 10px;
+}
+
+.relatedCardDescription {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: #64748b;
+  margin: 0 0 14px;
+}
+
+.relatedReadMore {
+  display: inline-block;
+  color: #0f5132;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.relatedCard:hover .relatedReadMore {
+  color: #a17d32;
+}
+
+/* TABLET */
+@media (max-width: 768px) {
+  .relatedGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .relatedCardBody {
+    padding: 14px;
+  }
+
+  .relatedSection {
+    margin-top: 40px;
+    padding-top: 30px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .relatedGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .relatedCardBody {
+    padding: 16px;
+  }
+}
+
 }
