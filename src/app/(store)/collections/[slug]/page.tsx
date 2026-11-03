@@ -11,6 +11,21 @@ const getCategoryRes = cache((slug: string) =>
   axiosInstance.get(`/categories/${slug}`)
 );
 
+// Best sellers sidebar ke liye server par fetch (Data Cache mein 1 ghanta), taaki browser mein alag API call na ho
+const getBestSellers = cache(async () => {
+  try {
+    const base = axiosInstance.defaults.baseURL;
+    const res = await fetch(`${base}/products/best-sellers`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data?.success && Array.isArray(data.products) ? data.products : [];
+  } catch {
+    return [];
+  }
+});
+
 const BRAND_NAME = "ACI Agro Solutions";
 
 interface Category {
@@ -130,9 +145,10 @@ export default async function CollectionPage({
     }
 
     // 2. Fetch products by category ID
-    const productsRes = await axiosInstance.get(
-      `/products?category=${category._id}&status=all`
-    );
+    const [productsRes, bestSellers] = await Promise.all([
+      axiosInstance.get(`/products?category=${category._id}&status=all`),
+      getBestSellers(),
+    ]);
 
     const rawProducts = Array.isArray(productsRes.data)
       ? productsRes.data
@@ -184,6 +200,7 @@ export default async function CollectionPage({
           title={category.name}
           description={category.description}
           products={products}
+          bestSellers={bestSellers}
         />
       </>
     );
