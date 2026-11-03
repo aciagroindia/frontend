@@ -7,9 +7,13 @@ import SortBar from "./SortBar";
 import FilterSidebar from "./FilterSidebar";
 import ProductCard from "./ProductCard";
 import VedistPillar from "./Pillar";
-import RecentlyViewed from "./RecentlyViewed";
 import DescriptionSection from "./DescriptionSection";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// RecentlyViewed mein Swiper (bhaari library) hai aur ye localStorage se chalta hai, isliye alag chunk mein load hota hai.
+// Product page par ye pehle se aise hi hai, collection page par ab same kiya.
+const RecentlyViewed = dynamic(() => import("./RecentlyViewed"), { ssr: false });
 
 interface Product {
   id: string;
