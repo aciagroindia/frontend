@@ -2,6 +2,7 @@ import { cache } from "react";
 import ProductDetail from "../../../../../components/product/ProductDetail";
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
+import { fitProductTitle, titleToString } from "@/utils/seoTitle";
 
 export const revalidate = 60;
 
@@ -95,7 +96,9 @@ export async function generateMetadata({ params }) {
   const product = await getProduct(slug);
 
   const productName = product?.name || (typeof slug === "string" ? slug.replace(/-/g, " ") : "Ayurvedic Product");
-  const title = `${productName} - Buy Authentic Ayurvedic Wellness | ACI Agro Solutions`;
+  // Layout ka template " | ACI Agro Solutions" khud jodta hai, isliye title mein brand nahi likhte (60 char limit)
+  const pageTitle = fitProductTitle(productName);
+  const title = titleToString(pageTitle); // openGraph / twitter ke liye brand ke saath
   const plainDescription = getProductDescriptionText(product);
   const description = plainDescription && plainDescription.length > 20
     ? plainDescription.slice(0, 160)
@@ -119,7 +122,7 @@ export async function generateMetadata({ params }) {
   ].filter(Boolean);
 
   return {
-    title,
+    title: pageTitle,
     description,
     keywords: keywords.join(", "),
     alternates: {
