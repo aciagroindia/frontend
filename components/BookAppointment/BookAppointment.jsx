@@ -8,7 +8,7 @@ export default function BookAppointment() {
     <section className={styles.section}>
       <div className={styles.poster}>
         <Image
-          src="/certifiedIcons/appointmentPoster.png"
+          src="/certifiedIcons/appointmentPoster.webp"
           alt="Book your appointment"
           fill
           className={styles.image}
