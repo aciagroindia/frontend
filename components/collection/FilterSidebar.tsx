@@ -4,18 +4,29 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCategories } from "../../context/CategoryContext";
-import { useProducts } from "../../context/ProductContext";
+import { useProducts, normalizeProduct } from "../../context/ProductContext";
 import styles from "./FilterSidebar.module.css";
 
-export default function FilterSidebar() {
+interface FilterSidebarProps {
+  initialBestSellers?: any[];
+}
+
+export default function FilterSidebar({ initialBestSellers = [] }: FilterSidebarProps) {
   const { categories } = useCategories();
-  const { bestSellers, fetchBestSellers } = useProducts();
+  const { bestSellers: contextBestSellers, fetchBestSellers } = useProducts();
+
+  // Server se best sellers mile toh wahi dikhao (browser mein extra API call nahi),
+  // warna purana tareeka (context + fetch) chalega.
+  const hasInitial = initialBestSellers.length > 0;
+  const bestSellers = hasInitial
+    ? initialBestSellers.map(normalizeProduct)
+    : contextBestSellers;
 
   useEffect(() => {
-    if (bestSellers.length === 0 && fetchBestSellers) {
+    if (!hasInitial && contextBestSellers.length === 0 && fetchBestSellers) {
       fetchBestSellers();
     }
-  }, [bestSellers.length, fetchBestSellers]);
+  }, [hasInitial, contextBestSellers.length, fetchBestSellers]);
 
   const [openSections, setOpenSections] = useState({
     category: true,
