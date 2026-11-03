@@ -34,8 +34,8 @@ export function buildOrganizationSchema() {
     logo: {
       "@type": "ImageObject",
       url: `${SITE_URL}/assets/Aci%20logo.png`,
-      width: 3264,
-      height: 3264,
+      width: 512,
+      height: 512,
     },
     image: `${SITE_URL}/og-image.png`,
     description:
