@@ -65,6 +65,38 @@ export async function generateStaticParams() {
   }
 }
 
+// Saare Active products ki list (Next ke Data Cache mein 1 ghante ke liye, sab pages ke liye ek hi call)
+const getAllActiveProducts = cache(async () => {
+  try {
+    const base = axiosInstance.defaults.baseURL;
+    const res = await fetch(`${base}/products?status=Active`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : data?.data || [];
+    return list.filter((p) => p && p.slug && p.status === "Active");
+  } catch (err) {
+    console.error("getAllActiveProducts failed:", err.message);
+    return [];
+  }
+});
+
+// Internal linking: har product ko aglay 4 products (slug order mein, gol ghumte hue) se link milta hai.
+// Isse har product page ko kam se kam 4 internal links milte hain, koi page orphan nahi rehta.
+function pickNeighborProducts(currentSlug, allProducts, count = 4) {
+  const sorted = [...allProducts].sort((a, b) => a.slug.localeCompare(b.slug));
+  const total = sorted.length;
+  if (total < 2) return [];
+  const idx = sorted.findIndex((p) => p.slug === currentSlug);
+  const result = [];
+  for (let step = 1; step < total && result.length < count; step++) {
+    const candidate = sorted[(idx + step + total) % total];
+    if (candidate.slug !== currentSlug) result.push(candidate);
+  }
+  return result;
+}
+
 function stripHtml(html) {
   if (!html) return "";
   return html
@@ -173,14 +205,17 @@ export default async function ProductPage({ params }) {
   }
 
   // Product aur related products ek saath fetch hote hain (pehle ek ke baad ek hote the)
-  const [product, relatedProducts] = await Promise.all([
+  const [product, relatedProducts, allProducts] = await Promise.all([
     getProduct(slug),
     getRelatedProducts(slug),
+    getAllActiveProducts(),
   ]);
 
   if (!product) {
     return notFound();
   }
+
+  const moreProducts = pickNeighborProducts(product.slug, allProducts);
 
   const cleanDescription = getProductDescriptionText(product);
   const productImages = (Array.isArray(product.images) && product.images.length > 0
@@ -327,6 +362,7 @@ export default async function ProductPage({ params }) {
         slug={slug}
         initialProduct={product}
         initialRelatedProducts={relatedProducts}
+        initialMoreProducts={moreProducts}
       />
     </>
   );
