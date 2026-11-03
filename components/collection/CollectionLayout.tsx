@@ -25,11 +25,12 @@ interface Props {
   title: string;
   description?: string;
   products: Product[];
+  bestSellers?: any[];
 }
 
 export type SortOption = "best-selling" | "price-asc" | "price-desc";
 
-export default function CollectionLayout({ title, description, products }: Props) {
+export default function CollectionLayout({ title, description, products, bestSellers = [] }: Props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>("best-selling");
 
@@ -93,7 +94,7 @@ export default function CollectionLayout({ title, description, products }: Props
               <Image src="/assets/Close.svg" alt="" width={24} height={24} />
             </button>
           </div>
-          <FilterSidebar />
+          <FilterSidebar initialBestSellers={bestSellers} />
         </div>
 
         <section className={styles.productsSection}>
