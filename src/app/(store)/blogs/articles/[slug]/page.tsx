@@ -61,29 +61,38 @@ const getArticleList = cache(async (): Promise<ArticleData[]> => {
   }
 });
 
-// Internal linking ke liye related articles (list pehle se aa chuki hai, koi extra API call nahi)
+// Internal linking: har article ko aglay 3 articles (slug order mein, gol ghumte hue) se link milta hai.
+// Pehle har article ko wahi same 3 articles dikhte the, isliye baaki articles par 1 hi link bachta tha.
 function pickRelatedArticles(
   currentArticle: ArticleData,
   articles: ArticleData[]
 ): ArticleData[] {
-  const publishedArticles = articles.filter(
-    (item) =>
-      item?.slug &&
-      item.slug !== currentArticle.slug &&
-      (!item.status || item.status === "Published")
-  );
+  const published = articles
+    .filter((item) => item?.slug && (!item.status || item.status === "Published"))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
 
-  const sameCategory = currentArticle.category
-    ? publishedArticles.filter(
-        (item) => item.category === currentArticle.category
-      )
-    : [];
+  const total = published.length;
+  if (total === 0) return [];
 
-  const otherArticles = publishedArticles.filter(
-    (item) => !sameCategory.some((related) => related.slug === item.slug)
-  );
+  const idx = published.findIndex((item) => item.slug === currentArticle.slug);
+  const result: ArticleData[] = [];
 
-  return [...sameCategory, ...otherArticles].slice(0, 3);
+  for (let step = 1; step <= total && result.length < 3; step++) {
+    const candidate = published[(idx + step + total) % total];
+    if (candidate.slug !== currentArticle.slug) result.push(candidate);
+  }
+
+  return result;
+}
+
+export const revalidate = 300; // article edit 5 minute mein site par dikhega
+
+// Saare published articles build time par pre-render (cold start / slow TTFB nahi aayega)
+export async function generateStaticParams() {
+  const list = await getArticleList();
+  return list
+    .filter((a) => a?.slug && (!a.status || a.status === "Published"))
+    .map((a) => ({ slug: a.slug }));
 }
 
 function stripHtml(html: string) {
