@@ -22,12 +22,14 @@ interface Props {
   slug: string;
   initialProduct?: any;
   initialRelatedProducts?: Product[];
+  initialMoreProducts?: Product[];
 }
 
 export default function ProductDetail({
   slug,
   initialProduct,
   initialRelatedProducts = [],
+  initialMoreProducts = [],
 }: Props) {
   const { products, fetchProductBySlug, lastUpdatedProduct } = useProducts();
 
@@ -156,6 +158,12 @@ export default function ProductDetail({
     )
     .map((item) => normalizeProduct(item));
 
+  // Internal linking ke liye extra products (jo pehle se "related" mein hain unhe dobara nahi dikhate)
+  const relatedSlugs = new Set(normalizedRelatedProducts.map((item) => item.slug));
+  const normalizedMoreProducts = initialMoreProducts
+    .filter((item) => item && item.slug && item.status === "Active" && !relatedSlugs.has(item.slug))
+    .map((item) => normalizeProduct(item));
+
   return (
     <div className={styles.wrapper}>
       {/* Visual Accessible Breadcrumb */}
@@ -201,6 +209,7 @@ export default function ProductDetail({
 
       {/* Server-rendered Related Products */}
       <RelatedProducts products={normalizedRelatedProducts} />
+      <RelatedProducts products={normalizedMoreProducts} heading="Explore More Products" />
 
       <RecentlyViewed />
     </div>
