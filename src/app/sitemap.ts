@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import axiosInstance from '@/utils/axiosInstance';
 
-export const revalidate = 3600; // Automatically revalidate sitemap cache every hour
+export const revalidate = 3600;
 
 const BASE_URL = 'https://aciagro.com';
 
@@ -31,13 +31,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${BASE_URL}/contract-manufacturing`,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${BASE_URL}/blogs/articles`,
       changeFrequency: 'daily',
       priority: 0.8,
     },
   ];
 
-  // 2. Fetch Active Products (Backend /api/products returns all active products unpaginated)
+  // 2. Fetch Active Products
   let productPages: MetadataRoute.Sitemap = [];
   try {
     const res = await axiosInstance.get('/products?status=Active');
@@ -56,7 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('Sitemap: Failed to fetch products dynamically', err);
   }
 
-  // 3. Fetch Active Categories / Collections (Backend /api/categories returns all categories)
+  // 3. Fetch Active Categories / Collections
   let collectionPages: MetadataRoute.Sitemap = [];
   try {
     const res = await axiosInstance.get('/categories');
@@ -75,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('Sitemap: Failed to fetch categories dynamically', err);
   }
 
-  // 4. Fetch ALL Published Blog Articles with Pagination
+  // 4. Fetch Published Blog Articles
   let articlePages: MetadataRoute.Sitemap = [];
   try {
     let page = 1;
@@ -113,7 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('Sitemap: Failed to fetch articles dynamically', err);
   }
 
-  // 5. Fetch Public Policy Pages (matching public policies)
+  // 5. Fetch Public Policy Pages
   let policyPages: MetadataRoute.Sitemap = [];
   try {
     const res = await axiosInstance.get('/policies');
@@ -148,7 +153,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...policyPages,
   ];
 
-  // Deduplicate by URL safely to ensure no duplicate entries exist
+  // Deduplicate URLs
   const uniqueEntriesMap = new Map<string, MetadataRoute.Sitemap[number]>();
   for (const entry of allEntries) {
     if (entry && entry.url && !uniqueEntriesMap.has(entry.url)) {
