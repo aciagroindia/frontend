@@ -9,6 +9,7 @@ import { AuthProvider } from "../../context/AuthContext"; // 1. AuthProvider imp
 import { ProductProvider } from "../../context/ProductContext";
 import { CategoryProvider } from "../../context/CategoryContext";
 import ConditionalLayout from "../../components/ConditionalLayout";
+import { buildOrganizationSchema } from "@/utils/organizationSchema";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -72,19 +73,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": "https://aciagro.com/#organization",
-    "name": "ACI Agro Solutions",
-    "url": "https://aciagro.com",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://aciagro.com/assets/Aci%20logo.png",
-    },
-    "description":
-      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
-  };
+  const organizationSchema = buildOrganizationSchema();
 
   return (
     <html lang="en">
