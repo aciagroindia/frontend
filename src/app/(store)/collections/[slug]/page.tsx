@@ -2,6 +2,7 @@ import CollectionLayout from "../../../../../components/collection/CollectionLay
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
+import { fitFlexibleTitle, titleToString } from "@/utils/seoTitle";
 
 export const revalidate = 60;
 
@@ -56,7 +57,9 @@ export async function generateMetadata({
       .replace(/(\s*\|\s*ACI Agro Solutions)+\s*$/gi, "")
       .trim();
 
-    const title = cleanCategoryName;
+    // Layout ka template brand jodta hai; lamba title ho toh brand hat jata hai (60 char limit)
+    const pageTitle = fitFlexibleTitle(cleanCategoryName);
+    const title = titleToString(pageTitle);
 
     const plainDesc = category.description
       ? category.description
@@ -69,7 +72,7 @@ export async function generateMetadata({
     const canonicalUrl = `https://aciagro.com/collections/${category.slug}`;
 
     return {
-      title,
+      title: pageTitle,
       description: plainDesc,
       alternates: {
         canonical: canonicalUrl,
