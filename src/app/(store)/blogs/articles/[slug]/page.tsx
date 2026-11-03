@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./Article.module.css";
 import axiosInstance from "@/utils/axiosInstance";
+import { fitFlexibleTitle, titleToString } from "@/utils/seoTitle";
 
 const SITE_URL = "https://aciagro.com";
 
@@ -151,7 +152,9 @@ export async function generateMetadata({
     return {};
   }
 
-  const title = `${article.title} | ACI Agro Solutions`;
+  // Layout ka template brand jodta hai; lamba title ho toh brand hat jata hai (60 char limit)
+  const pageTitle = fitFlexibleTitle(article.title);
+  const title = titleToString(pageTitle);
 
   const plainDesc = article.description
     ? stripHtml(article.description).slice(0, 160)
@@ -160,7 +163,7 @@ export async function generateMetadata({
   const canonicalUrl = `${SITE_URL}/blogs/articles/${article.slug}`;
 
   return {
-    title,
+    title: pageTitle,
     description: plainDesc,
     alternates: {
       canonical: canonicalUrl,
