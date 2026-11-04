@@ -1,13 +1,11 @@
 // Organization structured data (JSON-LD) - layout.tsx se use hota hai.
 //
-// TODO (zaroori): SOCIAL_PROFILES mein apne ASLI profile URLs daalo.
-// Footer mein abhi sirf facebook.com / instagram.com jaise generic links hain, wo yahan mat daalna.
-// Example: "https://www.instagram.com/<your_handle>/"
+// SOCIAL_PROFILES mein sirf ASLI profile URLs rakho (tracking params jaise ?utm_source ke bina).
 const SOCIAL_PROFILES = [
-  // "https://www.facebook.com/<page>",
-  // "https://www.instagram.com/<handle>/",
-  // "https://www.youtube.com/@<channel>",
-  // "https://www.linkedin.com/company/<company>",
+  "https://www.instagram.com/aci.wellness/",
+  "https://www.linkedin.com/company/aci-agro-solution/",
+  "https://www.youtube.com/@ACIHerbalwellness",
+  "https://www.facebook.com/profile.php?id=61584320260141",
 ];
 
 // Optional: asli business address ho toh daalo (Google ko local info milti hai). null rakhoge toh skip ho jayega.
