@@ -57,7 +57,7 @@ export default function Footer() {
 
           <div className={styles.socials}>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/profile.php?id=61584320260141"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
@@ -67,7 +67,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/aci.wellness/"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
@@ -77,7 +77,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://youtube.com"
+              href="https://www.youtube.com/@ACIHerbalwellness"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
@@ -87,7 +87,7 @@ export default function Footer() {
             </a>
 
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/company/aci-agro-solution/"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
