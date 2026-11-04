@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import OrderForm from "../../../../components/BulkOrder/OrderForm/page";
 import styles from "./page.module.css";
+import { toJsonLd, breadcrumbJsonLd, serviceJsonLd } from "@/utils/jsonLd";
 
 
 export const metadata: Metadata = {
-  title: "Herbal Juice Manufacturing",
+  title: "Private Label Herbal Juice Manufacturer",
   description:
-    "Herbal juice contract manufacturing and private label solutions for brands in India and abroad. Discuss bulk orders with ACI Agro Solutions.",
+    "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/contract-manufacturing",
   },
   openGraph: {
     title:
-      "Herbal Juice Contract & Private Label Manufacturing | ACI Agro Solutions",
+      "Private Label Herbal Juice Manufacturer | ACI Agro Solutions",
     description:
-      "Your manufacturing partner for herbal juices, private label products and bulk supply. Connect with ACI Agro Solutions.",
+      "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solutions.",
     url: "https://aciagro.com/contract-manufacturing",
     siteName: "ACI Agro Solutions",
     type: "website",
@@ -126,6 +127,23 @@ const steps = [
 export default function ContractManufacturingPage() {
   return (
     <main className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd([
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Contract Manufacturing", path: "/contract-manufacturing" },
+            ]),
+            serviceJsonLd({
+              name: "Herbal Juice Contract & Private Label Manufacturing",
+              serviceType: "Contract manufacturing and private label manufacturing of herbal juices",
+              description: "Contract manufacturing, private label and bulk supply of herbal and Ayurvedic juices for brands, distributors and wholesalers in India and abroad.",
+              path: "/contract-manufacturing",
+            }),
+          ]),
+        }}
+      />
       {/* HERO */}
       <section className={styles.hero}>
         <div className={styles.heroInner}>
