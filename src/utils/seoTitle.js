@@ -78,3 +78,26 @@ export function titleToString(title) {
 
   return title.absolute;
 }
+
+// Collection / category ke liye: admin mein category ke naam aksar bahut lambe aur keyword-stuffed hote hain
+// (jaise "Herbal Juice, Nutraceuticals & Nutricosmetics, Health Supplements").
+// Title ke liye pehla main phrase leta hai, jagah ho toh agla bhi, phir "- Buy Online" (B2C intent).
+// Page ka H1 / content admin ke naam par hi rehta hai, sirf <title> chhota hota hai.
+export function fitCategoryTitle(name) {
+  const base = cleanBase(name) || "Herbal Products";
+  const parts = base.split(/\s*[,/|]\s*|\s+[-–—]\s+/).map((p) => p.trim()).filter(Boolean);
+
+  let result = parts[0] || base;
+  if (result.length > BASE_BUDGET) {
+    result = truncateAtWord(result, BASE_BUDGET);
+  } else {
+    for (let i = 1; i < parts.length; i++) {
+      const candidate = `${result}, ${parts[i]}`;
+      if (candidate.length > BASE_BUDGET) break;
+      result = candidate;
+    }
+  }
+
+  const withBuy = `${result} - Buy Online`;
+  return withBuy.length <= BASE_BUDGET ? withBuy : result;
+}
