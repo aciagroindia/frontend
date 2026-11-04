@@ -5,16 +5,18 @@ import WhyChooseUs from "../../components/WhyChooseUs/WhyChooseUs";
 import Testimonials from "../../components/Testimonials/Testimonials";
 import ShopByConcern from "../../components/ShopByConcern/ShopByConcern";
 import ScrollingStrip from "../../components/ScrollingStrip/ScrollingStrip";
+import HomeIntro from "../../components/HomeIntro/HomeIntro";
 
 export const metadata: Metadata = {
-  title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-  description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+  // absolute: layout ka template ("| ACI Agro Solutions") yahan dobara na lage
+  title: { absolute: "Buy Herbal Juice Online in India | ACI Agro Solutions" },
+  description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/",
   },
   openGraph: {
-    title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-    description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+    title: "Buy Herbal Juice Online in India | ACI Agro Solutions",
+    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
     url: "https://aciagro.com/",
     siteName: "ACI Agro Solutions",
     images: [
@@ -30,8 +32,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["https://aciagro.com/og-image.png"],
-    title: "Aci Agro Solutions | Authentic Ayurvedic Wellness Products",
-   description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+    title: "Buy Herbal Juice Online in India | ACI Agro Solutions",
+    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
   },
   robots: {
     index: true,
@@ -45,6 +47,7 @@ export default function Home() {
     <div className="min-h-screen mt-[86px]">
       <Hero />
       <ScrollingStrip />
+      <HomeIntro />
       <ShopByConcern />
       <FeaturedProducts />
       <WhyChooseUs />
