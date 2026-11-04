@@ -8,8 +8,8 @@ export default function ShopByConcern() {
   const { categories, loading } = useCategories();
 
   return (
-    <section className={styles.section}>
-      <h1 className={styles.heading}>SHOP BY CATEGORY</h1>
+    <section id="shop-by-category" className={styles.section} style={{ scrollMarginTop: "100px" }}>
+      <h2 className={styles.heading}>SHOP BY CATEGORY</h2>
 
       <div className={styles.grid}>
         {loading && categories.length === 0 ? (
