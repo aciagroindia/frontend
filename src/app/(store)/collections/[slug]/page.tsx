@@ -2,7 +2,7 @@ import CollectionLayout from "../../../../../components/collection/CollectionLay
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
-import { fitFlexibleTitle, titleToString } from "@/utils/seoTitle";
+import { fitCategoryTitle, titleToString } from "@/utils/seoTitle";
 
 export const revalidate = 60;
 
@@ -73,7 +73,7 @@ export async function generateMetadata({
       .trim();
 
     // Layout ka template brand jodta hai; lamba title ho toh brand hat jata hai (60 char limit)
-    const pageTitle = fitFlexibleTitle(cleanCategoryName);
+    const pageTitle = fitCategoryTitle(cleanCategoryName);
     const title = titleToString(pageTitle);
 
     const plainDesc = category.description
