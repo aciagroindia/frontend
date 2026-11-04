@@ -224,14 +224,11 @@ export default async function ProductPage({ params }) {
   ).filter(Boolean);
   const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
   const isAvailable = product.status === "Active" && Number(product.stock) > 0;
-  const ratingValue =
-    product.rating && Number(product.rating) > 0
-      ? Number(product.rating).toFixed(1)
-      : "5.0";
-  const reviewCount =
-    product.numReviews && Number(product.numReviews) > 0
-      ? Number(product.numReviews)
-      : 1;
+  // Sirf asli reviews hon tabhi rating schema mein jayegi (Google fake/default rating markup par action le sakta hai)
+  const hasRealReviews =
+    Number(product.rating) > 0 && Number(product.numReviews) > 0;
+  const ratingValue = hasRealReviews ? Number(product.rating).toFixed(1) : null;
+  const reviewCount = hasRealReviews ? Number(product.numReviews) : null;
 
   // 1. Enhanced Product JSON-LD Schema
   const productJsonLd = {
@@ -263,13 +260,17 @@ export default async function ProductPage({ params }) {
         "name": "ACI Agro Solutions",
       },
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": ratingValue,
-      "reviewCount": reviewCount,
-      "bestRating": "5",
-      "worstRating": "1",
-    },
+    ...(hasRealReviews
+      ? {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": ratingValue,
+            "reviewCount": reviewCount,
+            "bestRating": "5",
+            "worstRating": "1",
+          },
+        }
+      : {}),
   };
 
   // 2. BreadcrumbList JSON-LD Schema
