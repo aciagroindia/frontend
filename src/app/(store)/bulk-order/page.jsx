@@ -1,16 +1,17 @@
 import React from "react";
 import BulkIntro from "../../../../components/BulkOrder/BulkIntro/page.jsx";
 import OrderForm from "../../../../components/BulkOrder/OrderForm/page.tsx";
+import { toJsonLd, breadcrumbJsonLd, serviceJsonLd } from "@/utils/jsonLd";
 
 export const metadata = {
-  title: "Bulk Orders | ACI Agro Solutions",
-  description: "Exclusive bulk order options for premium Ayurvedic and herbal wellness products for retailers, wellness centers, and distributors at ACI Agro Solutions.",
+  title: "Herbal Juice Bulk Supplier in India",
+  description: "Bulk supply of herbal and Ayurvedic juices for retailers, distributors and wholesale buyers in India and abroad. Send your requirement to ACI Agro Solutions.",
   alternates: {
     canonical: "https://aciagro.com/bulk-order",
   },
   openGraph: {
-    title: "Bulk Orders | ACI Agro Solutions",
-    description: "Exclusive bulk order options for premium Ayurvedic and herbal wellness products for retailers, wellness centers, and distributors at ACI Agro Solutions.",
+    title: "Herbal Juice Bulk Supplier in India | ACI Agro Solutions",
+    description: "Bulk supply of herbal and Ayurvedic juices for retailers, distributors and wholesale buyers in India and abroad. Send your requirement to ACI Agro Solutions.",
     url: "https://aciagro.com/bulk-order",
     siteName: "ACI Agro Solutions",
     type: "website",
@@ -25,8 +26,8 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bulk Orders | ACI Agro Solutions",
-    description: "Exclusive bulk order options for premium Ayurvedic and herbal wellness products for retailers, wellness centers, and distributors at ACI Agro Solutions.",
+    title: "Herbal Juice Bulk Supplier in India | ACI Agro Solutions",
+    description: "Bulk supply of herbal and Ayurvedic juices for retailers, distributors and wholesale buyers in India and abroad. Send your requirement to ACI Agro Solutions.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -38,6 +39,23 @@ export const metadata = {
 export default function BulkOrderPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: toJsonLd([
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Bulk Supply", path: "/bulk-order" },
+            ]),
+            serviceJsonLd({
+              name: "Bulk Herbal Juice Supply",
+              serviceType: "Wholesale and bulk supply of herbal and Ayurvedic juices",
+              description: "Bulk supply of herbal and Ayurvedic juices for retailers, distributors, wellness centres and wholesale buyers in India and abroad.",
+              path: "/bulk-order",
+            }),
+          ]),
+        }}
+      />
       <BulkIntro />
       <OrderForm />
     </>
