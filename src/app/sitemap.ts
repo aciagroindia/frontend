@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import axiosInstance from '@/utils/axiosInstance';
+import { JUICE_TOPICS } from '@/utils/juiceTopics';
 
 export const revalidate = 3600;
 
@@ -35,6 +36,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    ...JUICE_TOPICS.map((t: { slug: string }) => ({
+      url: `${BASE_URL}/juices/${t.slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
     {
       url: `${BASE_URL}/blogs/articles`,
       changeFrequency: 'daily',
