@@ -25,7 +25,23 @@ interface ProductCardProps {
   };
 }
 
+// Image alt ke liye saaf naam (brand, size aur "Ayurvedic Herbal Medicine" jaise hisse nahi)
+function shortAltName(name: string): string {
+  return String(name || "")
+    .replace(/\(.*?\)/g, "")
+    .replace(/aci\s*agro\s*s\w*/gi, "")
+    .split(/\s+[-–—|]\s+/)[0]
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export default function ProductCard({ product }: ProductCardProps) {
+  // Sirf asli reviews hon tabhi stars dikhao (pehle har product par 5 star fixed tha)
+  const ratingValue = Number(product.rating) || 0;
+  const reviewCount = Number(product.numReviews) || 0;
+  const hasRealReviews = ratingValue > 0 && reviewCount > 0;
+  const filledStars = Math.min(5, Math.max(0, Math.round(ratingValue)));
+
   const router = useRouter();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -96,7 +112,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {mainImage ? (
           <Image
             src={mainImage}
-            alt={`${product.name} - Ayurvedic Herbal Medicine`}
+            alt={shortAltName(product.name)}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className={styles.productImage}
@@ -118,7 +134,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         </Link>
 
         <p className={styles.price}>₹{product.price.toFixed(2)}</p>
-        <div className={styles.stars} aria-label="5 out of 5 stars">★★★★★</div>
+        {hasRealReviews && (
+          <div
+            className={styles.stars}
+            aria-label={`${ratingValue.toFixed(1)} out of 5 stars from ${reviewCount} reviews`}
+          >
+            {"★".repeat(filledStars)}
+            {"☆".repeat(5 - filledStars)}
+          </div>
+        )}
 
         <button
           className={isOutOfStock ? styles.disabledButton : styles.button}
