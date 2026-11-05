@@ -437,7 +437,7 @@ export default function AboutClient({ initialConfig, initialMedia }: AboutClient
       {/* 7. MANUFACTURING FACILITY & INFRASTRUCTURE */}
       <section className={styles.manufacturingSection}>
         <div className={styles.manufacturingContainer}>
-          <span className={styles.manufacturingEyebrow}>ACI AGRO SOLUTIONS</span>
+          <span className={styles.manufacturingEyebrow}>ACI AGRO SOLUTION</span>
           <h2 className={styles.manufacturingHeading}>
             Manufacturing Facility & Infrastructure
           </h2>
