@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Login from "../../../../components/login/login";
 
 export const metadata: Metadata = {
-  title: "Login | ACI Agro Solutions",
+  title: "Login",
   robots: {
     index: false,
     follow: false,
