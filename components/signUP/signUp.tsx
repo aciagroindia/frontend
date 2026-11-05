@@ -123,7 +123,7 @@ export default function SignupPage() {
               <div className={styles.heroLogoWrap}>
                 <Image
                   src="/assets/Aci logo.png"
-                  alt="Aci Agro Solutions"
+                  alt="ACI Agro Solution"
                   width={155}
                   height={100}
                   priority
@@ -206,7 +206,7 @@ export default function SignupPage() {
             <div className={styles.formLogoWrap}>
               <Image
                 src="/assets/Aci logo.png"
-                alt="Aci Agro Solutions"
+                alt="ACI Agro Solution"
                 width={170}
                 height={115}
                 priority
