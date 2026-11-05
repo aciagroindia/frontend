@@ -305,7 +305,7 @@ export default function LoginModal() {
               <div className={styles.heroLogoWrap}>
                 <Image
                   src="/assets/Aci logo.png"
-                  alt="Aci Agro Solutions"
+                  alt="ACI Agro Solution"
                   width={140}
                   height={90}
                   priority
