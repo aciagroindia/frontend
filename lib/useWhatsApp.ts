@@ -11,7 +11,7 @@ export interface WhatsAppConfigData {
 }
 
 export const DEFAULT_PHONE = "917597920642";
-export const DEFAULT_MSG = "Hello ACI Agro Solutions, I would like to inquire about your products.";
+export const DEFAULT_MSG = "Hello ACI Agro Solution, I would like to inquire about your products.";
 
 export const formatWhatsAppPhone = (rawPhone?: string): string => {
   if (!rawPhone) return DEFAULT_PHONE;
