@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import styles from "./Policy.module.css";
 import axiosInstance from "@/utils/axiosInstance";
-import PolicyContactButton from "./PolicyContactButton";
+import PolicyContactButton from "./PolicyContactButton"; 
 
 const SITE_URL = "https://aciagro.com";
 
