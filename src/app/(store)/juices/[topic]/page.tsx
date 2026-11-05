@@ -61,21 +61,21 @@ export async function generateMetadata({
   const fullTitle = titleToString(t.seoTitle);
 
   return {
-    title: t.seoTitle, // layout ka template " | ACI Agro Solutions" khud jodta hai
+    title: t.seoTitle, // layout ka template " | ACI Agro Solution" khud jodta hai
     description: t.metaDescription,
     alternates: { canonical: url },
     openGraph: {
       title: fullTitle,
       description: t.metaDescription,
       url,
-      siteName: "ACI Agro Solutions",
+      siteName: "ACI Agro Solution",
       type: "website",
       images: [
         {
           url: `${SITE_URL}/og-image.png`,
           width: 1200,
           height: 630,
-          alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+          alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
         },
       ],
     },
