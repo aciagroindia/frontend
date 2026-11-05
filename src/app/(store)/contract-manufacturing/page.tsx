@@ -5,7 +5,6 @@ import Certificates from "../../../../components/Certificates/Certificate";
 import styles from "./page.module.css";
 import { toJsonLd, breadcrumbJsonLd, serviceJsonLd } from "@/utils/jsonLd";
 
-
 export const metadata: Metadata = {
   title: "Private Label Herbal Juice Manufacturer",
   description:
