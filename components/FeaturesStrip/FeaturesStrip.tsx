@@ -63,7 +63,7 @@ export default function FeaturesStrip() {
         </div>
 
         <div className={styles.brandFooter}>
-          ACI AGRO SOLUTIONS · CRAFTED BY NATURE
+          ACI AGRO SOLUTION · CRAFTED BY NATURE
         </div>
       </div>
     </section>
