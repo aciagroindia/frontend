@@ -93,21 +93,24 @@ export default function ProductInfo({ product, selectedPlan, onSelectPlan, onVar
     <div className={styles.info}>
       <h1 className={styles.title}>{product.name}</h1>
 
-      <div className={styles.reviews}>
-        <div className={styles.stars} aria-label={`Rated ${product.rating || 5} out of 5 stars`}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <span
-              key={i}
-              style={{ color: i < Math.round(product.rating || 5) ? "#1b7f3c" : "#ccc" }}
-            >
-              ★
-            </span>
-          ))}
+      {/* Sirf asli reviews hon tabhi rating dikhao (pehle default 5.0 dikhta tha) */}
+      {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
+        <div className={styles.reviews}>
+          <div className={styles.stars} aria-label={`Rated ${product.rating} out of 5 stars`}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span
+                key={i}
+                style={{ color: i < Math.round(Number(product.rating)) ? "#1b7f3c" : "#ccc" }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <span className={styles.reviewsCount}>
+            {Number(product.rating).toFixed(1)} ({product.numReviews} reviews)
+          </span>
         </div>
-        <span className={styles.reviewsCount}>
-          {product.rating ? Number(product.rating).toFixed(1) : "5.0"} ({product.numReviews || 0} reviews)
-        </span>
-      </div>
+      )}
 
       <div className={styles.priceContainer}>
         <span className={styles.salePrice}>₹{currentPlan.price}</span>
