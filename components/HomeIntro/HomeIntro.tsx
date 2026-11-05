@@ -9,7 +9,7 @@ export default function HomeIntro() {
         Buy Authentic Herbal &amp; Ayurvedic Juices Online in India
       </h1>
       <p className="mt-4 text-base leading-relaxed text-neutral-700 sm:text-lg">
-        ACI Agro Solutions makes Ayurvedic and herbal juices for everyday
+        ACI Agro Solution makes Ayurvedic and herbal juices for everyday
         wellness. Order online for your home, or talk to us about bulk supply,
         private label and contract manufacturing for India and international
         markets.
