@@ -141,12 +141,12 @@ export default function Navbar() {
           <Link
             href="/"
             className={styles.logoLink}
-            aria-label="ACI Agro Solutions Home"
+            aria-label="ACI Agro Solution Home"
           >
             <div className={styles.logo}>
               <Image
                 src="/assets/Aci logo.png"
-                alt="ACI Agro Solutions"
+                alt="ACI Agro Solution"
                 width={60}
                 height={60}
               />
