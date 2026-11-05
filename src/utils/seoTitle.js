@@ -1,9 +1,9 @@
 // SEO title helpers.
 //
 // layout.tsx title template:
-// "%s | ACI Agro Solutions"
+// "%s | ACI Agro Solution"
 
-const BRAND = "ACI Agro Solutions";
+const BRAND = "ACI Agro Solution";
 const TEMPLATE_SUFFIX = ` | ${BRAND}`;
 const MAX_TITLE = 60;
 const BASE_BUDGET = MAX_TITLE - TEMPLATE_SUFFIX.length;
