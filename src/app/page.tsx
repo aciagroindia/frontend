@@ -8,23 +8,23 @@ import ScrollingStrip from "../../components/ScrollingStrip/ScrollingStrip";
 import HomeIntro from "../../components/HomeIntro/HomeIntro";
 
 export const metadata: Metadata = {
-  // absolute: layout ka template ("| ACI Agro Solutions") yahan dobara na lage
-  title: { absolute: "Buy Herbal Juice Online in India | ACI Agro Solutions" },
-  description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
+  // absolute: layout ka template ("| ACI Agro Solution") yahan dobara na lage
+  title: { absolute: "Buy Herbal Juice Online in India | ACI Agro Solution" },
+  description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solution.",
   alternates: {
     canonical: "https://aciagro.com/",
   },
   openGraph: {
-    title: "Buy Herbal Juice Online in India | ACI Agro Solutions",
-    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
+    title: "Buy Herbal Juice Online in India | ACI Agro Solution",
+    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solution.",
     url: "https://aciagro.com/",
-    siteName: "ACI Agro Solutions",
+    siteName: "ACI Agro Solution",
     images: [
   {
     url: "https://aciagro.com/og-image.png",
     width: 1200,
     height: 630,
-    alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+    alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
   },
 ],
     type: "website",
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["https://aciagro.com/og-image.png"],
-    title: "Buy Herbal Juice Online in India | ACI Agro Solutions",
-    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solutions.",
+    title: "Buy Herbal Juice Online in India | ACI Agro Solution",
+    description: "Buy authentic Ayurvedic and herbal juices online in India, from aloe vera to shatavari. Bulk, private label and export enquiries welcome at ACI Agro Solution.",
   },
   robots: {
     index: true,
