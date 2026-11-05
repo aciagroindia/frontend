@@ -115,11 +115,13 @@ export default function FilterSidebar({ initialBestSellers = [] }: FilterSidebar
                 )}
                 <div>
                   <p>{product.name}</p>
-                  <div className={styles.stars}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span key={i} style={{ color: i < (product.rating || 5) ? '#1b7f3c' : '#ccc' }}>★</span>
-                    ))}
-                  </div>
+                  {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
+                    <div className={styles.stars}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} style={{ color: i < Math.round(Number(product.rating)) ? '#1b7f3c' : '#ccc' }}>★</span>
+                      ))}
+                    </div>
+                  )}
                   <p className={styles.price}>₹{product.price}</p>
                 </div>
               </Link>
