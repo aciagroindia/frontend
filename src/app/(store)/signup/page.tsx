@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import SignupPage from "../../../../components/signUP/signUp";
 
 export const metadata: Metadata = {
-  title: "Create Account | ACI Agro Solutions",
+  title: "Create Account",
   robots: {
     index: false,
     follow: false,
