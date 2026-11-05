@@ -1,6 +1,8 @@
 import { cache } from "react";
 import ProductDetail from "../../../../../components/product/ProductDetail";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { topicsForProductName } from "@/utils/juiceTopics";
 import axiosInstance from "@/utils/axiosInstance";
 import { fitProductTitle, titleToString } from "@/utils/seoTitle";
 
@@ -128,13 +130,13 @@ export async function generateMetadata({ params }) {
   const product = await getProduct(slug);
 
   const productName = product?.name || (typeof slug === "string" ? slug.replace(/-/g, " ") : "Ayurvedic Product");
-  // Layout ka template " | ACI Agro Solutions" khud jodta hai, isliye title mein brand nahi likhte (60 char limit)
+  // Layout ka template " | ACI Agro Solution" khud jodta hai, isliye title mein brand nahi likhte (60 char limit)
   const pageTitle = fitProductTitle(productName);
   const title = titleToString(pageTitle); // openGraph / twitter ke liye brand ke saath
   const plainDescription = getProductDescriptionText(product);
   const description = plainDescription && plainDescription.length > 20
     ? plainDescription.slice(0, 160)
-    : `Buy authentic 100% natural and Ayurvedic ${productName} online at best price from ACI Agro Solutions. Fast shipping across India.`;
+    : `Buy authentic 100% natural and Ayurvedic ${productName} online at best price from ACI Agro Solution. Fast shipping across India.`;
 
   const canonicalUrl = `${SITE_URL}/products/${product?.slug || slug}`;
   const images = (Array.isArray(product?.images) && product.images.length > 0
@@ -148,7 +150,7 @@ export async function generateMetadata({ params }) {
     product?.category?.name,
     "Ayurvedic products online",
     "Herbal health wellness",
-    "ACI Agro Solutions",
+    "ACI Agro Solution",
     "Natural Ayurvedic formulation",
     "Buy Ayurvedic medicine India",
   ].filter(Boolean);
@@ -164,7 +166,7 @@ export async function generateMetadata({ params }) {
       title,
       description,
       url: canonicalUrl,
-      siteName: "ACI Agro Solutions",
+      siteName: "ACI Agro Solution",
       locale: "en_IN",
       type: "website",
       images: images.map((img) => ({
@@ -216,6 +218,7 @@ export default async function ProductPage({ params }) {
   }
 
   const moreProducts = pickNeighborProducts(product.slug, allProducts);
+  const productTopics = topicsForProductName(product.name);
 
   const cleanDescription = getProductDescriptionText(product);
   const productImages = (Array.isArray(product.images) && product.images.length > 0
@@ -241,7 +244,7 @@ export default async function ProductPage({ params }) {
     ...(productImages.length > 0 ? { "image": productImages } : {}),
     "brand": {
       "@type": "Brand",
-      "name": "ACI Agro Solutions",
+      "name": "ACI Agro Solution",
     },
     "category": product.category?.name || "Ayurvedic Healthcare",
     "url": canonicalUrl,
@@ -257,7 +260,7 @@ export default async function ProductPage({ params }) {
         : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "Organization",
-        "name": "ACI Agro Solutions",
+        "name": "ACI Agro Solution",
       },
     },
     ...(hasRealReviews
@@ -365,6 +368,24 @@ export default async function ProductPage({ params }) {
         initialRelatedProducts={relatedProducts}
         initialMoreProducts={moreProducts}
       />
+
+      {/* Internal linking: product se keyword landing pages (/juices/...) */}
+      {productTopics.length > 0 && (
+        <nav
+          aria-label="Explore more juices"
+          className="mx-auto max-w-6xl px-4 pb-10 text-sm text-neutral-600"
+        >
+          Explore more:{" "}
+          {productTopics.map((t, i) => (
+            <span key={t.slug}>
+              {i > 0 && " · "}
+              <Link href={`/juices/${t.slug}`} className="underline hover:text-neutral-900">
+                {t.h1}
+              </Link>
+            </span>
+          ))}
+        </nav>
+      )}
     </>
   );
 }
