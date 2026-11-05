@@ -5,6 +5,11 @@ import Link from "next/link";
 import styles from "./Article.module.css";
 import axiosInstance from "@/utils/axiosInstance";
 import { fitFlexibleTitle, titleToString } from "@/utils/seoTitle";
+import {
+  topicsForArticleText,
+  matchProductsForArticle,
+  shortProductName,
+} from "@/utils/juiceTopics";
 
 const SITE_URL = "https://aciagro.com";
 
@@ -47,6 +52,22 @@ const getArticle = cache(async (slug: string): Promise<ArticleData | null> => {
     return article;
   } catch (err) {
     return null;
+  }
+});
+
+// Active products (Data Cache mein 1 ghanta) - blog se related products link karne ke liye
+const getActiveProducts = cache(async (): Promise<any[]> => {
+  try {
+    const base = axiosInstance.defaults.baseURL;
+    const res = await fetch(`${base}/products?status=Active`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : data?.data || [];
+    return list.filter((p: any) => p && p.slug && p.status === "Active");
+  } catch {
+    return [];
   }
 });
 
@@ -167,7 +188,7 @@ export async function generateMetadata({
 
   const plainDesc = article.description
     ? stripHtml(article.description).slice(0, 160)
-    : `Read about ${article.title} on ACI Agro Solutions.`;
+    : `Read about ${article.title} on ACI Agro Solution.`;
 
   const canonicalUrl = `${SITE_URL}/blogs/articles/${article.slug}`;
 
@@ -181,7 +202,7 @@ export async function generateMetadata({
       title,
       description: plainDesc,
       url: canonicalUrl,
-      siteName: "ACI Agro Solutions",
+      siteName: "ACI Agro Solution",
       type: "article",
       images: article.image
         ? [
@@ -213,9 +234,10 @@ export default async function ArticleDetailPage({
   const { slug } = await params;
 
   // Article aur articles ki list parallel fetch hoti hain
-  const [article, articleList] = await Promise.all([
+  const [article, articleList, activeProducts] = await Promise.all([
     getArticle(slug),
     getArticleList(),
+    getActiveProducts(),
   ]);
 
   if (!article) {
@@ -223,6 +245,10 @@ export default async function ArticleDetailPage({
   }
 
   const relatedArticles = pickRelatedArticles(article, articleList);
+
+  // Internal linking: article se related products aur /juices/... pages
+  const relatedProducts = matchProductsForArticle(article.title, activeProducts);
+  const relatedTopics = topicsForArticleText(article.title);
 
   const formattedDate = article.createdAt
     ? new Date(article.createdAt).toLocaleDateString("en-US", {
@@ -241,7 +267,7 @@ export default async function ArticleDetailPage({
     headline: article.title,
     description: article.description
       ? stripHtml(article.description)
-      : `Read about ${article.title} on ACI Agro Solutions.`,
+      : `Read about ${article.title} on ACI Agro Solution.`,
     url: articleUrl,
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -251,11 +277,11 @@ export default async function ArticleDetailPage({
     ...(article.createdAt ? { datePublished: article.createdAt } : {}),
     author: {
       "@type": "Organization",
-      name: "ACI Agro Solutions",
+      name: "ACI Agro Solution",
     },
     publisher: {
       "@type": "Organization",
-      name: "ACI Agro Solutions",
+      name: "ACI Agro Solution",
       url: SITE_URL,
     },
   };
@@ -368,6 +394,44 @@ export default async function ArticleDetailPage({
                 {article.buttonText}
               </a>
             </div>
+          )}
+
+          {/* RELATED PRODUCTS - INTERNAL LINKS */}
+          {(relatedProducts.length > 0 || relatedTopics.length > 0) && (
+            <section className="mt-10" aria-label="Related products">
+              <h2 className="text-xl font-bold text-neutral-900">
+                Shop Related Products
+              </h2>
+
+              {relatedProducts.length > 0 && (
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {relatedProducts.map((p: any) => (
+                    <li key={p.slug}>
+                      <Link
+                        href={`/products/${p.slug}`}
+                        className="block rounded-lg border border-neutral-200 p-4 font-medium text-neutral-900 hover:bg-neutral-50"
+                      >
+                        {shortProductName(p.name)} →
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {relatedTopics.length > 0 && (
+                <p className="mt-4 text-sm text-neutral-600">
+                  Browse all:{" "}
+                  {relatedTopics.map((t: any, i: number) => (
+                    <span key={t.slug}>
+                      {i > 0 && " · "}
+                      <Link href={`/juices/${t.slug}`} className="underline hover:text-neutral-900">
+                        {t.h1}
+                      </Link>
+                    </span>
+                  ))}
+                </p>
+              )}
+            </section>
           )}
 
           {/* RELATED ARTICLES - INTERNAL LINKS */}
