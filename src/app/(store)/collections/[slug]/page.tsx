@@ -26,7 +26,7 @@ const getBestSellers = cache(async () => {
   }
 });
 
-const BRAND_NAME = "ACI Agro Solutions";
+const BRAND_NAME = "ACI Agro Solution";
 
 interface Category {
   _id: string;
@@ -69,7 +69,7 @@ export async function generateMetadata({
 
     // Preserve all category keywords and remove duplicate brand suffixes.
     const cleanCategoryName = category.name
-      .replace(/(\s*\|\s*ACI Agro Solutions)+\s*$/gi, "")
+      .replace(/(\s*\|\s*ACI Agro Solution)+\s*$/gi, "")
       .trim();
 
     // Layout ka template brand jodta hai; lamba title ho toh brand hat jata hai (60 char limit)
@@ -82,7 +82,7 @@ export async function generateMetadata({
           .replace(/\s+/g, " ")
           .trim()
           .slice(0, 160)
-      : `Explore our authentic range of ${cleanCategoryName} products at ACI Agro Solutions.`;
+      : `Explore our authentic range of ${cleanCategoryName} products at ACI Agro Solution.`;
 
     const canonicalUrl = `https://aciagro.com/collections/${category.slug}`;
 
@@ -103,7 +103,7 @@ export async function generateMetadata({
             url: "/og-image.png",
             width: 1200,
             height: 630,
-            alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+            alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
           },
         ],
       },
@@ -173,7 +173,7 @@ export default async function CollectionPage({
       "name": category.name,
       "description": category.description
         ? category.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
-        : `${category.name} products at ACI Agro Solutions.`,
+        : `${category.name} products at ACI Agro Solution.`,
       "url": categoryUrl,
       "numberOfItems": products.filter((product) => product.slug).length,
       "itemListElement": products
