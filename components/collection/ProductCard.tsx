@@ -1,20 +1,19 @@
+
 "use client";
 
 import { useState } from "react";
 import styles from "./ProductCard.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // 1. Router import kiya
-import { useCart } from "../../context/CartContext";
+import { useRouter } from "next/navigation";
 import { useWishlist } from "../../context/WishlistContext";
-import { useAuth } from "../../context/AuthContext"; // 2. Auth hook import kiya
+import { useAuth } from "../../context/AuthContext";
 import { Heart } from "lucide-react";
-import { toast } from "react-hot-toast";
 
 interface ProductCardProps {
   product: {
-    id: string; // Product ID
-    _id?: string; // MongoDB ID support
+    id: string;
+    _id?: string;
     name: string;
     price: number;
     image: string;
@@ -22,10 +21,14 @@ interface ProductCardProps {
     images?: string[];
     stock?: number;
     status?: string;
+
+    // Real product rating and review count
+    rating?: number | string | null;
+    numReviews?: number | string | null;
   };
 }
 
-// Image alt ke liye saaf naam (brand, size aur "Ayurvedic Herbal Medicine" jaise hisse nahi)
+// Image alt ke liye saaf naam
 function shortAltName(name: string): string {
   return String(name || "")
     .replace(/\(.*?\)/g, "")
@@ -36,31 +39,49 @@ function shortAltName(name: string): string {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  // Sirf asli reviews hon tabhi stars dikhao (pehle har product par 5 star fixed tha)
-  const ratingValue = Number(product.rating) || 0;
-  const reviewCount = Number(product.numReviews) || 0;
+  // Only show stars when actual rating and reviews exist
+  const rawRating = Number(product.rating);
+  const rawReviewCount = Number(product.numReviews);
+
+  const ratingValue = Number.isFinite(rawRating)
+    ? Math.min(5, Math.max(0, rawRating))
+    : 0;
+
+  const reviewCount = Number.isFinite(rawReviewCount)
+    ? Math.max(0, rawReviewCount)
+    : 0;
+
   const hasRealReviews = ratingValue > 0 && reviewCount > 0;
-  const filledStars = Math.min(5, Math.max(0, Math.round(ratingValue)));
+
+  const filledStars = Math.min(
+    5,
+    Math.max(0, Math.round(ratingValue))
+  );
 
   const router = useRouter();
-  const { addToCart } = useCart();
+
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const { isAuthenticated, openLoginModal } = useAuth(); // 3. Login status check karne ke liye
+
+  const { isAuthenticated, openLoginModal } = useAuth();
+
   const [isHovered, setIsHovered] = useState(false);
 
-  // ID normalize karne ke liye helper
+  // Normalize product ID
   const productId = product._id || product.id;
 
-  // Context se normalized image hi use karein
+  // Use normalized image
   const mainImage = product.image;
 
   const isOutOfStock = Boolean(
     product.status === "Inactive" ||
-    (product.stock !== undefined && product.stock !== null && Number(product.stock) <= 0)
+      (product.stock !== undefined &&
+        product.stock !== null &&
+        Number(product.stock) <= 0)
   );
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
+
     router.push(`/products/${product.slug || productId}`);
   };
 
@@ -71,6 +92,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       });
       return;
     }
+
     await toggleWishlist(product);
   };
 
@@ -78,16 +100,22 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className={styles.card}>
-      {/* Out of stock badge on card */}
+      {/* Out of stock badge */}
       {isOutOfStock && (
-        <span className={styles.outOfStockBadge}>Out of Stock</span>
+        <span className={styles.outOfStockBadge}>
+          Out of Stock
+        </span>
       )}
 
       {/* Wishlist Icon */}
       <div
         role="button"
         tabIndex={0}
-        aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+        aria-label={
+          inWishlist
+            ? `Remove ${product.name} from wishlist`
+            : `Add ${product.name} to wishlist`
+        }
         className={`${styles.wishlist} ${
           inWishlist ? styles.activeWishlist : ""
         }`}
@@ -105,10 +133,19 @@ export default function ProductCard({ product }: ProductCardProps) {
           color: isHovered || inWishlist ? "#1b7f3c" : undefined,
         }}
       >
-        <Heart size={18} fill={inWishlist ? "#1b7f3c" : "none"} />
+        <Heart
+          size={18}
+          fill={inWishlist ? "#1b7f3c" : "none"}
+        />
       </div>
 
-      <Link href={`/products/${product.slug}`} className={styles.imageWrapper} prefetch={false} aria-label={`View details for ${product.name}`}>
+      {/* Product Image */}
+      <Link
+        href={`/products/${product.slug}`}
+        className={styles.imageWrapper}
+        prefetch={false}
+        aria-label={`View details for ${product.name}`}
+      >
         {mainImage ? (
           <Image
             src={mainImage}
@@ -119,10 +156,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             priority={false}
           />
         ) : (
-          <div className={styles.placeholder}>No Image Available</div>
+          <div className={styles.placeholder}>
+            No Image Available
+          </div>
         )}
       </Link>
 
+      {/* Product Details */}
       <div className={styles.cardBody}>
         <Link
           href={`/products/${product.slug}`}
@@ -130,25 +170,42 @@ export default function ProductCard({ product }: ProductCardProps) {
           prefetch={false}
           aria-label={product.name}
         >
-          <span className={styles.productTitleText}>{product.name}</span>
+          <span className={styles.productTitleText}>
+            {product.name}
+          </span>
         </Link>
 
-        <p className={styles.price}>₹{product.price.toFixed(2)}</p>
+        <p className={styles.price}>
+          ₹{product.price.toFixed(2)}
+        </p>
+
+        {/* Show only genuine ratings */}
         {hasRealReviews && (
           <div
             className={styles.stars}
-            aria-label={`${ratingValue.toFixed(1)} out of 5 stars from ${reviewCount} reviews`}
+            aria-label={`${ratingValue.toFixed(
+              1
+            )} out of 5 stars from ${reviewCount} reviews`}
           >
             {"★".repeat(filledStars)}
             {"☆".repeat(5 - filledStars)}
           </div>
         )}
 
+        {/* Add to Cart */}
         <button
-          className={isOutOfStock ? styles.disabledButton : styles.button}
+          className={
+            isOutOfStock
+              ? styles.disabledButton
+              : styles.button
+          }
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          aria-label={isOutOfStock ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
+          aria-label={
+            isOutOfStock
+              ? `${product.name} is out of stock`
+              : `Add ${product.name} to cart`
+          }
         >
           {isOutOfStock ? "Out of Stock" : "Add to Cart"}
         </button>
