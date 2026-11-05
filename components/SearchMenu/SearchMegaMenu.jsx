@@ -143,7 +143,12 @@ export default function SearchMegaMenu({ searchTerm, onResultClick }) {
                       />
                     </div>
                     <p>{product.name}</p>
-                    <div className={styles.stars}>★★★★★</div>
+                    {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
+                      <div className={styles.stars}>
+                        {"★".repeat(Math.round(Number(product.rating)))}
+                        {"☆".repeat(5 - Math.round(Number(product.rating)))}
+                      </div>
+                    )}
                   </div>
                 </Link>
               ))
