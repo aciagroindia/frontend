@@ -5,30 +5,30 @@ import axiosInstance from "@/utils/axiosInstance";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "About Us | ACI Agro Solutions",
-  description: "Learn about ACI Agro Solutions, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
+  title: { absolute: "About ACI Agro Solution | Herbal Juice Manufacturer Jaipur" },
+  description: "Learn about ACI Agro Solution, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
   alternates: {
     canonical: "https://aciagro.com/about",
   },
   openGraph: {
-    title: "About Us | ACI Agro Solutions",
-    description: "Learn about ACI Agro Solutions, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
+    title: "About Us | ACI Agro Solution",
+    description: "Learn about ACI Agro Solution, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
     url: "https://aciagro.com/about",
-    siteName: "ACI Agro Solutions",
+    siteName: "ACI Agro Solution",
     type: "website",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+        alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "About Us | ACI Agro Solutions",
-    description: "Learn about ACI Agro Solutions, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
+    title: "About Us | ACI Agro Solution",
+    description: "Learn about ACI Agro Solution, our Ayurvedic philosophy, pure ethically sourced ingredients, and commitment to authentic traditional wellness.",
     images: ["/og-image.png"],
   },
   robots: {
