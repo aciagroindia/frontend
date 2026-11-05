@@ -54,10 +54,10 @@ export async function generateMetadata({
 
   const description =
     slug === "privacy-policy"
-      ? "Read the ACI Agro Solutions Privacy Policy to learn how we collect, use, store, and protect your personal information when you visit our website or contact us."
+      ? "Read the ACI Agro Solution Privacy Policy to learn how we collect, use, store, and protect your personal information when you visit our website or contact us."
       : slug === "terms-of-service"
-      ? "Review the ACI Agro Solutions Terms of Service, including website usage rules, terms and conditions, and responsibilities when using our website and services."
-      : `Official ${policy.title} for ACI Agro Solutions. Read our policies, terms, and guidelines.`;
+      ? "Review the ACI Agro Solution Terms of Service, including website usage rules, terms and conditions, and responsibilities when using our website and services."
+      : `Official ${policy.title} for ACI Agro Solution. Read our policies, terms, and guidelines.`;
 
   return {
     title,
@@ -67,23 +67,23 @@ export async function generateMetadata({
     },
     openGraph: {
       title,
-      description: `Official ${policy.title} for ACI Agro Solutions.`,
+      description: `Official ${policy.title} for ACI Agro Solution.`,
       url: canonicalUrl,
-      siteName: "ACI Agro Solutions",
+      siteName: "ACI Agro Solution",
       type: "website",
       images: [
         {
           url: "/og-image.png",
           width: 1200,
           height: 630,
-          alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+          alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
         },
       ],
     },
     twitter: {
       card: "summary",
       title,
-      description: `Official ${policy.title} for ACI Agro Solutions.`,
+      description: `Official ${policy.title} for ACI Agro Solution.`,
       images: ["/og-image.png"],
     },
     robots: {
