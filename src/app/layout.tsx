@@ -16,21 +16,21 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   metadataBase: new URL("https://aciagro.com"),
   title: {
-    default: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
-    template: "%s | ACI Agro Solutions",
+    default: "ACI Agro Solution - Pure Ayurvedic & Herbal Wellness",
+    template: "%s | ACI Agro Solution",
   },
-  description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+  description: "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solution.",
   keywords: [
     "Ayurvedic products",
     "Herbal wellness",
-    "ACI Agro Solutions",
+    "ACI Agro Solution",
     "Buy Ayurvedic medicine online",
     "Natural health remedies",
     "Organic Ayurvedic products India"
   ],
-  authors: [{ name: "ACI Agro Solutions" }],
-  creator: "ACI Agro Solutions",
-  publisher: "ACI Agro Solutions",
+  authors: [{ name: "ACI Agro Solution" }],
+  creator: "ACI Agro Solution",
+  publisher: "ACI Agro Solution",
   robots: {
     index: true,
     follow: true,
@@ -46,24 +46,24 @@ export const metadata = {
     type: "website",
     locale: "en_IN",
     url: "https://aciagro.com",
-    siteName: "ACI Agro Solutions",
-    title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
+    siteName: "ACI Agro Solution",
+    title: "ACI Agro Solution - Pure Ayurvedic & Herbal Wellness",
     description:
-      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solution.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+        alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ACI Agro Solutions - Pure Ayurvedic & Herbal Wellness",
+    title: "ACI Agro Solution - Pure Ayurvedic & Herbal Wellness",
     description:
-      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solution.",
     images: ["/og-image.png"],
   },
 };
