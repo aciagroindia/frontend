@@ -18,7 +18,7 @@ export default function Footer() {
 
           <Image
             src="/assets/Aci logo.png"
-            alt="ACI Agro Solutions"
+            alt="ACI Agro Solution"
             width={160}
             height={60}
             className={styles.logo}
@@ -53,6 +53,13 @@ export default function Footer() {
                 director@aciagro.com
               </a>
             </p>
+
+            <p>
+              <span>
+                3, Narayan Nagar Extension, Near Kherri House, Dadi Ka Phatak,
+                Jhotwara Industrial Area, Jaipur, Rajasthan 302012
+              </span>
+            </p>
           </div>
 
           <div className={styles.socials}>
@@ -61,7 +68,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
-              aria-label="Visit ACI Agro Solutions Facebook page"
+              aria-label="Visit ACI Agro Solution Facebook page"
             >
               <Facebook size={24} />
             </a>
@@ -71,7 +78,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
-              aria-label="Visit ACI Agro Solutions Instagram profile"
+              aria-label="Visit ACI Agro Solution Instagram profile"
             >
               <Instagram size={24} />
             </a>
@@ -81,7 +88,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
-              aria-label="Visit ACI Agro Solutions YouTube channel"
+              aria-label="Visit ACI Agro Solution YouTube channel"
             >
               <Youtube size={24} />
             </a>
@@ -91,7 +98,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className={styles.icon}
-              aria-label="Visit ACI Agro Solutions LinkedIn profile"
+              aria-label="Visit ACI Agro Solution LinkedIn profile"
             >
               <Linkedin size={24} />
             </a>
