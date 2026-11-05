@@ -94,7 +94,7 @@ export default function BulkHero() {
         const bannerImage = (
           <Image
             src={banner.imageUrl}
-            alt={banner.title || 'ACI Agro Solutions bulk order banner'}
+            alt={banner.title || 'ACI Agro Solution bulk order banner'}
             width={1920}
             height={650}
             priority={index === 0}
