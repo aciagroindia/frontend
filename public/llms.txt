@@ -1,6 +1,6 @@
-# ACI Agro Solutions
+# ACI Agro Solution
 
-> ACI Agro Solutions offers Ayurvedic and herbal wellness products.
+> ACI Agro Solution offers Ayurvedic and herbal wellness products.
 
 ## Main Pages
 - https://aciagro.com/
