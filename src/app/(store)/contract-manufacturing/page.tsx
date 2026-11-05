@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import OrderForm from "../../../../components/BulkOrder/OrderForm/page";
+import B2BFacts from "../../../../components/B2BFacts/B2BFacts";
+import Certificates from "../../../../components/Certificates/Certificate";
 import styles from "./page.module.css";
 import { toJsonLd, breadcrumbJsonLd, serviceJsonLd } from "@/utils/jsonLd";
 
@@ -7,33 +9,33 @@ import { toJsonLd, breadcrumbJsonLd, serviceJsonLd } from "@/utils/jsonLd";
 export const metadata: Metadata = {
   title: "Private Label Herbal Juice Manufacturer",
   description:
-    "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solutions.",
+    "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solution.",
   alternates: {
     canonical: "https://aciagro.com/contract-manufacturing",
   },
   openGraph: {
     title:
-      "Private Label Herbal Juice Manufacturer | ACI Agro Solutions",
+      "Private Label Herbal Juice Manufacturer | ACI Agro Solution",
     description:
-      "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solutions.",
+      "Private label and contract manufacturing of herbal and Ayurvedic juices for brands in India and abroad. Request a quote for bulk supply from ACI Agro Solution.",
     url: "https://aciagro.com/contract-manufacturing",
-    siteName: "ACI Agro Solutions",
+    siteName: "ACI Agro Solution",
     type: "website",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ACI Agro Solutions - Ayurvedic and Herbal Wellness",
+        alt: "ACI Agro Solution - Ayurvedic and Herbal Wellness",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title:
-      "Herbal Juice Contract & Private Label Manufacturing | ACI Agro Solutions",
+      "Herbal Juice Contract & Private Label Manufacturing | ACI Agro Solution",
     description:
-      "Explore herbal juice contract manufacturing and private label opportunities with ACI Agro Solutions.",
+      "Explore herbal juice contract manufacturing and private label opportunities with ACI Agro Solution.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -149,7 +151,7 @@ export default function ContractManufacturingPage() {
         <div className={styles.heroInner}>
           <div className={styles.heroContent}>
             <span className={styles.eyebrow}>
-              ACI AGRO SOLUTIONS · B2B MANUFACTURING
+              ACI AGRO SOLUTION · B2B MANUFACTURING
             </span>
 
             <h1 className={styles.heroTitle}>
@@ -160,7 +162,7 @@ export default function ContractManufacturingPage() {
             <p className={styles.heroText}>
               Looking for a manufacturing partner for your herbal juice brand?
               Explore contract manufacturing, private label solutions and bulk
-              supply with ACI Agro Solutions.
+              supply with ACI Agro Solution.
             </p>
 
             <div className={styles.heroActions}>
@@ -209,7 +211,7 @@ export default function ContractManufacturingPage() {
           </h2>
           <p>
             Whether you run an established business, a startup or a distribution
-            company, talk to ACI Agro Solutions about herbal juice manufacturing
+            company, talk to ACI Agro Solution about herbal juice manufacturing
             and bulk supply.
           </p>
         </div>
@@ -221,6 +223,8 @@ export default function ContractManufacturingPage() {
           <div>New & Growing Brands</div>
         </div>
       </section>
+
+      <B2BFacts />
 
       {/* SERVICES */}
       <section className={styles.services} id="services">
@@ -358,7 +362,7 @@ export default function ContractManufacturingPage() {
             <span> Across Markets</span>
           </h2>
           <p>
-            ACI Agro Solutions welcomes contract manufacturing and bulk supply
+            ACI Agro Solution welcomes contract manufacturing and bulk supply
             enquiries from businesses in India and around the world. Share your
             needs with our team to start a discussion.
           </p>
@@ -374,6 +378,8 @@ export default function ContractManufacturingPage() {
           </a>
         </div>
       </section>
+
+      <Certificates />
 
       {/* ENQUIRY FORM */}
       <section className={styles.enquiry} id="enquiry">
