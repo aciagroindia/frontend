@@ -82,7 +82,7 @@ export default function OrderForm() {
     <section className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <h3 className={styles.title}>
-          Partner With ACI Agro Solutions
+          Partner With ACI Agro Solution
         </h3>
 
         <p className={styles.text}>
