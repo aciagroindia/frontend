@@ -6,10 +6,19 @@ const SOCIAL_PROFILES = [
   "https://www.linkedin.com/company/aci-agro-solution/",
   "https://www.youtube.com/@ACIHerbalwellness",
   "https://www.facebook.com/profile.php?id=61584320260141",
+  "https://www.indiamart.com/aciagrosolution/",
+  "https://aciagro.tradeindia.com/",
 ];
 
 // Optional: asli business address ho toh daalo (Google ko local info milti hai). null rakhoge toh skip ho jayega.
-const ADDRESS = null;
+const ADDRESS = {
+  streetAddress:
+    "3, Narayan Nagar Extension, Near Kherri House, Dadi Ka Phatak, Jhotwara Industrial Area",
+  addressLocality: "Jaipur",
+  addressRegion: "Rajasthan",
+  postalCode: "302012",
+  addressCountry: "IN",
+};
 // Example:
 // const ADDRESS = {
 //   streetAddress: "…",
@@ -26,8 +35,9 @@ export function buildOrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${SITE_URL}/#organization`,
-    name: "ACI Agro Solutions",
-    legalName: "ACI Agro Solutions",
+    name: "ACI Agro Solution",
+    legalName: "ACI Agro Solution",
+    alternateName: ["ACI Agro", "ACI Agro Solutions"],
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
@@ -37,7 +47,7 @@ export function buildOrganizationSchema() {
     },
     image: `${SITE_URL}/og-image.png`,
     description:
-      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solutions.",
+      "Shop authentic Ayurvedic and herbal wellness products made with traditional wisdom by ACI Agro Solution.",
     email: "director@aciagro.com",
     telephone: "+91-75979-20642",
     areaServed: "IN",
