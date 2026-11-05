@@ -95,7 +95,7 @@ const Hero = () => {
         const bannerImage = (
           <Image
             src={banner.imageUrl}
-            alt={banner.title || 'ACI Agro Solutions banner'}
+            alt={banner.title || 'ACI Agro Solution banner'}
             width={1920}
             height={650}
             priority={index === 0}
