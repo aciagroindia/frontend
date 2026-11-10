@@ -5,6 +5,7 @@ import Link from "next/link";
 import { topicsForProductName } from "@/utils/juiceTopics";
 import axiosInstance from "@/utils/axiosInstance";
 import { fitProductTitle, titleToString } from "@/utils/seoTitle";
+import { cleanProductName } from "@/utils/productName";
 
 export const revalidate = 60;
 
@@ -52,19 +53,11 @@ const getRelatedProducts = cache(async (slug) => {
   }
 });
 
-// Build time par saare product pages pre-render ho jayenge (cold start / TTFB spike nahi aayega).
-// API na mile toh [] return hota hai, build fail nahi hoga aur pages on-demand ban jayenge.
+// IMPORTANT (backend load): build ke waqt koi page pre-render nahi hota, isliye Vercel build backend (Render) ko
+// hazaron API calls nahi bhejta. Pages pehli baar khulne par bante hain aur phir ISR (revalidate) se cache rehte hain.
+// (dynamicParams default true hai, toh sab slugs on-demand chalte hain.)
 export async function generateStaticParams() {
-  try {
-    const res = await axiosInstance.get("/products");
-    const list = Array.isArray(res.data) ? res.data : [];
-    return list
-      .filter((p) => p && typeof p.slug === "string" && p.slug)
-      .map((p) => ({ slug: p.slug }));
-  } catch (err) {
-    console.error("generateStaticParams (products) failed:", err.message);
-    return [];
-  }
+  return [];
 }
 
 // Saare Active products ki list (Next ke Data Cache mein 1 ghante ke liye, sab pages ke liye ek hi call)
@@ -136,7 +129,7 @@ export async function generateMetadata({ params }) {
   const plainDescription = getProductDescriptionText(product);
   const description = plainDescription && plainDescription.length > 20
     ? plainDescription.slice(0, 160)
-    : `Buy authentic 100% natural and Ayurvedic ${productName} online at best price from ACI Agro Solution. Fast shipping across India.`;
+    : `Buy authentic 100% natural and Ayurvedic ${cleanProductName(productName)} online at best price from ACI Agro Solution. Fast shipping across India.`;
 
   const canonicalUrl = `${SITE_URL}/products/${product?.slug || slug}`;
   const images = (Array.isArray(product?.images) && product.images.length > 0
@@ -171,7 +164,7 @@ export async function generateMetadata({ params }) {
       type: "website",
       images: images.map((img) => ({
         url: img,
-        alt: `${productName} - 100% Natural Ayurvedic Formulation`,
+        alt: `${cleanProductName(productName)} - 100% Natural Ayurvedic Formulation`,
         width: 800,
         height: 800,
       })),
@@ -237,7 +230,7 @@ export default async function ProductPage({ params }) {
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": product.name,
+    "name": cleanProductName(product.name),
     "description": cleanDescription || product.name,
     "sku": String(product._id || product.id || product.slug),
     "mpn": String(product._id || product.slug),
@@ -302,14 +295,14 @@ export default async function ProductPage({ params }) {
     breadcrumbElements.push({
       "@type": "ListItem",
       "position": 3,
-      "name": product.name,
+      "name": cleanProductName(product.name),
       "item": canonicalUrl,
     });
   } else {
     breadcrumbElements.push({
       "@type": "ListItem",
       "position": 2,
-      "name": product.name,
+      "name": cleanProductName(product.name),
       "item": canonicalUrl,
     });
   }
