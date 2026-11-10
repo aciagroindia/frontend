@@ -405,14 +405,20 @@ export default function ProductTabs({ product, onReviewSubmit }: Props) {
           <div className={styles.ratingBanner}>
             <div className={styles.ratingScoreBox}>
               <div className={styles.bigScore}>
-                {product.rating ? Number(product.rating).toFixed(1) : "5.0"}
+                {Number(product.numReviews) > 0 && Number(product.rating) > 0
+  ? Number(product.rating).toFixed(1)
+  : "N/A"}
               </div>
               <div className={styles.starsRow}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
                     key={i}
                     style={{
-                      color: i < Math.round(product.rating || 5) ? "#1b7f3c" : "#e5e7eb",
+                      color:
+  Number(product.numReviews) > 0 && Number(product.rating) > 0 &&
+  i < Math.round(Number(product.rating))
+    ? "#1b7f3c"
+    : "#e5e7eb",
                       fontSize: "18px",
                     }}
                   >
