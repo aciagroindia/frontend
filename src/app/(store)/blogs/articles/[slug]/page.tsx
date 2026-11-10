@@ -108,12 +108,11 @@ function pickRelatedArticles(
 
 export const revalidate = 300; // article edit 5 minute mein site par dikhega
 
-// Saare published articles build time par pre-render (cold start / slow TTFB nahi aayega)
+// IMPORTANT (backend load): build ke waqt koi page pre-render nahi hota, isliye Vercel build backend (Render) ko
+// hazaron API calls nahi bhejta. Pages pehli baar khulne par bante hain aur phir ISR (revalidate) se cache rehte hain.
+// (dynamicParams default true hai, toh sab slugs on-demand chalte hain.)
 export async function generateStaticParams() {
-  const list = await getArticleList();
-  return list
-    .filter((a) => a?.slug && (!a.status || a.status === "Published"))
-    .map((a) => ({ slug: a.slug }));
+  return [];
 }
 
 function stripHtml(html: string) {
