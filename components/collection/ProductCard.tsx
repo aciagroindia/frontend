@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { Heart } from "lucide-react";
+import { cleanProductName } from "@/utils/productName";
 
 interface ProductCardProps {
   product: {
@@ -167,10 +168,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           href={`/products/${product.slug}`}
           className={styles.productTitle}
           prefetch={false}
-          aria-label={product.name}
+          aria-label={cleanProductName(product.name)}
         >
           <span className={styles.productTitleText}>
-            {product.name}
+            {cleanProductName(product.name)}
           </span>
         </Link>
 
