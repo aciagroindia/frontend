@@ -1,5 +1,6 @@
 "use client";
 
+import { cleanProductName, shortProductName } from "@/utils/productName";
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -87,7 +88,7 @@ export default function FeaturedProducts() {
                       {product.image ? (
                         <Image
                           src={product.image}
-                          alt={product.name}
+                          alt={shortProductName(product.name)}
                           fill
                           className={styles.image}
                           sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
@@ -97,7 +98,7 @@ export default function FeaturedProducts() {
                       )}
                     </div>
 
-                    <h3 className={styles.productName}>{product.name}</h3>
+                    <h3 className={styles.productName}>{cleanProductName(product.name)}</h3>
                   </Link>
 
                   <div className={styles.rating}>
