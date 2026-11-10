@@ -1,5 +1,6 @@
 "use client";
 
+import { shortProductName } from "@/utils/productName";
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import styles from "./ProductGallery.module.css";
@@ -63,7 +64,7 @@ export default function ProductGallery({ product, variantImage }: Props) {
           <Image
             key={currentImage} // Key ensures instant paint
             src={currentImage}
-            alt={product.name}
+            alt={shortProductName(product.name)}
             fill
             priority={true}
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -94,7 +95,7 @@ export default function ProductGallery({ product, variantImage }: Props) {
           >
             <Image 
               src={img} 
-              alt={`${product.name} thumbnail ${idx + 1}`} 
+              alt={`${shortProductName(product.name)} thumbnail ${idx + 1}`} 
               fill
               sizes="80px"
               className={styles.thumbImage}
