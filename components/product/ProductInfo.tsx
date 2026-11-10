@@ -1,4 +1,5 @@
 "use client";
+import { cleanProductName } from "@/utils/productName";
 import { useState, useMemo, useEffect } from "react";
 import styles from "./ProductInfo.module.css";
 import PricingPlans, { Plan } from "./PricingPlans";
@@ -90,7 +91,7 @@ export default function ProductInfo({ product, selectedPlan, onSelectPlan, onVar
 
   return (
     <div className={styles.info}>
-      <h1 className={styles.title}>{product.name}</h1>
+      <h1 className={styles.title}>{cleanProductName(product.name)}</h1>
 
       {/* Sirf asli reviews hon tabhi rating dikhao (pehle default 5.0 dikhta tha) */}
       {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
