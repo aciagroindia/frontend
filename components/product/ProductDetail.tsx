@@ -1,4 +1,5 @@
 "use client";
+import { cleanProductName } from "@/utils/productName";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
@@ -194,7 +195,7 @@ export default function ProductDetail({
                 className={styles.breadcrumbCurrent}
                 aria-current="page"
               >
-                {product.name}
+                {cleanProductName(product.name)}
               </span>
             </li>
           </ol>
