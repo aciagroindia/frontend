@@ -3,19 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import {
-  X,
-  Upload,
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Eye,
-  Edit3,
-  Plus,
-  Trash2,
-  HelpCircle
-} from "lucide-react";
+import { X, Upload, Bold, Italic, List, ListOrdered, Eye, Edit3, Plus, Trash2, HelpCircle, Code, Link2 } from "lucide-react";
 import styles from "./ArticleEditorModal.module.css";
 import { toast } from "react-hot-toast";
 
@@ -83,7 +71,7 @@ export default function ArticleEditorModal({
   const [status, setStatus] = useState<"Published" | "Draft">("Published");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
+  const [activeTab, setActiveTab] = useState<"editor" | "html" | "preview">("editor");
 
   const contentEditableRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +123,15 @@ export default function ArticleEditorModal({
     if (contentEditableRef.current) {
       setContent(contentEditableRef.current.innerHTML);
     }
+  };
+
+  // Selected text par link lagao (internal link ke liye /bulk-order jaisa path bhi chalega)
+  const handleAddLink = () => {
+    if (activeTab !== "editor") return;
+    const url = window.prompt(
+      "Link URL daalo (jaise /bulk-order ya https://aciagro.com/juices/noni-juice):"
+    );
+    if (url && url.trim()) formatDoc("createLink", url.trim());
   };
 
   const handleContentInput = () => {
@@ -312,6 +309,14 @@ export default function ArticleEditorModal({
                 >
                   <ListOrdered size={15} /> <span>Numbers</span>
                 </button>
+                <button
+                  type="button"
+                  className={styles.toolBtn}
+                  onClick={handleAddLink}
+                  title="Add link to selected text"
+                >
+                  <Link2 size={15} /> <span>Link</span>
+                </button>
 
                 {/* Tabs */}
                 <div className={styles.tabControls}>
@@ -321,6 +326,14 @@ export default function ArticleEditorModal({
                     onClick={() => setActiveTab("editor")}
                   >
                     <Edit3 size={14} /> Write
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.toolBtn} ${activeTab === "html" ? styles.activeTabBtn : ""}`}
+                    onClick={() => setActiveTab("html")}
+                    title="Paste ready-made HTML"
+                  >
+                    <Code size={14} /> HTML
                   </button>
                   <button
                     type="button"
@@ -340,6 +353,24 @@ export default function ArticleEditorModal({
                   contentEditable
                   onInput={handleContentInput}
                   data-placeholder="Write your article here. Make an entire new line bold to turn it into a heading, or bold any words inside paragraphs..."
+                />
+              ) : activeTab === "html" ? (
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Paste article HTML here, phir 'Preview' ya 'Write' tab par jaake check karo..."
+                  spellCheck={false}
+                  style={{
+                    width: "100%",
+                    minHeight: 280,
+                    padding: 12,
+                    border: "none",
+                    outline: "none",
+                    resize: "vertical",
+                    fontFamily: "monospace",
+                    fontSize: 13,
+                    boxSizing: "border-box",
+                  }}
                 />
               ) : (
                 <div className={styles.previewArea}>
