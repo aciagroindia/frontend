@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useProducts } from "../../context/ProductContext";
 import { useCategories } from "../../context/CategoryContext"; // Categories context import kiya
 import { useState, useEffect } from "react";
+import { cleanProductName, shortProductName } from "@/utils/productName";
 
 // In a real app, this data would come from an API.
 // For now, it's set up to be easily replaced.
@@ -109,13 +110,13 @@ export default function SearchMegaMenu({ searchTerm, onResultClick }) {
                       <div className={styles.imageWrapper}>
                         <Image
                           src={product.image || '/certifiedIcons/product.jpeg'}
-                          alt={product.name}
+                          alt={shortProductName(product.name)}
                           fill
                           sizes="(max-width: 1000px) 33vw, 25vw"
                           style={{ objectFit: 'cover' }}
                         />
                       </div>
-                      <p>{product.name}</p>
+                      <p>{cleanProductName(product.name)}</p>
                       {/* Stars are omitted in search results for a cleaner look */}
                     </div>
                   </Link>
@@ -136,13 +137,13 @@ export default function SearchMegaMenu({ searchTerm, onResultClick }) {
                     <div className={styles.imageWrapper}>
                       <Image
                         src={product.image || '/certifiedIcons/product.jpeg'}
-                        alt={product.name}
+                        alt={shortProductName(product.name)}
                         fill
                         sizes="(max-width: 1000px) 33vw, 25vw"
                         style={{ objectFit: 'cover' }}
                       />
                     </div>
-                    <p>{product.name}</p>
+                    <p>{cleanProductName(product.name)}</p>
                     {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
                       <div className={styles.stars}>
                         {"★".repeat(Math.round(Number(product.rating)))}
