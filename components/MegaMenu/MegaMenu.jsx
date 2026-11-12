@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCategories } from "../../context/CategoryContext";
 import { useProducts } from "../../context/ProductContext"; // Import useProducts hook
+import { cleanProductName, shortProductName } from "@/utils/productName";
 
 export default function MegaMenu({ onLinkClick }) {
   // FIX: Destructure with default values to prevent crash if context returns null/undefined.
@@ -71,13 +72,13 @@ export default function MegaMenu({ onLinkClick }) {
                     <Image
                       // Using 'fill' to make the image responsive within the wrapper
                       src={product.image || "/certifiedIcons/product.jpeg"}
-                      alt={product.name}
+                      alt={shortProductName(product.name)}
                       fill
                       sizes="(max-width: 1000px) 33vw, 25vw"
                       style={{ objectFit: 'cover' }}
                     />
                   </div>
-                  <p>{product.name}</p>
+                  <p>{cleanProductName(product.name)}</p>
                 </div>
               </Link>
             ))
