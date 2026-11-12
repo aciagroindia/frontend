@@ -7,6 +7,7 @@ import styles from "./Whichlist.module.css";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useProducts } from "../../context/ProductContext";
+import { cleanProductName, shortProductName } from "@/utils/productName";
 
 interface Product {
   id: string;
@@ -49,7 +50,7 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
         {product.image ? (
           <Image
             src={product.image}
-            alt={product.name}
+            alt={shortProductName(product.name)}
             fill
             className={styles.image}
             sizes="(max-width: 480px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -61,7 +62,7 @@ export default function WishlistItem({ product: wishlistProduct }: { product: Pr
 
       <div className={styles.content}>
         <Link href={`/products/${product.slug}`}>
-          <h3>{product.name}</h3>
+          <h3>{cleanProductName(product.name)}</h3>
         </Link>
         <p className={styles.price}>₹{product.price}</p>
 
