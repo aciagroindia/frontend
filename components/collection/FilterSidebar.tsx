@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCategories } from "../../context/CategoryContext";
 import { useProducts, normalizeProduct } from "../../context/ProductContext";
 import styles from "./FilterSidebar.module.css";
+import { cleanProductName, shortProductName } from "@/utils/productName";
 
 interface FilterSidebarProps {
   initialBestSellers?: any[];
@@ -109,12 +110,12 @@ export default function FilterSidebar({ initialBestSellers = [] }: FilterSidebar
             {bestSellers.slice(0, 4).map((product) => (
               <Link key={product._id} href={`/products/${product.slug}`} className={styles.bestItem}>
                 {product.image ? (
-                  <Image src={product.image} alt={product.name} width={60} height={60} style={{ objectFit: 'cover' }} />
+                  <Image src={product.image} alt={shortProductName(product.name)} width={60} height={60} style={{ objectFit: 'cover' }} />
                 ) : (
                   <div style={{ width: 60, height: 60, backgroundColor: '#f0f0f0' }} />
                 )}
                 <div>
-                  <p>{product.name}</p>
+                  <p>{cleanProductName(product.name)}</p>
                   {Number(product.rating) > 0 && Number(product.numReviews) > 0 && (
                     <div className={styles.stars}>
                       {Array.from({ length: 5 }).map((_, i) => (
