@@ -4,6 +4,7 @@ import styles from "./page.module.css";
 import MobileNumberInput from "../../MobileNumberInput/MobileNumberInput";
 import { useState, type FormEvent } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { trackEvent } from "@/utils/analytics";
 import { toast } from "react-hot-toast";
 
 export default function OrderForm() {
@@ -55,6 +56,7 @@ export default function OrderForm() {
 
       if (res.data.success) {
         toast.success("B2B enquiry submitted! Our team will contact you soon.");
+        trackEvent("generate_lead", { form_name: "b2b_enquiry", page_path: window.location.pathname });
 
         setFirstName("");
         setCompanyName("");
