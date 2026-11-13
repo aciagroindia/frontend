@@ -9,6 +9,7 @@ import { AuthProvider } from "../../context/AuthContext"; // 1. AuthProvider imp
 import { ProductProvider } from "../../context/ProductContext";
 import { CategoryProvider } from "../../context/CategoryContext";
 import ConditionalLayout from "../../components/ConditionalLayout";
+import ContactClickTracker from "../../components/Analytics/ContactClickTracker";
 import { buildOrganizationSchema } from "@/utils/organizationSchema";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -117,6 +118,7 @@ export default function RootLayout({
             },
           }}
         />
+        <ContactClickTracker />
         <AuthProvider> {/* 2. AuthProvider se sabko wrap karein */}
           <CategoryProvider>
             <ProductProvider>
